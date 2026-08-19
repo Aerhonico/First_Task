@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= isset($page_title) ? html_escape($page_title) : 'My SDCA Portfolio'; ?></title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --sdca-red: #800000;
+            --sdca-gold: #FFD700;
+        }
+
+        /* Forces SDCA Red Navbar */
+        .custom-sdca-nav {
+            background-color: #800000 !important;
+        }
+
+        .text-sdca-red {
+            color: #800000 !important;
+        }
+
+        /* Outlined Red Box Button (Matches Project Details Style) */
+        .btn-outline-sdca {
+            color: #800000 !important;
+            border: 1px solid #800000 !important;
+            background-color: transparent !important;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-outline-sdca:hover {
+            color: #ffffff !important;
+            background-color: #800000 !important;
+        }
+
+        /* Navbar Link Underline Styling */
+        .navbar-nav .nav-link {
+            position: relative;
+            padding-bottom: 6px;
+            transition: color 0.3s ease;
+        }
+
+        /* Underline for Active Tab */
+        .navbar-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #ffffff; /* Change color if your navbar isn't dark */
+            border-radius: 2px;
+        }
+
+    </style>
+</head>
+<body>
+
+<body data-bs-spy="scroll" data-bs-target="#mainNavbar" data-bs-offset="100" tabindex="0">
+
+<!-- Red Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark custom-sdca-nav sticky-top shadow-sm" id="mainNavbar">
+  <div class="container">
+    <a class="navbar-brand fw-bold text-white" href="<?= base_url(); ?>">
+      My SDCA Portfolio
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
+        <li class="nav-item"><a class="nav-link" href="#skills">Skills</a></li>
+        <li class="nav-item"><a class="nav-link" href="#certifications">Certifications</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+
+        <!-- LOGIN / LOGOUT BUTTON -->
+        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+          <?php if($this->session->userdata('logged_in')): ?>
+            <a href="<?= base_url('logout'); ?>" class="btn btn-sm btn-outline-light px-3 rounded-pill">
+              <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </a>
+          <?php else: ?>
+            <a href="<?= base_url('login'); ?>" class="btn btn-sm btn-outline-light px-3 rounded-pill">
+              <i class="bi bi-lock-fill me-1"></i> Login
+            </a>
+          <?php endif; ?>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<?php if($this->session->userdata('logged_in')): ?>
+  <div class="bg-dark text-white py-2 px-3 d-flex justify-content-between align-items-center border-bottom border-warning">
+    <span class="small fw-bold text-warning">
+      <i class="bi bi-pencil-square me-1"></i> Admin Edit Mode Active
+    </span>
+    <div>
+      <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#editHeroModal">
+        <i class="bi bi-person-gear"></i> Edit Hero Section
+      </button>
+      <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+        <i class="bi bi-plus-circle"></i> Add New Project
+      </button>
+    </div>
+  </div>
+<?php endif; ?>
+
+<!-- Hero Section -->
+<header id="about" class="py-5 bg-white border-bottom">
+    <div class="container py-4">
+        <div class="row align-items-center gy-4">
+            
+            <!-- Left Column: Portrait -->
+            <div class="col-12 col-md-4 text-center text-md-start">
+                <img src="<?= base_url('assets/images/grad-portrait.jpg'); ?>" 
+                     alt="Aerhon Magtira Portrait" 
+                     class="img-fluid rounded-3 shadow border border-3 border-light" 
+                     style="width: 100%; max-width: 300px; height: 400px; object-fit: cover;"
+                     onerror="this.src='https://via.placeholder.com/300x400?text=Portrait';">
+            </div>
+
+            <!-- Right Column: Text & Buttons -->
+            <div class="col-12 col-md-8">
+                <h1 class="display-4 fw-bold mb-3">Hi, I'm <span class="text-sdca-red">Aerhon Magtira</span></h1>
+                
+                <p class="lead text-secondary mb-4">
+                    I am a fresh BSIT Graduate who just finished a bachelor's degree as Magna Cum Laude. 
+                    I am currently a Web Development Engineer specializing in Web Applications, PHP, CodeIgniter 3, and modern frontend design.
+                </p>
+
+                <!-- SDCA Styled Buttons -->
+                <div class="d-flex gap-3 flex-wrap">
+                    <!-- View Resume Button (Opens PDF in a new tab) -->
+                    <a href="<?= base_url('assets/uploads/Resume_Magtira.pdf'); ?>" target="_blank" class="btn btn-outline-sdca px-4 py-3 fw-medium shadow-sm">
+                        <i class="bi bi-file-earmark-person me-2"></i>View My Resume
+                    </a>
+                    <a href="#contact" class="btn btn-outline-sdca px-4 py-3 fw-medium shadow-sm">Contact Me</a>
+                </div>
+            </div>
+
+            <?php if($this->session->userdata('logged_in')): ?>
+            <div class="modal fade" id="editHeroModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fs-6 fw-bold">Edit Hero Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="<?= base_url('admin/update_hero'); ?>" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Full Name</label>
+                        <input type="text" name="name" class="form-control" value="Aerhon Magtira">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Bio</label>
+                        <textarea name="bio" class="form-control" rows="3">I am a fresh BSIT Graduate who finished a bachelor's degree as Magna Cum Laude...</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Profile Picture</label>
+                        <input type="file" name="profile_img" class="form-control">
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger btn-sm">Save Changes</button>
+                    </div>
+                </form>
+                </div>
+            </div>
+            </div>
+            <?php endif; ?>
+
+        </div>
+    </div>
+</header>
+
+<!-- Projects Section -->
+<section id="projects" class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Recent Projects</h2>
+            <p class="text-muted">Selected works presented as Capstone Project and Internet of Things (IoT).</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <?php if (!empty($projects) && is_array($projects)): ?>
+                <?php foreach ($projects as $project): ?>
+                    <!-- Added missing Bootstrap column wrapper -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 position-relative shadow-sm border-0">
+
+                            <?php if($this->session->userdata('logged_in')): ?>
+                                <!-- Admin Quick Action Badges -->
+                                <div class="position-absolute top-0 end-0 m-2 z-3">
+                                    <button class="btn btn-sm btn-warning shadow-sm me-1" onclick="editProject(<?= isset($project['id']) ? $project['id'] : ''; ?>)">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                    <a href="<?= base_url('projects/delete/'.$project['id']); ?>" class="btn btn-sm btn-danger shadow-sm" onclick="return confirm('Delete this project?')">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Dynamic Thumbnail Image with Fallback -->
+                            <img src="<?= !empty($project['thumbnail_img']) && file_exists(FCPATH . 'assets/uploads/' . $project['thumbnail_img']) ? base_url('assets/uploads/' . $project['thumbnail_img']) : 'https://via.placeholder.com/400x220?text=Project+Preview'; ?>" 
+                                 class="card-img-top object-fit-contain bg-light p-3"
+                                 alt="<?= html_escape($project['title']); ?>" 
+                                 style="height: 280px;">
+                            
+                            <div class="card-body d-flex flex-column p-4">
+                                <h5 class="card-title fw-bold"><?= html_escape($project['title']); ?></h5>
+                                <p class="card-text text-secondary flex-grow-1">
+                                    <?= html_escape(character_limiter($project['description'], 110)); ?>
+                                </p>
+
+                                <!-- Tech Stack Badges -->
+                                <?php if (!empty($project['tech_stack'])): ?>
+                                    <div class="mb-3">
+                                        <?php foreach (explode(',', $project['tech_stack']) as $tech): ?>
+                                            <span class="badge bg-light text-dark border me-1 mb-1"><?= html_escape(trim($tech)); ?></span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+
+                                <!-- Action Buttons Footer -->
+                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                    <!-- Details Button linked to Modal -->
+                                    <button type="button" class="btn btn-outline-sdca btn-sm px-3" data-bs-toggle="modal" data-bs-target="#projectModal<?= $project['id']; ?>">
+                                        Details
+                                    </button>
+                                    
+                                    <!-- Redirect External Link Button -->
+                                    <?php if(!empty($project['demo_link'])): ?>
+                                        <a href="<?= html_escape($project['demo_link']); ?>" target="_blank" class="btn btn-sm btn-outline-secondary px-2" title="Visit Live Demo / Website">
+                                            <i class="bi bi-box-arrow-up-right"></i>
+                                        </a>
+                                    <?php endif; ?>
+
+                                    <?php if(!empty($project['project_url'])): ?>
+                                        <a href="<?= $project['project_url']; ?>" target="_blank" class="btn btn-sm btn-light border text-secondary" title="View Project Link">
+                                            <i class="bi bi-box-arrow-up-right"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Modal with Carousel Slider for each Project -->
+                        <div class="modal fade" id="projectModal<?= $project['id']; ?>" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content border-0 shadow">
+                                    
+                                    <!-- Modal Header -->
+                                    <div class="modal-header bg-sdca text-white">
+                                        <h5 class="modal-title fw-bold"><?= html_escape($project['title']); ?></h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <!-- Modal Body -->
+                                    <div class="modal-body p-4 bg-light">
+                                        
+                                        <?php 
+                                            // Prepare image array for Carousel
+                                            $images = !empty($project['gallery_images']) ? explode(',', $project['gallery_images']) : [$project['image']];
+                                        ?>
+
+                                        <!-- Bootstrap Image Carousel -->
+                                        <div id="carouselProject<?= $project['id']; ?>" class="carousel slide mb-4 shadow-sm rounded overflow-hidden" data-bs-ride="carousel">
+                                            
+                                            <!-- Carousel Indicators -->
+                                            <?php if(count($images) > 1): ?>
+                                                <div class="carousel-indicators">
+                                                    <?php foreach($images as $index => $img): ?>
+                                                        <button type="button" data-bs-target="#carouselProject<?= $project['id']; ?>" data-bs-slide-to="<?= $index; ?>" class="<?= $index === 0 ? 'active' : ''; ?>"></button>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+
+                                            <!-- Carousel Slides -->
+                                            <div class="carousel-inner bg-dark">
+                                                <?php foreach($images as $index => $img): ?>
+                                                    <div class="carousel-item <?= $index === 0 ? 'active' : ''; ?>">
+                                                        <img src="<?= base_url('assets/uploads/' . trim($img)); ?>" 
+                                                             class="d-block w-100" 
+                                                             alt="Screenshot <?= $index + 1; ?>"
+                                                             style="max-height: 420px; object-fit: contain; background: #1a1a1a;"
+                                                             onerror="this.onerror=null; this.src='https://via.placeholder.com/800x450?text=Project+Screenshot';">
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+
+                                            <!-- Carousel Controls -->
+                                            <?php if(count($images) > 1): ?>
+                                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselProject<?= $project['id']; ?>" data-bs-slide="prev">
+                                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                    <span class="visually-hidden">Previous</span>
+                                                </button>
+                                                <button class="carousel-control-next" type="button" data-bs-target="#carouselProject<?= $project['id']; ?>" data-bs-slide="next">
+                                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                    <span class="visually-hidden">Next</span>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- Project Information Details -->
+                                        <div class="bg-white p-3 rounded border">
+                                            <h6 class="fw-bold text-dark mb-2">About the Project</h6>
+                                            <p class="text-dark fs-6 lh-base mb-3" style="white-space: pre-line;">
+                                                <?= nl2br(html_escape(!empty($project['long_description']) ? $project['long_description'] : $project['description'])); ?>
+                                            </p>                            
+                                        </div>
+                                    </div>
+
+                                    <!-- Modal Footer -->
+                                    <div class="modal-footer bg-white">
+                                        <?php if(!empty($project['project_url'])): ?>
+                                            <a href="<?= $project['project_url']; ?>" target="_blank" class="btn btn-outline-sdca btn-sm">
+                                                Live Preview / Code <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Modal -->
+
+                    </div> <!-- End col-md-6 col-lg-4 -->
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12 text-center text-muted">
+                    <p class="lead">No projects found in the database. Check back soon!</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-5 bg-white border-top border-bottom">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Skills & Technologies</h2>
+                <p class="text-muted">Tools and technologies I use to build web and mobile applications.</p>
+            </div>
+
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-8">
+                    <?php if (!empty($skills) && is_array($skills)): ?>
+                        <?php foreach ($skills as $skill): ?>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-semibold"><?= html_escape($skill['name']); ?></span>
+                                    <span class="text-muted"><?= (int)$skill['proficiency_percentage']; ?>%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" 
+                                         style="width: <?= (int)$skill['proficiency_percentage']; ?>%;" 
+                                         aria-valuenow="<?= (int)$skill['proficiency_percentage']; ?>" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <!-- Fallback Skills -->
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <span class="badge bg-primary fs-6 px-3 py-2">CSS</span>
+                            <span class="badge bg-primary fs-6 px-3 py-2">Data Manipulation</span>
+                            <span class="badge bg-primary fs-6 px-3 py-2">Database Administration</span>
+                            <span class="badge bg-primary fs-6 px-3 py-2">File Management</span>
+                            <span class="badge bg-primary fs-6 px-3 py-2">HTML</span>
+                            <span class="badge bg-primary fs-6 px-3 py-2">Internet of Things</span>
+                            <span class="badge bg-primary fs-6 px-3 py-2">Java</span>
+                            <span class="badge bg-primary fs-6 px-3 py-2">Linux Essentials</span>
+                            <span class="badge bg-primary fs-6 px-3 py-2">Object-Oriented Programming</span>
+                            <span class="badge bg-primary fs-6 px-3 py-2">Software Development</span>
+                            <span class="badge bg-primary fs-6 px-3 py-2">Web Applications</span>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certifications Section -->
+    <section id="certifications" class="py-5 bg-light">
+        <div class="container py-4">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-dark">Certifications</h2>
+                <p class="text-muted">Click on any of my certificate to view full information.</p>
+            </div>
+
+            <div class="row g-4 justify-content-center">
+                <?php if(!empty($certifications)): ?>
+                    <?php foreach($certifications as $cert): ?>
+                        <div class="col-md-6 col-lg-4">
+                            <!-- Clickable Card Triggering Modal -->
+                            <div class="card h-100 border-0 shadow-sm p-3 text-center cert-card cursor-pointer" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#certModal<?= $cert['id']; ?>"
+                                style="cursor: pointer; transition: transform 0.2s ease, shadow 0.2s ease;">
+                                
+                                <div class="card-body">
+                                <div class="mb-3 text-center d-flex justify-content-center align-items-center" style="height: 130px;">
+                                    <img src="<?= base_url('assets/uploads/' . ($cert['badge_img'] ?? 'default-badge.png')); ?>" 
+                                        alt="<?= html_escape($cert['title']); ?> Badge" 
+                                        class="img-fluid"
+                                        style="max-height: 125px; width: auto; object-fit: contain;"
+                                        onerror="this.onerror=null; this.src='https://via.placeholder.com/85?text=Badge';">
+                                </div>
+
+                                    <div class="mt-2 text-danger small fw-bold">
+                                        <i class="bi bi-eye-fill me-1"></i> View Certificate
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal for displaying Certificate Image and Details -->
+                            <div class="modal fade" id="certModal<?= $cert['id']; ?>" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-content shadow border-0">
+                                        <div class="modal-header bg-sdca text-white">
+                                            <h5 class="modal-title fw-bold"><i class="bi bi-award me-2"></i><?= html_escape($cert['title']); ?></h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-center p-4 bg-light">
+                                            <!-- Certificate Preview Image -->
+                                            <div class="mb-4">
+                                                <img src="<?= base_url('assets/uploads/' . $cert['cert_image']); ?>" 
+                                                    alt="<?= html_escape($cert['title']); ?>" 
+                                                    class="img-fluid rounded border shadow-sm"
+                                                    style="max-height: 400px; width: auto;">
+                                            </div>
+
+                                            <!-- Details Info -->
+                                            <div class="row g-2 text-start bg-white p-3 rounded border">
+                                                <div class="col-md-6">
+                                                    <strong>Issuing Organization:</strong> <?= html_escape($cert['issuer']); ?>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong>Date Issued:</strong> <?= date('F d, Y', strtotime($cert['issue_date'])); ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer bg-white">
+                                            <?php if(!empty($cert['credential_url'])): ?>
+                                                <a href="<?= $cert['credential_url']; ?>" target="_blank" class="btn btn-outline-danger btn-sm">
+                                                    Verify Credential <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12 text-center text-muted">
+                        <p>No certifications added yet.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hover Animation Style -->
+    <style>
+        .cert-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        }
+    </style>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-5" style="min-height: 80vh;">
+        <div class="container py-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold">Get In Touch</h2>
+                        <p class="text-muted">Have a project in mind or a question? Send a message below.</p>
+                    </div>
+
+                    <!-- Flash Success Notification -->
+                    <?php if ($this->session->flashdata('success')): ?>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <?= $this->session->flashdata('success'); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Form Validation Errors -->
+                    <?php if (validation_errors()): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <?= validation_errors(); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Form Helper Open Tag (Embeds CSRF Protection Automatically) -->
+                    <?= form_open('home/send_message', ['class' => 'card p-4 shadow-sm border-0']); ?>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="sender_name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="sender_name" name="sender_name" value="<?= set_value('sender_name'); ?>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="sender_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="sender_email" name="sender_email" value="<?= set_value('sender_email'); ?>" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="subject" class="form-label">Subject</label>
+                                <input type="text" class="form-control" id="subject" name="subject" value="<?= set_value('subject'); ?>" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="message_text" class="form-label">Message</label>
+                                <textarea class="form-control" id="message_text" name="message_text" rows="5" required><?= set_value('message_text'); ?></textarea>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-primary px-4">Send Message</button>
+                            </div>
+                        </div>
+                    <?= form_close(); ?>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 border-top border-secondary">
+        <div class="container text-center">
+            <p class="mb-0 small text-secondary">&copy; <?= date('Y'); ?> SDCA Use only. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+
+        // 1. Shift active underline instantly on link click
+        navLinks.forEach(link => {
+            link.addEventListener('click', function () {
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 2. Automatically activate 'Contact' tab when reaching bottom of page
+        window.addEventListener('scroll', function () {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                const contactLink = document.querySelector('.navbar-nav .nav-link[href*="contact"]');
+                if (contactLink) contactLink.classList.add('active');
+            }
+        });
+    });
+</script>
+</body>
+</html>

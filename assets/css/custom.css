@@ -1,0 +1,54 @@
+/* assets/css/custom.css */
+
+/* Define SDCA Branding Colors */
+:root {
+  --sdca-red: #800000;       /* Official Crimson Red */
+  --sdca-gold: #FFD700;      /* Official Gold */
+  --sdca-red-dark: #600000;  /* Darker Red for Hover */
+  --sdca-dark-bg: #1a1a1a;   /* Clean Navbar Dark */
+}
+  
+/* Navbar Brand & Hover Colors */
+.navbar-sdca {
+  background-color: var(--sdca-dark-bg) !important;
+  border-bottom: 3px solid var(--sdca-gold);
+}
+
+.navbar-sdca .navbar-brand span {
+  color: var(--sdca-gold) !important;
+}
+
+/* Custom Text Class for Name Highlight */
+.text-sdca-red {
+  color: var(--sdca-red) !important;
+}
+
+/* Primary Button (SDCA Crimson Red) */
+.btn-sdca-primary {
+  background-color: var(--sdca-red) !important;
+  border-color: var(--sdca-red) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-sdca-primary:hover {
+  background-color: var(--sdca-red-dark) !important;
+  border-color: var(--sdca-red-dark) !important;
+  transform: translateY(-1px);
+}
+
+/* Secondary Button (SDCA Gold Outline/Solid) */
+.btn-sdca-gold {
+  background-color: transparent !important;
+  border: 2px solid var(--sdca-gold) !important;
+  color: #333333 !important;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-sdca-gold:hover {
+  background-color: var(--sdca-gold) !important;
+  color: #000000 !important;
+  transform: translateY(-1px);
+}
