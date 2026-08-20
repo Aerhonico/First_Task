@@ -4,7 +4,24 @@
     <meta charset="UTF-8">
     <title>Admin Login - SDCA Portfolio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/favicon.png'); ?>">
+
 </head>
+<style>
+    /* Custom Navbar Color (#8b0000 or #800000) */
+    .btn-navbar-theme {
+        background-color: #8b0000 !important;
+        border-color: #8b0000 !important;
+        color: #ffffff !important;
+        transition: all 0.2s ease;
+    }
+
+/* Hover effect */
+    .btn-navbar-theme:hover {
+        background-color: #6b0000 !important;
+        border-color: #6b0000 !important;
+    }
+</style>
 <body class="bg-light d-flex align-items-center vh-100">
 <div class="container">
     <div class="row justify-content-center">
@@ -26,7 +43,7 @@
                             <label class="form-label small fw-bold">Password</label>
                             <input type="password" name="password" class="form-control" required>
                         </div>
-                        <button type="submit" class="btn btn-danger w-100 fw-bold">Sign In</button>
+                        <button type="submit" class="btn btn-navbar-theme w-100 py-2 text-white fw-bold">Sign In</button>
                         <a href="<?= base_url(); ?>" class="btn btn-link text-decoration-none text-muted small mt-2">Back to Website</a>
                     </form>
                 </div>

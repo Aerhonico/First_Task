@@ -8,7 +8,11 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tab Icon -->
+    <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/favicon.png'); ?>">
+    
     <style>
         :root {
             --sdca-red: #800000;
@@ -58,6 +62,107 @@
             border-radius: 2px;
         }
 
+        .hero-section {
+            background-color: #fcfcfc;
+            background-image: radial-gradient(rgba(139, 0, 0, 0.25) 1px, transparent 1.5px);
+            background-size: 18px 18px;
+        }
+
+        .hero-img {
+            border-radius: 12px;
+            box-shadow: -12px 12px 0px 0px #8b0000 !important;
+            transition: transform 0.3s ease;
+        }
+
+        .hero-img:hover {
+            transform: translateY(-4px);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            font-weight: 500;
+        }
+
+        .badge:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        /* Social Link Text & Icons */
+        .social-link {
+            color: #4a4a4a;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .social-link:hover {
+            color: #8b0000;
+            transform: translateY(-2px);
+        }
+
+        /* Vertical Divider Lines */
+        .social-divider {
+            color: #cccccc;
+            font-weight: 300;
+            user-select: none;
+        }
+
+        /* Vertical Divider Line */
+        .vertical-divider {
+            width: 2px;
+            height: 180px;
+            background-color: #e0e0e0;
+            border-radius: 2px;
+        }
+
+        /* Hover Effect for Icon Cards */
+        .tech-icon-card {
+            padding: 10px;
+            border-radius: 8px;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .tech-icon-card:hover {
+            transform: translateY(-4px);
+            background-color: #f8f9fa;
+        }
+
+        /* Badge Styles on Right Column */
+        .skills-section .badge {
+            background-color: #6c757d;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .skills-section .badge:hover {
+            background-color: #8b0000;
+            transform: translateY(-2px);
+        }
+
+        /* Custom size for the tech logos */
+        .tech-icon-card i {
+            font-size: 5rem; /* Increase this number (e.g., 4rem or 70px) to make them bigger */
+        }
+
+        /* Custom Navbar Color for Resume Button */
+        .btn-navbar-theme {
+            background-color: #8b0000 !important; /* Matches navbar dark maroon */
+            border-color: #8b0000 !important;
+            color: #ffffff !important;
+        }
+
+        /* Hover Effect */
+        .btn-navbar-theme:hover {
+            background-color: #6b0000 !important; /* Slightly darker on hover */
+            border-color: #6b0000 !important;
+        }
+
     </style>
 </head>
 <body>
@@ -68,7 +173,10 @@
 <nav class="navbar navbar-expand-lg navbar-dark custom-sdca-nav sticky-top shadow-sm" id="mainNavbar">
   <div class="container">
     <a class="navbar-brand fw-bold text-white" href="<?= base_url(); ?>">
-      My SDCA Portfolio
+      PROFESSIONAL PORTFOLIO
+    </a>
+    <a class="navbar-brand text-white" style="font-size: 14px;" href="<?= base_url(); ?>">
+    by Aerhon Magtira
     </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -79,7 +187,7 @@
       <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
         <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
-        <li class="nav-item"><a class="nav-link" href="#skills">Skills</a></li>
+        <li class="nav-item"><a class="nav-link" href="#skills">Tech Stack</a></li>
         <li class="nav-item"><a class="nav-link" href="#certifications">Certifications</a></li>
         <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
 
@@ -90,8 +198,8 @@
               <i class="bi bi-box-arrow-right me-1"></i> Logout
             </a>
           <?php else: ?>
-            <a href="<?= base_url('login'); ?>" class="btn btn-sm btn-outline-light px-3 rounded-pill">
-              <i class="bi bi-lock-fill me-1"></i> Login
+            <a href="<?php echo base_url('login'); ?>" class="btn btn-outline-light rounded-pill px-3" target="_blank" rel="noopener noreferrer">
+              <i class="fa-solid fa-lock me-1"></i> Login
             </a>
           <?php endif; ?>
         </li>
@@ -117,7 +225,8 @@
 <?php endif; ?>
 
 <!-- Hero Section -->
-<header id="about" class="py-5 bg-white border-bottom">
+<header id="about" class="py-3 bg-white border-bottom">
+<section class="hero-section py-5">
     <div class="container py-4">
         <div class="row align-items-center gy-4">
             
@@ -125,14 +234,14 @@
             <div class="col-12 col-md-4 text-center text-md-start">
                 <img src="<?= base_url('assets/images/grad-portrait.jpg'); ?>" 
                      alt="Aerhon Magtira Portrait" 
-                     class="img-fluid rounded-3 shadow border border-3 border-light" 
+                     class="img-fluid rounded-3 hero-img shadow border border-3 border-light" 
                      style="width: 100%; max-width: 300px; height: 400px; object-fit: cover;"
                      onerror="this.src='https://via.placeholder.com/300x400?text=Portrait';">
             </div>
 
             <!-- Right Column: Text & Buttons -->
             <div class="col-12 col-md-8">
-                <h1 class="display-4 fw-bold mb-3">Hi, I'm <span class="text-sdca-red">Aerhon Magtira</span></h1>
+                <h1 class="display-4 fw-bold mb-3">Hi, I'm <span class="text-sdca-red">Aerhon Louis Magtira</span></h1>
                 
                 <p class="lead text-secondary mb-4">
                     I am a fresh BSIT Graduate who just finished a bachelor's degree as Magna Cum Laude. 
@@ -140,14 +249,38 @@
                 </p>
 
                 <!-- SDCA Styled Buttons -->
-                <div class="d-flex gap-3 flex-wrap">
-                    <!-- View Resume Button (Opens PDF in a new tab) -->
-                    <a href="<?= base_url('assets/uploads/Resume_Magtira.pdf'); ?>" target="_blank" class="btn btn-outline-sdca px-4 py-3 fw-medium shadow-sm">
-                        <i class="bi bi-file-earmark-person me-2"></i>View My Resume
-                    </a>
-                    <a href="#contact" class="btn btn-outline-sdca px-4 py-3 fw-medium shadow-sm">Contact Me</a>
-                </div>
+                <div class="d-flex align-items-center gap-2 mb-3">
+                <!-- View My Resume (Solid Dark Red/Maroon) -->
+                <a href="assets/uploads/Resume_Magtira.pdf" class="btn btn-navbar-theme text-white py-2 px-3"
+                target="_blank" 
+                rel="noopener noreferrer">
+                    <i class="fa-solid fa-file-pdf me-1"></i> View My Resume
+                </a>
+
+                <!-- Contact Me (White Background with Dark Text & Border) -->
+                <a href="#contact" class="btn btn-sm btn-outline-dark py-2 px-3">
+                    Contact Me
+                </a>
             </div>
+
+            <!-- Professional Social Links with Separators -->
+            <div class="hero-social-links mt-4 d-flex align-items-center gap-3">
+                <!-- LinkedIn -->
+                <a href="https://linkedin.com/in/aerhon-louis-magtira" target="_blank" title="LinkedIn Profile" class="social-link">
+                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                </a>
+                <span class="social-divider">|</span>
+                <!-- GitHub -->
+                <a href="https://github.com/Aerhonico" target="_blank" title="GitHub Repository" class="social-link">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                <span class="social-divider">|</span>
+                <!-- Gmail -->
+                <a href="mailto:aerhonlouis_magtira@sdca.edu.ph" title="Send me an email" class="social-link">
+                    <i class="fa-solid fa-envelope"></i> Email
+                </a>
+            </div>
+        </div>
 
             <?php if($this->session->userdata('logged_in')): ?>
             <div class="modal fade" id="editHeroModal" tabindex="-1">
@@ -184,10 +317,11 @@
 
         </div>
     </div>
+</section>
 </header>
 
 <!-- Projects Section -->
-<section id="projects" class="py-5">
+<section id="projects" class="py-5 bg-light">
     <div class="container py-4">
         <div class="text-center mb-5">
             <h2 class="fw-bold">Recent Projects</h2>
@@ -199,7 +333,7 @@
                 <?php foreach ($projects as $project): ?>
                     <!-- Added missing Bootstrap column wrapper -->
                     <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 position-relative shadow-sm border-0">
+                        <div class="card h-100 position-relative shadow border-0">
 
                             <?php if($this->session->userdata('logged_in')): ?>
                                 <!-- Admin Quick Action Badges -->
@@ -241,17 +375,21 @@
                                         Details
                                     </button>
                                     
-                                    <!-- Redirect External Link Button -->
-                                    <?php if(!empty($project['demo_link'])): ?>
-                                        <a href="<?= html_escape($project['demo_link']); ?>" target="_blank" class="btn btn-sm btn-outline-secondary px-2" title="Visit Live Demo / Website">
-                                            <i class="bi bi-box-arrow-up-right"></i>
-                                        </a>
-                                    <?php endif; ?>
+                                    <!-- Redirect External Link or APK Download Button -->
+                                    <?php if (!empty($project['demo_link'])): ?>
+                                        
+                                        <?php if (stristr($project['title'], 'JustiFi') || stristr($project['title'], 'Complaint')): ?>
+                                            <!-- JUSTIFI: Download APK File -->
+                                            <a href="<?php echo base_url('assets/apk/Justifi.apk'); ?>" download="Justifi.apk" class="btn btn-light border text-dark" title="Download APK">
+                                                <i class="bi bi-download"></i> Download App
+                                            </a>
+                                        <?php else: ?>
+                                            <!-- OTHER PROJECTS: Standard Arrow Link -->
+                                            <a href="<?php echo html_escape($project['demo_link']); ?>" target="_blank" class="btn btn-sm btn-light border" title ="Visit Site Demo">
+                                                <i class="bi bi-box-arrow-up-right"></i>
+                                            </a>
+                                        <?php endif; ?>
 
-                                    <?php if(!empty($project['project_url'])): ?>
-                                        <a href="<?= $project['project_url']; ?>" target="_blank" class="btn btn-sm btn-light border text-secondary" title="View Project Link">
-                                            <i class="bi bi-box-arrow-up-right"></i>
-                                        </a>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -332,7 +470,6 @@
                                         <?php endif; ?>
                                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -350,51 +487,113 @@
 </section>
 
     <!-- Skills Section -->
-    <section id="skills" class="py-5 bg-white border-top border-bottom">
+    <section id="skills" class="py-5 bg-light border-top border-bottom">
         <div class="container py-4">
             <div class="text-center mb-5">
-                <h2 class="fw-bold">Skills & Technologies</h2>
+                <h2 class="fw-bold">Tech Stack</h2>
                 <p class="text-muted">Tools and technologies I use to build web and mobile applications.</p>
             </div>
 
-            <div class="row g-4 justify-content-center">
-                <div class="col-md-8">
-                    <?php if (!empty($skills) && is_array($skills)): ?>
-                        <?php foreach ($skills as $skill): ?>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="fw-semibold"><?= html_escape($skill['name']); ?></span>
-                                    <span class="text-muted"><?= (int)$skill['proficiency_percentage']; ?>%</span>
-                                </div>
-                                <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-primary" role="progressbar" 
-                                         style="width: <?= (int)$skill['proficiency_percentage']; ?>%;" 
-                                         aria-valuenow="<?= (int)$skill['proficiency_percentage']; ?>" 
-                                         aria-valuemin="0" 
-                                         aria-valuemax="100">
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <!-- Fallback Skills -->
-                        <div class="d-flex flex-wrap gap-2 justify-content-center">
-                            <span class="badge bg-primary fs-6 px-3 py-2">CSS</span>
-                            <span class="badge bg-primary fs-6 px-3 py-2">Data Manipulation</span>
-                            <span class="badge bg-primary fs-6 px-3 py-2">Database Administration</span>
-                            <span class="badge bg-primary fs-6 px-3 py-2">File Management</span>
-                            <span class="badge bg-primary fs-6 px-3 py-2">HTML</span>
-                            <span class="badge bg-primary fs-6 px-3 py-2">Internet of Things</span>
-                            <span class="badge bg-primary fs-6 px-3 py-2">Java</span>
-                            <span class="badge bg-primary fs-6 px-3 py-2">Linux Essentials</span>
-                            <span class="badge bg-primary fs-6 px-3 py-2">Object-Oriented Programming</span>
-                            <span class="badge bg-primary fs-6 px-3 py-2">Software Development</span>
-                            <span class="badge bg-primary fs-6 px-3 py-2">Web Applications</span>
-                        </div>
-                    <?php endif; ?>
-                </div>
+            <div class="row align-items-start">
+        <!-- Left Column: Programming Languages & Essentials -->
+        <div class="col-md-5">
+    <h5 class="text-center fw-bold mb-4 text-dark">Languages & Essentials</h5>
+    
+    <!-- row-cols-5 forces 5 columns per row on desktop -->
+    <div class="row row-cols-5 g-3 text-center justify-content-center">
+        <!-- HTML -->
+        <div class="col">
+            <div class="tech-icon-card">
+                <i class="fa-brands fa-html5 text-danger display-6"></i>
+                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">HTML</span>
             </div>
         </div>
+        <!-- CSS -->
+        <div class="col">
+            <div class="tech-icon-card">
+                <i class="fa-brands fa-css3-alt text-primary display-6"></i>
+                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">CSS</span>
+            </div>
+        </div>
+        <!-- JavaScript -->
+        <div class="col">
+            <div class="tech-icon-card">
+                <i class="fa-brands fa-js text-warning display-6"></i>
+                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">JavaScript</span>
+            </div>
+        </div>
+        <!-- PHP -->
+        <div class="col">
+            <div class="tech-icon-card">
+                <i class="fa-brands fa-php display-6" style="color: #777BB4;"></i>
+                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">PHP</span>
+            </div>
+        </div>
+        <!-- Java -->
+        <div class="col">
+            <div class="tech-icon-card">
+                <i class="fa-brands fa-java text-danger display-6"></i>
+                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">Java</span>
+            </div>
+        </div>
+        <!-- SQL / MySQL -->
+        <div class="col">
+            <div class="tech-icon-card">
+                <i class="fa-solid fa-database text-info display-6"></i>
+                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">MySQL</span>
+            </div>
+        </div>
+        <!-- Bootstrap 5 -->
+        <div class="col">
+            <div class="tech-icon-card">
+                <i class="fa-brands fa-bootstrap display-6" style="color: #6f42c1;"></i>
+                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">Bootstrap</span>
+            </div>
+        </div>
+        <!-- Linux -->
+        <div class="col">
+            <div class="tech-icon-card">
+                <i class="fa-brands fa-linux text-dark display-6"></i>
+                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">Linux</span>
+            </div>
+        </div>
+        <!-- Git -->
+        <div class="col">
+            <div class="tech-icon-card">
+                <i class="fa-brands fa-git-alt text-danger display-6"></i>
+                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">Git</span>
+            </div>
+        </div>
+        <!-- Python -->
+        <div class="col">
+            <div class="tech-icon-card">
+                <i class="fa-brands fa-python text-warning display-6"></i>
+                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">Python</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Center Vertical Divider -->
+        <div class="col-md-2 d-none d-md-flex justify-content-center align-self-stretch">
+            <div class="vertical-divider" style="width: 2px; background-color: #ccc; min-height: 100%;"></div>
+        </div>
+
+        <!-- Right Column: Development & Backend Concepts -->
+        <div class="col-md-5 mt-4 mt-md-0">
+            <h5 class="text-center fw-bold mb-4 text-dark">Development & Concepts</h5>
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-sliders me-1"></i> Data Manipulation</span>
+            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-database me-1"></i> Database Administration</span>
+            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-folder-open me-1"></i> File Management</span>
+            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-microchip me-1"></i> Internet of Things</span>
+            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-cubes me-1"></i> Object-Oriented Programming</span>
+            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-code me-1"></i> Software Development</span>
+            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-globe me-1"></i> Web Applications</span>
+            </div>
+        </div>
+        </div>
+    </div>
     </section>
 
     <!-- Certifications Section -->
@@ -489,7 +688,7 @@
     </style>
 
     <!-- Contact Section -->
-    <section id="contact" class="py-5" style="min-height: 80vh;">
+    <section id="contact" class="py-9 bg-light" style="min-height: 80vh;">
         <div class="container py-4">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
