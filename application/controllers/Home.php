@@ -5,8 +5,9 @@ class Home extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
-        // Load the model to handle database queries
-        $this->load->model('Project_model');
+        // Load helpers, libraries, and models
+        $this->load->library('session');$this->load->helper(array('form', 'url'));
+        $this->load->database();$this->load->model('Project_model');
     }
 
     /**
@@ -16,43 +17,97 @@ class Home extends CI_Controller {
         $data['page_title'] = 'My Portfolio | First task';
         
         // Fetch projects from MySQL using Project_model
-        $data['projects'] = $this->Project_model->get_all_projects();
+        $data['projects'] =$this->Project_model->get_all_projects();
 
         // Fetch certifications
-        $data['certifications'] = $this->db->get('certifications')->result_array();
+        $data['certifications'] =$this->db->get('certifications')->result_array();
 
-        // Load the Bootstrap 5 view and pass data
-        $this->load->view('home', $data);
+        // Get profile details from user_profile table
+        $data['hero'] =$this->db->get_where('user_profile', array('id' => 1))->row_array(); 
+
+        // Get user account details from users table
+        $data['user'] =$this->db->get_where('users', array('id' => 1))->row_array(); 
+
+        // Load the Bootstrap 5 view and pass all data once
+        $this->load->view('home',$data);
     }
 
     /**
-     * Processes the contact form submission
+     * Updates Hero section profile details
      */
-    public function send_message() {
-        // Set form validation rules
-        $this->form_validation->set_rules('sender_name', 'Name', 'required|trim|max_length[100]');
-        $this->form_validation->set_rules('sender_email', 'Email', 'required|trim|valid_email');
-        $this->form_validation->set_rules('subject', 'Subject', 'required|trim|max_length[200]');
-        $this->form_validation->set_rules('message_text', 'Message', 'required|trim');
-
-        if ($this->form_validation->run() == FALSE) {
-            // Validation failed — reload the homepage with error messages
-            $this->index();
-        } else {
-            // Validation passed — save contact message to database
-            $formData = array(
-                'sender_name'  => $this->input->post('sender_name', TRUE),
-                'sender_email' => $this->input->post('sender_email', TRUE),
-                'subject'      => $this->input->post('subject', TRUE),
-                'message_text' => $this->input->post('message_text', TRUE),
-                'created_at'   => date('Y-m-d H:i:s')
-            );
-
-            // Insert into 'messages' table (if created) or display success
-            $this->db->insert('messages', $formData);
-
-            $this->session->set_flashdata('success', 'Thank you! Your message has been sent successfully.');
-            redirect('home#contact');
+    public function update_hero() {
+        if (!$this->session->userdata('logged_in')) {
+            redirect('login');
+            return;
         }
+    
+        $full_name = $this->input->post('full_name');
+        $bio       = $this->input->post('bio');
+    
+        $update_data = array(
+            'full_name' => $full_name,
+            'bio'       => $bio
+        );
+    
+        // Handle Profile Picture Upload
+        if (!empty($_FILES['profile_img']['name'])) {
+            $config['upload_path']   = './assets/images/';
+            $config['allowed_types'] = 'jpg|jpeg|png|webp';
+            $config['file_name']     = 'profile_' . time();
+    
+            $this->load->library('upload', $config);
+    
+            if ($this->upload->do_upload('profile_img')) {
+                $upload_data = $this->upload->data();
+                $update_data['profile_img'] = $upload_data['file_name'];
+            }
+        }
+    
+        // Force update row ID 1 in user_profile
+        $this->db->where('id', 1);
+        $this->db->update('user_profile', $update_data);
+    
+        $this->session->set_flashdata('success', 'Hero section updated successfully!');
+        redirect(''); // Refresh page
     }
+
+    public function add_project() {
+        if (!$this->session->userdata('logged_in')) {
+            redirect('login');
+            return;
+        }
+    
+        $title       = $this->input->post('title');
+        $description = $this->input->post('description');
+        $tech_stack        = $this->input->post('tech_stack');
+        $image_name  = 'default_project.jpg';
+    
+        // Handle Image Upload
+        if (!empty($_FILES['project_img']['name'])) {
+            $config['upload_path']   = './assets/images/';
+            $config['allowed_types'] = 'jpg|jpeg|png|webp';
+            $config['file_name']     = 'proj_' . time();
+    
+            $this->load->library('upload', $config);
+    
+            if ($this->upload->do_upload('project_img')) {
+                $upload_data = $this->upload->data();
+                $image_name  = $upload_data['file_name'];
+            }
+        }
+    
+        $project_data = array(
+            'title'       => $title,
+            'description' => $description,
+            'tech_stack'  => $tech_stack,
+            'image'       => $image_name, // Adjust column name if your DB uses 'project_img' or 'photo'
+            'created_at'  => date('Y-m-d H:i:s')
+        );
+    
+        $this->db->insert('projects', $project_data);
+    
+        $this->session->set_flashdata('success', 'New project added successfully!');
+        redirect(''); // Refresh page
+    }
+
 }

@@ -169,6 +169,7 @@
 
 <body data-bs-spy="scroll" data-bs-target="#mainNavbar" data-bs-offset="100" tabindex="0">
 
+<div class="sticky-top style="z-index: 1030;">
 <!-- Red Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar-dark custom-sdca-nav sticky-top shadow-sm" id="mainNavbar">
   <div class="container">
@@ -218,11 +219,12 @@
         <i class="bi bi-person-gear"></i> Edit Hero Section
       </button>
       <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addProjectModal">
-        <i class="bi bi-plus-circle"></i> Add New Project
+        <i class="fa-solid fa-plus"></i> Add New Project
       </button>
     </div>
   </div>
 <?php endif; ?>
+</div>
 
 <!-- Hero Section -->
 <header id="about" class="py-3 bg-white border-bottom">
@@ -241,11 +243,12 @@
 
             <!-- Right Column: Text & Buttons -->
             <div class="col-12 col-md-8">
-                <h1 class="display-4 fw-bold mb-3">Hi, I'm <span class="text-sdca-red">Aerhon Louis Magtira</span></h1>
+            <h1 class="display-4 fw-bold">
+                    Hi, I'm <span class="text-sdca-red"><?php echo htmlspecialchars($hero['full_name'] ?? 'Aerhon Louis Magtira'); ?></span>
+                </h1>
                 
-                <p class="lead text-secondary mb-4">
-                    I am a fresh BSIT Graduate who just finished a bachelor's degree as Magna Cum Laude. 
-                    I am currently a Web Development Engineer specializing in Web Applications, PHP, CodeIgniter 3, and modern frontend design.
+                <p class="lead text-muted my-3">
+                    <?php echo htmlspecialchars($hero['bio'] ?? ''); ?>
                 </p>
 
                 <!-- SDCA Styled Buttons -->
@@ -282,38 +285,58 @@
             </div>
         </div>
 
-            <?php if($this->session->userdata('logged_in')): ?>
-            <div class="modal fade" id="editHeroModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fs-6 fw-bold">Edit Hero Details</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="<?= base_url('admin/update_hero'); ?>" method="POST" enctype="multipart/form-data">
-                    <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Full Name</label>
-                        <input type="text" name="name" class="form-control" value="Aerhon Magtira">
+            <!-- EDIT HERO MODAL -->
+            <div class="modal fade" id="editHeroModal" tabindex="-1" aria-labelledby="editHeroModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                    <form action="<?php echo base_url('home/update_hero'); ?>" method="POST" enctype="multipart/form-data">                            
+                            <div class="modal-header bg-dark text-white">
+                                <h5 class="modal-title" id="editHeroModalLabel">
+                                    <i class="fa-solid fa-pen-to-square text-warning me-2"></i>Edit Hero Details
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <!-- FULL NAME -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Full Name</label>
+                                    <input type="text" name="full_name" class="form-control" 
+                                        value="<?php echo htmlspecialchars($hero['full_name'] ?? 'Aerhon Louis Magtira', ENT_QUOTES, 'UTF-8'); ?>" required>
+                                </div>
+
+                                <!-- BIO / DESCRIPTION -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Bio</label>
+                                    <textarea name="bio" id="heroBioInput" class="form-control" rows="5" required><?php 
+                                        if (isset($hero['bio'])) {
+                                            echo htmlspecialchars($hero['bio'], ENT_QUOTES, 'UTF-8');
+                                        } elseif (isset($user['bio'])) {
+                                            echo htmlspecialchars($user['bio'], ENT_QUOTES, 'UTF-8');
+                                        } elseif (isset($profile['bio'])) {
+                                            echo htmlspecialchars($profile['bio'], ENT_QUOTES, 'UTF-8');
+                                        }
+                                    ?></textarea>
+                                    <div class="form-text">Enter your full summary paragraph here.</div>
+                                </div>
+
+                                <!-- PROFILE PICTURE UPLOAD 
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Profile Picture</label>
+                                    <input type="file" name="profile_img" class="form-control" accept="image/*">
+                                    <small class="text-muted">Leave blank if you do not want to change the current photo.</small>
+                                </div>
+                            </div> -->
+
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn text-white" style="background-color: #800000;">Save Changes</button>
+                            </div>
+
+                        </form>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Bio</label>
-                        <textarea name="bio" class="form-control" rows="3">I am a fresh BSIT Graduate who finished a bachelor's degree as Magna Cum Laude...</textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Profile Picture</label>
-                        <input type="file" name="profile_img" class="form-control">
-                    </div>
-                    </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger btn-sm">Save Changes</button>
-                    </div>
-                </form>
                 </div>
             </div>
-            </div>
-            <?php endif; ?>
 
         </div>
     </div>
@@ -774,5 +797,75 @@
         });
     });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var editModal = document.getElementById('editHeroModal');
+    if (editModal) {
+        editModal.addEventListener('show.bs.modal', function () {
+            var bioInput = document.getElementById('heroBioInput');
+            
+            // If the textarea is empty, grab the paragraph text directly from the hero section on screen
+            if (!bioInput.value.trim()) {
+                var heroParagraph = document.querySelector('#about p') || document.querySelector('.hero-section p');
+                if (heroParagraph) {
+                    bioInput.value = heroParagraph.innerText.trim();
+                }
+            }
+        });
+    }
+});
+</script>
+
+<!-- ADD NEW PROJECT MODAL -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="<?php echo base_url('home/add_project'); ?>" method="POST" enctype="multipart/form-data">
+                
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="addProjectModalLabel">
+                        <i class="fa-solid fa-plus text-success me-2"></i>Add New Project
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- TITLE -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Project Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="e.g. JustiFi App" required>
+                    </div>
+
+                    <!-- DESCRIPTION -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Brief details about the project..." required></textarea>
+                    </div>
+
+                    <!-- TECH STACK (Comma Separated) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tech Stack / Tags</label>
+                        <input type="text" name="tags" class="form-control" placeholder="e.g. PHP, MySQL, Bootstrap 5">
+                        <div class="form-text">Separate tags with commas.</div>
+                    </div>
+
+                    <!-- PROJECT IMAGE -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Project Image / Banner</label>
+                        <input type="file" name="project_img" class="form-control" accept="image/*" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Project</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

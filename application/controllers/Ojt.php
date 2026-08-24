@@ -42,7 +42,7 @@ class Ojt extends CI_Controller {
                 'time_in'        => $this->input->post('time_in'),
                 'time_out'       => $this->input->post('time_out'),
                 'hours_rendered' => max(0, $hours),
-                'task_summary'   => $this->input->post('task_summary', TRUE),
+                'task_summary'   => trim($this->input->post('task_summary', TRUE)),
                 'status'         => 'Approved'
             );
 
