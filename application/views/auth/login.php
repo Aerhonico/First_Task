@@ -6,6 +6,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/favicon.png'); ?>">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <style>
     /* Custom Navbar Color (#8b0000 or #800000) */
@@ -39,10 +40,18 @@
                             <label class="form-label small fw-bold">Username</label>
                             <input type="text" name="username" class="form-control" required autofocus>
                         </div>
-                        <div class="mb-3 text-start">
-                            <label class="form-label small fw-bold">Password</label>
-                            <input type="password" name="password" class="form-control" required>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" id="passwordInput" name="password" class="form-control" required placeholder="Enter your password">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePasswordBtn">
+                                    <i class="fa-solid fa-eye" id="toggleEyeIcon"></i>
+                                </button>
+                            </div>
                         </div>
+                        <a href="<?php echo base_url('auth/forgot_password'); ?>" class="text-decoration-none small text-danger">
+                        Forgot Password?
+                        </a>
                         <button type="submit" class="btn btn-navbar-theme w-100 py-2 text-white fw-bold">Sign In</button>
                         <a href="<?= base_url(); ?>" class="btn btn-link text-decoration-none text-muted small mt-2">Back to Website</a>
                     </form>
@@ -51,5 +60,24 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('togglePasswordBtn').addEventListener('click', function () {
+        const passwordInput = document.getElementById('passwordInput');
+        const eyeIcon = document.getElementById('toggleEyeIcon');
+
+        // Toggle the input type between password and text
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    });
+</script>
+
 </body>
 </html>
