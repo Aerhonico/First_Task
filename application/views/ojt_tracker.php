@@ -5,6 +5,8 @@
     <title><?= $page_title; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+       <!-- Tab Icon -->
+    <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/favicon.png'); ?>">
     <style>
         :root { --sdca-red: #800000; --sdca-gold: #FFD700; }
         .bg-sdca { background-color: var(--sdca-red); }
@@ -111,7 +113,8 @@
                                 <tr>
                                     <td class="fw-bold"><?= date('M d, Y', strtotime($log['log_date'])); ?></td>
                                     <td class="small"><?= date('h:i A', strtotime($log['time_in'])); ?> - <?= date('h:i A', strtotime($log['time_out'])); ?></td>
-                                    <td><span class="badge bg-danger"><?= $log['hours_rendered']; ?> hrs</span></td>
+                                    <?php $badge_class = ($log['hours_rendered'] >= 8) ? 'bg-success' : 'bg-danger'; ?>
+                                    <td><span class="badge <?= $badge_class; ?>"><?= number_format($log['hours_rendered'], 2); ?> hrs</span></td>
                                     <td class="small"><?= html_escape($log['task_summary']); ?></td>
                                     
                                     <!-- Action Buttons: Edit & Delete -->

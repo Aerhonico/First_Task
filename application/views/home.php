@@ -209,6 +209,14 @@
   </div>
 </nav>
 
+                    <!-- Flash Success Notification -->
+                    <?php if ($this->session->flashdata('success')): ?>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <?= $this->session->flashdata('success'); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endif; ?>
+
 <?php if($this->session->userdata('logged_in')): ?>
   <div class="bg-dark text-white py-2 px-3 d-flex justify-content-between align-items-center border-bottom border-warning">
     <span class="small fw-bold text-warning">
@@ -225,6 +233,13 @@
   </div>
 <?php endif; ?>
 </div>
+
+<?php if ($this->session->flashdata('hero_success')): ?>
+    <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
+        <?= $this->session->flashdata('hero_success'); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
 
 <!-- Hero Section -->
 <header id="about" class="py-3 bg-white border-bottom">
@@ -710,6 +725,13 @@
         }
     </style>
 
+    <?php if ($this->session->flashdata('contact_success')): ?>
+        <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            <?= $this->session->flashdata('contact_success'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
     <!-- Contact Section -->
     <section id="contact" class="py-9 bg-light" style="min-height: 80vh;">
         <div class="container py-4">
@@ -720,14 +742,6 @@
                         <p class="text-muted">Have a project in mind or a question? Send a message below.</p>
                     </div>
 
-                    <!-- Flash Success Notification -->
-                    <?php if ($this->session->flashdata('success')): ?>
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <?= $this->session->flashdata('success'); ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    <?php endif; ?>
-
                     <!-- Form Validation Errors -->
                     <?php if (validation_errors()): ?>
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -737,29 +751,25 @@
                     <?php endif; ?>
 
                     <!-- Form Helper Open Tag (Embeds CSRF Protection Automatically) -->
-                    <?= form_open('home/send_message', ['class' => 'card p-4 shadow-sm border-0']); ?>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="sender_name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="sender_name" name="sender_name" value="<?= set_value('sender_name'); ?>" required>
+                    <form action="<?php echo site_url('index.php/home/send_message'); ?>" method="POST">                            <div class="col-md-6 mb-3">
+                                <label>Name</label>
+                                <input type="text" name="name" class="form-control" required>
                             </div>
-                            <div class="col-md-6">
-                                <label for="sender_email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="sender_email" name="sender_email" value="<?= set_value('sender_email'); ?>" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="subject" class="form-label">Subject</label>
-                                <input type="text" class="form-control" id="subject" name="subject" value="<?= set_value('subject'); ?>" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="message_text" class="form-label">Message</label>
-                                <textarea class="form-control" id="message_text" name="message_text" rows="5" required><?= set_value('message_text'); ?></textarea>
-                            </div>
-                            <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-primary px-4">Send Message</button>
+                            <div class="col-md-6 mb-3">
+                                <label>Email</label>
+                                <input type="email" name="email" class="form-control" required>
                             </div>
                         </div>
-                    <?= form_close(); ?>
+                        <div class="mb-3">
+                            <label>Subject</label>
+                            <input type="text" name="subject" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Message</label>
+                            <textarea name="message" class="form-control" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -768,7 +778,7 @@
     <!-- Footer -->
     <footer class="bg-dark text-white py-4 border-top border-secondary">
         <div class="container text-center">
-            <p class="mb-0 small text-secondary">&copy; <?= date('Y'); ?> SDCA Use only. All rights reserved.</p>
+            <p class="mb-0 small text-secondary">&copy; <?= date('Y'); ?> Aerhon Louis Magtira. All rights reserved.</p>
         </div>
     </footer>
 
