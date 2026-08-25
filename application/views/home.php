@@ -163,6 +163,10 @@
             border-color: #6b0000 !important;
         }
 
+        #about, #projects, #skills, #certifications, #contact {
+            scroll-margin-top: 70px; /* Adjust height based on your navbar height */
+        }
+
     </style>
 </head>
 <body>
@@ -255,7 +259,7 @@
 </div>
 
 <!-- Hero Section -->
-<header id="about" class="py-3 bg-white border-bottom">
+<header id="about" class="pt-4 pb=5 bg-white border-bottom">
 <section class="hero-section py-5">
     <div class="container py-4">
         <div class="row align-items-center gy-4">
@@ -580,135 +584,163 @@
     </div>
 </section>
 
-    <!-- Skills Section -->
-    <section id="skills" class="py-5 bg-light border-top border-bottom">
-        <div class="container py-4">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold">Tech Stack</h2>
-                <p class="text-muted">Tools and technologies I use to build web and mobile applications.</p>
-            </div>
+<!-- Skills Section -->
+<section id="skills" class="py-5 bg-light border-top border-bottom">
+    <div class="container py-4">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Tech Stack</h2>
+            <p class="text-muted">Tools and technologies I use to build web and mobile applications.</p>
+            
+            <?php if ($this->session->userdata('logged_in')): ?>
+                <button class="btn btn-warning btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#manageTechModal">
+                    <i class="fa-solid fa-gear me-1"></i> Modify Tech Stack
+                </button>
+            <?php endif; ?>
+        </div>
 
-            <div class="row align-items-start">
-        <!-- Left Column: Programming Languages & Essentials -->
-        <div class="col-md-5">
-    <h5 class="text-center fw-bold mb-4 text-dark">Languages & Essentials</h5>
-    
-    <!-- row-cols-5 forces 5 columns per row on desktop -->
-    <div class="row row-cols-5 g-3 text-center justify-content-center">
-        <!-- HTML -->
-        <div class="col">
-            <div class="tech-icon-card">
-                <i class="fa-brands fa-html5 text-danger display-6"></i>
-                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">HTML</span>
-            </div>
+        <?php 
+            // Fetch dynamically from DB, fall back to current hardcoded list if table is empty
+            $db_skills = $this->db->get('tech_stack')->result_array();
+            
+            $languages = array_filter($db_skills, function($item) { return $item['category'] === 'language'; });
+            $concepts  = array_filter($db_skills, function($item) { return $item['category'] === 'concept'; });
+        ?>
+
+ <div class="row align-items-start">
+    <!-- Left Column: Programming Languages & Essentials -->
+    <div class="col-md-5">
+        <h5 class="text-center fw-bold mb-4 text-dark">Languages & Essentials</h5>
+        <div class="row row-cols-5 g-3 text-center justify-content-center">
+            <?php foreach ($languages as $lang): ?>
+                <div class="col">
+                    <div class="tech-icon-card">
+                        <i class="<?= html_escape($lang['icon']); ?> display-6"></i>
+                        <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;"><?= html_escape($lang['name']); ?></span>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         </div>
-        <!-- CSS -->
-        <div class="col">
-            <div class="tech-icon-card">
-                <i class="fa-brands fa-css3-alt text-primary display-6"></i>
-                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">CSS</span>
-            </div>
+    </div>
+
+    <!-- Center Vertical Divider -->
+    <div class="col-md-2 d-none d-md-flex justify-content-center align-self-stretch">
+        <div class="vertical-divider" style="width: 2px; background-color: #ccc; min-height: 100%;"></div>
+    </div>
+
+    <!-- Right Column: Development & Backend Concepts -->
+    <div class="col-md-5 mt-4 mt-md-0">
+        <h5 class="text-center fw-bold mb-4 text-dark">Development & Concepts</h5>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <?php foreach ($concepts as $concept): ?>
+                <span class="badge bg-secondary p-2 px-3 fs-6">
+                    <i class="<?= html_escape($concept['icon']); ?> me-1"></i> <?= html_escape($concept['name']); ?>
+                </span>
+            <?php endforeach; ?>
         </div>
-        <!-- JavaScript -->
-        <div class="col">
-            <div class="tech-icon-card">
-                <i class="fa-brands fa-js text-warning display-6"></i>
-                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">JavaScript</span>
+    </div>
+</div>
+</section>
+
+<!-- Manage Tech Stack Modal -->
+<?php if ($this->session->userdata('logged_in')): ?>
+<div class="modal fade" id="manageTechModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa-solid fa-sliders me-2"></i>Modify Tech Stack & Skills</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </div>
-        <!-- PHP -->
-        <div class="col">
-            <div class="tech-icon-card">
-                <i class="fa-brands fa-php display-6" style="color: #777BB4;"></i>
-                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">PHP</span>
-            </div>
-        </div>
-        <!-- Java -->
-        <div class="col">
-            <div class="tech-icon-card">
-                <i class="fa-brands fa-java text-danger display-6"></i>
-                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">Java</span>
-            </div>
-        </div>
-        <!-- SQL / MySQL -->
-        <div class="col">
-            <div class="tech-icon-card">
-                <i class="fa-solid fa-database text-info display-6"></i>
-                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">MySQL</span>
-            </div>
-        </div>
-        <!-- Bootstrap 5 -->
-        <div class="col">
-            <div class="tech-icon-card">
-                <i class="fa-brands fa-bootstrap display-6" style="color: #6f42c1;"></i>
-                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">Bootstrap</span>
-            </div>
-        </div>
-        <!-- Linux -->
-        <div class="col">
-            <div class="tech-icon-card">
-                <i class="fa-brands fa-linux text-dark display-6"></i>
-                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">Linux</span>
-            </div>
-        </div>
-        <!-- Git -->
-        <div class="col">
-            <div class="tech-icon-card">
-                <i class="fa-brands fa-git-alt text-danger display-6"></i>
-                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">Git</span>
-            </div>
-        </div>
-        <!-- Python -->
-        <div class="col">
-            <div class="tech-icon-card">
-                <i class="fa-brands fa-python text-warning display-6"></i>
-                <span class="d-block mt-2 fw-semibold text-secondary small" style="font-size: 0.75rem;">Python</span>
+            <div class="modal-body text-start">
+                <!-- Form to Add Skill -->
+                <form action="<?= site_url('home/add_tech_stack'); ?>" method="POST" class="card card-body bg-light mb-4">
+                    <h6><strong>Add New Skill/Tool</strong></h6>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <input type="text" name="name" class="form-control" placeholder="Name (e.g. Docker)" required>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="icon" class="form-control" placeholder="FontAwesome Icon Class (e.g. fa-brands fa-docker text-primary)" required>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="category" class="form-select">
+                                <option value="language">Languages & Essentials</option>
+                                <option value="concept">Development & Concepts</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn text-white mt-3" style="background-color: #800000;">
+                        <i class="fa-solid fa-plus me-1"></i> Add Item
+                    </button>
+                </form>
+
+                <!-- List of Existing Skills with Delete Options -->
+                <h6><strong>Current Skills Inventory</strong></h6>
+                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-bordered table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Icon</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($db_skills)): ?>
+                                <?php foreach ($db_skills as $skill): ?>
+                                    <tr>
+                                        <td class="text-center"><i class="<?= html_escape($skill['icon']); ?> fs-5"></i></td>
+                                        <td><?= html_escape($skill['name']); ?></td>
+                                        <td><span class="badge bg-info text-dark"><?= $skill['category']; ?></span></td>
+                                        <td class="text-center">
+                                            <a href="<?= site_url('home/delete_tech_stack/' . $skill['id']); ?>" 
+                                               class="btn btn-danger btn-sm" 
+                                               onclick="return confirm('Are you sure you want to delete this skill?');">
+                                                <i class="fa-solid fa-trash-can"></i> Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No custom skills added yet. Currently displaying default list.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
+<?php endif; ?>
 
-        <!-- Center Vertical Divider -->
-        <div class="col-md-2 d-none d-md-flex justify-content-center align-self-stretch">
-            <div class="vertical-divider" style="width: 2px; background-color: #ccc; min-height: 100%;"></div>
+<!-- Certifications Section -->
+<section id="certifications" class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-dark">Certifications</h2>
+            <p class="text-muted mb-2">Click on any of my certificate to view full information.</p>
+            
+            <!-- Modify Button for Logged-In Admin -->
+            <?php if ($this->session->userdata('logged_in')): ?>
+                <button class="btn btn-warning btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#manageCertModal">
+                    <i class="bi bi-gear-fill me-1"></i> Modify Certifications
+                </button>
+            <?php endif; ?>
         </div>
 
-        <!-- Right Column: Development & Backend Concepts -->
-        <div class="col-md-5 mt-4 mt-md-0">
-            <h5 class="text-center fw-bold mb-4 text-dark">Development & Concepts</h5>
-            <div class="d-flex flex-wrap justify-content-center gap-2">
-            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-sliders me-1"></i> Data Manipulation</span>
-            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-database me-1"></i> Database Administration</span>
-            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-folder-open me-1"></i> File Management</span>
-            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-microchip me-1"></i> Internet of Things</span>
-            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-cubes me-1"></i> Object-Oriented Programming</span>
-            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-code me-1"></i> Software Development</span>
-            <span class="badge bg-secondary p-2 px-3 fs-6"><i class="fa-solid fa-globe me-1"></i> Web Applications</span>
-            </div>
-        </div>
-        </div>
-    </div>
-    </section>
-
-    <!-- Certifications Section -->
-    <section id="certifications" class="py-5 bg-light">
-        <div class="container py-4">
-            <div class="text-center mb-4">
-                <h2 class="fw-bold text-dark">Certifications</h2>
-                <p class="text-muted">Click on any of my certificate to view full information.</p>
-            </div>
-
-            <div class="row g-4 justify-content-center">
-                <?php if(!empty($certifications)): ?>
-                    <?php foreach($certifications as $cert): ?>
-                        <div class="col-md-6 col-lg-4">
-                            <!-- Clickable Card Triggering Modal -->
-                            <div class="card h-100 border-0 shadow-sm p-3 text-center cert-card cursor-pointer" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#certModal<?= $cert['id']; ?>"
-                                style="cursor: pointer; transition: transform 0.2s ease, shadow 0.2s ease;">
-                                
-                                <div class="card-body">
+        <div class="row g-4 justify-content-center">
+            <?php if(!empty($certifications)): ?>
+                <?php foreach($certifications as $cert): ?>
+                    <div class="col-md-6 col-lg-4">
+                        <!-- Clickable Card Triggering Modal -->
+                        <div class="card h-100 border-0 shadow-sm p-3 text-center cert-card cursor-pointer" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#certModal<?= $cert['id']; ?>"
+                            style="cursor: pointer; transition: transform 0.2s ease, shadow 0.2s ease;">
+                            
+                            <div class="card-body">
                                 <div class="mb-3 text-center d-flex justify-content-center align-items-center" style="height: 130px;">
                                     <img src="<?= base_url('assets/uploads/' . ($cert['badge_img'] ?? 'default-badge.png')); ?>" 
                                         alt="<?= html_escape($cert['title']); ?> Badge" 
@@ -717,61 +749,145 @@
                                         onerror="this.onerror=null; this.src='https://via.placeholder.com/85?text=Badge';">
                                 </div>
 
-                                    <div class="mt-2 text-danger small fw-bold">
-                                        <i class="bi bi-eye-fill me-1"></i> View Certificate
-                                    </div>
+                                <div class="mt-2 text-danger small fw-bold">
+                                    <i class="bi bi-eye-fill me-1"></i> View Certificate
                                 </div>
                             </div>
-
-                            <!-- Modal for displaying Certificate Image and Details -->
-                            <div class="modal fade" id="certModal<?= $cert['id']; ?>" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-lg">
-                                    <div class="modal-content shadow border-0">
-                                        <div class="modal-header bg-sdca text-white">
-                                            <h5 class="modal-title fw-bold"><i class="bi bi-award me-2"></i><?= html_escape($cert['title']); ?></h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body text-center p-4 bg-light">
-                                            <!-- Certificate Preview Image -->
-                                            <div class="mb-4">
-                                                <img src="<?= base_url('assets/uploads/' . $cert['cert_image']); ?>" 
-                                                    alt="<?= html_escape($cert['title']); ?>" 
-                                                    class="img-fluid rounded border shadow-sm"
-                                                    style="max-height: 400px; width: auto;">
-                                            </div>
-
-                                            <!-- Details Info -->
-                                            <div class="row g-2 text-start bg-white p-3 rounded border">
-                                                <div class="col-md-6">
-                                                    <strong>Issuing Organization:</strong> <?= html_escape($cert['issuer']); ?>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <strong>Date Issued:</strong> <?= date('F d, Y', strtotime($cert['issue_date'])); ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer bg-white">
-                                            <?php if(!empty($cert['credential_url'])): ?>
-                                                <a href="<?= $cert['credential_url']; ?>" target="_blank" class="btn btn-outline-danger btn-sm">
-                                                    Verify Credential <i class="bi bi-box-arrow-up-right ms-1"></i>
-                                                </a>
-                                            <?php endif; ?>
-                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="col-12 text-center text-muted">
-                        <p>No certifications added yet.</p>
+
+                        <!-- Modal for displaying Certificate Image and Details -->
+                        <div class="modal fade" id="certModal<?= $cert['id']; ?>" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content shadow border-0">
+                                    <div class="modal-header bg-sdca text-white">
+                                        <h5 class="modal-title fw-bold"><i class="bi bi-award me-2"></i><?= html_escape($cert['title']); ?></h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-center p-4 bg-light">
+                                        <!-- Certificate Preview Image -->
+                                        <div class="mb-4">
+                                            <img src="<?= base_url('assets/uploads/' . $cert['cert_image']); ?>" 
+                                                alt="<?= html_escape($cert['title']); ?>" 
+                                                class="img-fluid rounded border shadow-sm"
+                                                style="max-height: 400px; width: auto;">
+                                        </div>
+
+                                        <!-- Details Info -->
+                                        <div class="row g-2 text-start bg-white p-3 rounded border">
+                                            <div class="col-md-6">
+                                                <strong>Issuing Organization:</strong> <?= html_escape($cert['issuer']); ?>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Date Issued:</strong> <?= date('F d, Y', strtotime($cert['issue_date'])); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer bg-white">
+                                        <?php if(!empty($cert['credential_url'])): ?>
+                                            <a href="<?= $cert['credential_url']; ?>" target="_blank" class="btn btn-outline-danger btn-sm">
+                                                Verify Credential <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                <?php endif; ?>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12 text-center text-muted">
+                    <p>No certifications added yet.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for Modifying Certifications (Add / Delete) -->
+<?php if ($this->session->userdata('logged_in')): ?>
+<div class="modal fade" id="manageCertModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-gear-fill me-2"></i>Modify Certifications</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start p-4">
+                <!-- Add Certification Form -->
+                <form action="<?= site_url('home/add_certification'); ?>" method="POST" enctype="multipart/form-data" class="card card-body bg-light border-0 shadow-sm mb-4">
+                    <h6 class="fw-bold mb-3 text-dark"><i class="bi bi-plus-circle-fill me-1"></i> Add New Certification</h6>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold mb-1">Title</label>
+                            <input type="text" name="title" class="form-control form-control-sm" placeholder="e.g. IT Specialist in Java" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold mb-1">Issuer</label>
+                            <input type="text" name="issuer" class="form-control form-control-sm" placeholder="e.g. Certiport" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold mb-1">Issue Date</label>
+                            <input type="date" name="issue_date" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold mb-1">Badge Image</label>
+                            <input type="file" name="badge_img" class="form-control form-control-sm" accept="image/*">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold mb-1">Certificate Image</label>
+                            <input type="file" name="cert_image" class="form-control form-control-sm" accept="image/*" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-sm mt-3 w-100 fw-bold">
+                        <i class="bi bi-check-circle-fill me-1"></i> Save Certification
+                    </button>
+                </form>
+
+                <!-- List of Existing Certifications -->
+                <h6 class="fw-bold mb-2 text-dark"><i class="bi bi-list-stars me-1"></i> Current Certifications</h6>
+                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                    <table class="table table-bordered table-hover align-middle mb-0">
+                        <thead class="table-dark small">
+                            <tr>
+                                <th>Badge</th>
+                                <th>Title</th>
+                                <th>Issuer</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            <?php if (!empty($certifications)): ?>
+                                <?php foreach ($certifications as $c): ?>
+                                    <tr>
+                                        <td class="text-center">
+                                            <img src="<?= base_url('assets/uploads/' . ($c['badge_img'] ?? 'default-badge.png')); ?>" style="width: 30px; height: 30px; object-fit: contain;">
+                                        </td>
+                                        <td class="fw-bold"><?= html_escape($c['title']); ?></td>
+                                        <td><?= html_escape($c['issuer']); ?></td>
+                                        <td class="text-center">
+                                            <a href="<?= site_url('home/delete_certification/' . $c['id']); ?>" 
+                                               class="btn btn-outline-danger btn-sm py-0 px-2" 
+                                               onclick="return confirm('Delete this certification?');">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No certifications found in database.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
+</div>
+<?php endif; ?>
 
         <!-- Place this AFTER your project foreach loop finishes -->
     <?php if (!empty($projects) && $this->session->userdata('logged_in')): ?>

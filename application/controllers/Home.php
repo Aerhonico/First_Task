@@ -262,4 +262,114 @@ class Home extends CI_Controller {
     redirect('');
 }
 
+public function add_tech_stack() {
+    if (!$this->session->userdata('logged_in')) {
+        redirect('login');
+        return;
+    }
+
+    $icon_name = '';
+    if (!empty($_FILES['tech_icon']['name'])) {
+        $config['upload_path']   = FCPATH . 'assets/images/';
+        $config['allowed_types'] = 'jpg|jpeg|png|webp|svg';
+        $config['file_name']     = 'tech_' . time();
+
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+
+        if ($this->upload->do_upload('tech_icon')) {
+            $uploadData = $this->upload->data();
+            $icon_name  = $uploadData['file_name'];
+        }
+    }
+
+        $data = array(
+                'name'     => trim($this->input->post('name', TRUE)),
+                'icon'     => trim($this->input->post('icon', TRUE)),
+                'category' => $this->input->post('category', TRUE)
+            );
+
+            $this->db->insert('tech_stack', $data);
+            $this->session->set_flashdata('project_success', 'Tech stack item added successfully!');
+            redirect('');
+}
+
+public function delete_tech_stack($id) {
+    if (!$this->session->userdata('logged_in')) {
+        redirect('login');
+        return;
+    }
+
+    $this->db->where('id', $id);
+    $this->db->delete('tech_stack');
+
+    $this->session->set_flashdata('project_success', 'Item removed successfully!');
+    redirect('');
+}
+
+public function add_certification() {
+    if (!$this->session->userdata('logged_in')) {
+        redirect('login');
+        return;
+    }
+
+    $badge_img = 'default-cert.png';
+    $cert_image = 'default-cert.jpg';
+
+    // Upload Badge Image if provided
+    if (!empty($_FILES['badge_img']['name'])) {
+        $config['upload_path']   = FCPATH . 'assets/uploads/';
+        $config['allowed_types'] = 'jpg|jpeg|png|webp';
+        $config['file_name']     = 'badge_' . time();
+
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+
+        if ($this->upload->do_upload('badge_img')) {
+            $uploadData = $this->upload->data();
+            $badge_img  = $uploadData['file_name'];
+        }
+    }
+
+    // Upload Full Certificate Image if provided
+    if (!empty($_FILES['cert_image']['name'])) {
+        $config['upload_path']   = FCPATH . 'assets/uploads/';
+        $config['allowed_types'] = 'jpg|jpeg|png|webp';
+        $config['file_name']     = 'cert_' . time();
+
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+
+        if ($this->upload->do_upload('cert_image')) {
+            $uploadData  = $this->upload->data();
+            $cert_image = $uploadData['file_name'];
+        }
+    }
+
+    $data = array(
+        'title'      => trim($this->input->post('title', TRUE)),
+        'issuer'     => trim($this->input->post('issuer', TRUE)),
+        'issue_date' => $this->input->post('issue_date', TRUE), // Expects YYYY-MM-DD
+        'badge_img'  => $badge_img,
+        'cert_image' => $cert_image
+    );
+
+    $this->db->insert('certifications', $data);
+    $this->session->set_flashdata('project_success', 'Certification added successfully!');
+    redirect('');
+}
+
+public function delete_certification($id) {
+    if (!$this->session->userdata('logged_in')) {
+        redirect('login');
+        return;
+    }
+
+    $this->db->where('id', $id);
+    $this->db->delete('certifications');
+
+    $this->session->set_flashdata('project_success', 'Certification deleted successfully!');
+    redirect('');
+}
+
 }
