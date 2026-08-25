@@ -227,6 +227,9 @@
       <i class="bi bi-pencil-square me-1"></i> Admin Edit Mode Active
     </span>
     <div>
+        <button class="btn btn-outline-warning btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#activityLogModal">
+            <i class="bi bi-clock-history me-1"></i> View Activity Trail
+        </button>
       <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#editHeroModal">
         <i class="bi bi-person-gear"></i> Edit Hero Section
       </button>
@@ -592,8 +595,8 @@
             <p class="text-muted">Tools and technologies I use to build web and mobile applications.</p>
             
             <?php if ($this->session->userdata('logged_in')): ?>
-                <button class="btn btn-warning btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#manageTechModal">
-                    <i class="fa-solid fa-gear me-1"></i> Modify Tech Stack
+                <button class="btn btn-warning btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#techStackModal">
+                    <i class="bi bi-gear-fill me-1"></i> Modify Tech Stack
                 </button>
             <?php endif; ?>
         </div>
@@ -1178,6 +1181,59 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
     </div>
 </div>
+
+<?php if ($this->session->userdata('logged_in')): ?>
+<div class="modal fade" id="activityLogModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold text-warning">
+                    <i class="bi bi-journal-text me-2"></i>Admin Activity Trail
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0 small">
+                        <thead class="table-secondary text-uppercase text-dark" style="font-size: 0.75rem;">
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Section</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($logs)): ?>
+                                <?php foreach ($logs as $log): ?>
+                                    <tr>
+                                        <td class="text-nowrap text-muted"><?= date('M d, Y h:i A', strtotime($log['created_at'])); ?></td>
+                                        <td><span class="badge bg-secondary"><?= html_escape($log['section']); ?></span></td>
+                                        <td>
+                                            <?php 
+                                                $badge_class = 'bg-primary';
+                                                if ($log['action'] == 'Deleted' || $log['action'] == 'Lockout') $badge_class = 'bg-danger';
+                                                if ($log['action'] == 'Added' || $log['action'] == 'Login') $badge_class = 'bg-success';
+                                                if ($log['action'] == 'Updated' || $log['action'] == 'Updated Details') $badge_class = 'bg-warning text-dark';
+                                            ?>
+                                            <span class="badge <?= $badge_class; ?>"><?= html_escape($log['action']); ?></span>
+                                        </td>
+                                        <td><?= html_escape($log['details']); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">No activity logged yet. Perform an action to see tracking.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 </body>
 </html>

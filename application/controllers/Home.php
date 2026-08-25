@@ -30,6 +30,9 @@ class Home extends CI_Controller {
         // Get user account details from users table
         $data['user'] = $this->db->get_where('users', array('id' => 1))->row_array(); 
 
+        // Fetch the 50 most recent activity logs for admin view
+        $data['logs'] = $this->db->order_by('id', 'DESC')->limit(50)->get('activity_logs')->result_array();
+
         // Load the Bootstrap 5 view and pass all data once
         $this->load->view('home', $data);
     }
@@ -68,9 +71,9 @@ class Home extends CI_Controller {
         $this->email->message($body);
 
         if ($this->email->send()) {
+            $this->log_activity('Sent Message', 'Contact', 'Inquiry sent by: ' . $email);
             $this->session->set_flashdata('contact_success', 'Your message has been sent successfully!');
         } else {
-            // Echo debug info if sending fails
             show_error($this->email->print_debugger());
             return;
         }
@@ -113,8 +116,10 @@ class Home extends CI_Controller {
         $this->db->where('id', 1);
         $this->db->update('user_profile', $update_data);
     
+        // LOG BEFORE REDIRECT
+        $this->log_activity('Updated', 'Hero Section', 'Updated bio and name for ' . $full_name);
         $this->session->set_flashdata('hero_success', 'Hero section updated successfully!');
-        redirect(''); // Refresh page
+        redirect('');
     }
 
     public function add_project() {
@@ -123,12 +128,10 @@ class Home extends CI_Controller {
             return;
         }
 
-        // 1. Check raw file data
         if (empty($_FILES['project_img']['name'])) {
-            die('DEBUG ERROR: $_FILES["project_img"] is empty. Check <form enctype="multipart/form-data"> and <input name="project_img">.');
+            die('DEBUG ERROR: $_FILES["project_img"] is empty.');
         }
 
-        // 2. Setup upload directory path
         $upload_path = FCPATH . 'assets/images/';
         if (!is_dir($upload_path)) {
             mkdir($upload_path, 0777, true);
@@ -144,9 +147,10 @@ class Home extends CI_Controller {
         if ($this->upload->do_upload('project_img')) {
             $upload_data = $this->upload->data();
             $image_name  = $upload_data['file_name'];
+            $title       = trim($this->input->post('title', TRUE));
 
             $project_data = array(
-                'title'       => trim($this->input->post('title', TRUE)),
+                'title'       => $title,
                 'description' => trim($this->input->post('description', TRUE)),
                 'tech_stack'  => trim($this->input->post('tech_stack', TRUE)),
                 'project_img' => $image_name,
@@ -155,8 +159,10 @@ class Home extends CI_Controller {
 
             $this->db->insert('projects', $project_data);
 
-            // DIE WITH SUCCESS INFO TO VERIFY DB AND FILE SAVED
-            die('SUCCESS: Uploaded file saved as ' . $image_name . ' in ' . $upload_path);
+            // LOG BEFORE REDIRECT OR DIE
+            $this->log_activity('Added', 'Projects', 'Added project: ' . $title);
+            $this->session->set_flashdata('project_success', 'Project added successfully!');
+            redirect('');
         } else {
             die('CI UPLOAD ERROR: ' . $this->upload->display_errors());
         }
@@ -168,13 +174,13 @@ class Home extends CI_Controller {
             return;
         }
 
+        $title = trim($this->input->post('title', TRUE));
         $update_data = array(
-            'title'       => trim($this->input->post('title', TRUE)),
+            'title'       => $title,
             'description' => trim($this->input->post('description', TRUE)),
             'tech_stack'  => trim($this->input->post('tech_stack', TRUE))
         );
 
-        // If a new image was uploaded
         if (!empty($_FILES['project_img']['name'])) {
             $config['upload_path']   = './assets/images/';
             $config['allowed_types'] = 'jpg|jpeg|png|webp';
@@ -184,7 +190,6 @@ class Home extends CI_Controller {
 
             if ($this->upload->do_upload('project_img')) {
                 $upload_data = $this->upload->data();
-                // Match database column name 'project_img'
                 $update_data['project_img'] = $upload_data['file_name'];
             }
         }
@@ -192,14 +197,12 @@ class Home extends CI_Controller {
         $this->db->where('id', $id);
         $this->db->update('projects', $update_data);
 
-        $this->session->set_flashdata('project_success', 'Project updated successfully!');
-        redirect('');
-        // Inside edit_project() or update_project_details():
+        // LOG BEFORE REDIRECT
+        $this->log_activity('Updated', 'Projects', 'Updated project: ' . $title);
         $this->session->set_flashdata('project_success', 'Project updated successfully!');
         redirect('');
     }
 
-    // Delete Project Action
     public function delete_project($id) {
         if (!$this->session->userdata('logged_in')) {
             redirect('login');
@@ -209,167 +212,175 @@ class Home extends CI_Controller {
         $this->db->where('id', $id);
         $this->db->delete('projects');
 
+        // LOG BEFORE REDIRECT
+        $this->log_activity('Deleted', 'Projects', 'Deleted project ID: ' . $id);
         $this->session->set_flashdata('project_success', 'Project deleted successfully!');
         redirect('');
     }
 
     public function update_project_details($id) {
-    if (!$this->session->userdata('logged_in')) {
-        redirect('login');
-        return;
+        if (!$this->session->userdata('logged_in')) {
+            redirect('login');
+            return;
+        }
+
+        $update_data = array(
+            'about_project' => trim($this->input->post('about_project', TRUE)),
+            'site_url'      => trim($this->input->post('site_url', TRUE))
+        );
+
+        $existing = $this->db->get_where('projects', array('id' => $id))->row_array();
+        $gallery_list = !empty($existing['gallery_images']) ? explode(',', $existing['gallery_images']) : array();
+
+        if (!empty($_FILES['carousel_images']['name'][0])) {
+            $filesCount = count($_FILES['carousel_images']['name']);
+            
+            $config['upload_path']   = './assets/images/';
+            $config['allowed_types'] = 'jpg|jpeg|png|webp';
+
+            $this->load->library('upload');
+
+            for ($i = 0; $i < $filesCount; $i++) {
+                $_FILES['file']['name']     = $_FILES['carousel_images']['name'][$i];
+                $_FILES['file']['type']     = $_FILES['carousel_images']['type'][$i];
+                $_FILES['file']['tmp_name'] = $_FILES['carousel_images']['tmp_name'][$i];
+                $_FILES['file']['error']    = $_FILES['carousel_images']['error'][$i];
+                $_FILES['file']['size']     = $_FILES['carousel_images']['size'][$i];
+
+                $config['file_name'] = 'gallery_' . time() . '_' . $i;
+                $this->upload->initialize($config);
+
+                if ($this->upload->do_upload('file')) {
+                    $uploadData = $this->upload->data();
+                    $gallery_list[] = $uploadData['file_name'];
+                }
+            }
+            $update_data['gallery_images'] = implode(',', $gallery_list);
+        }
+
+        $this->db->where('id', $id);
+        $this->db->update('projects', $update_data);
+
+        // LOG BEFORE REDIRECT
+        $this->log_activity('Updated Details', 'Projects', 'Updated extended details for project ID: ' . $id);
+        $this->session->set_flashdata('project_success', 'Project details updated successfully!');
+        redirect('');
     }
 
-    $update_data = array(
-        'about_project' => trim($this->input->post('about_project', TRUE)),
-        'site_url'      => trim($this->input->post('site_url', TRUE))
-    );
+    public function add_tech_stack() {
+        if (!$this->session->userdata('logged_in')) {
+            redirect('login');
+            return;
+        }
 
-    // Fetch current project to manage existing gallery images
-    $existing = $this->db->get_where('projects', array('id' => $id))->row_array();
-    $gallery_list = !empty($existing['gallery_images']) ? explode(',', $existing['gallery_images']) : array();
+        $name = trim($this->input->post('name', TRUE));
+        $data = array(
+            'name'     => $name,
+            'icon'     => trim($this->input->post('icon', TRUE)),
+            'category' => $this->input->post('category', TRUE)
+        );
 
-    // Handle Multiple Carousel Image Uploads
-    if (!empty($_FILES['carousel_images']['name'][0])) {
-        $filesCount = count($_FILES['carousel_images']['name']);
-        
-        $config['upload_path']   = './assets/images/';
-        $config['allowed_types'] = 'jpg|jpeg|png|webp';
+        $this->db->insert('tech_stack', $data);
 
-        $this->load->library('upload');
+        // LOG BEFORE REDIRECT
+        $this->log_activity('Added', 'Tech Stack', 'Added skill: ' . $name);
+        $this->session->set_flashdata('project_success', 'Tech stack item added successfully!');
+        redirect('');
+    }
 
-        for ($i = 0; $i < $filesCount; $i++) {
-            $_FILES['file']['name']     = $_FILES['carousel_images']['name'][$i];
-            $_FILES['file']['type']     = $_FILES['carousel_images']['type'][$i];
-            $_FILES['file']['tmp_name'] = $_FILES['carousel_images']['tmp_name'][$i];
-            $_FILES['file']['error']    = $_FILES['carousel_images']['error'][$i];
-            $_FILES['file']['size']     = $_FILES['carousel_images']['size'][$i];
+    public function delete_tech_stack($id) {
+        if (!$this->session->userdata('logged_in')) {
+            redirect('login');
+            return;
+        }
 
-            $config['file_name'] = 'gallery_' . time() . '_' . $i;
+        $this->db->where('id', $id);
+        $this->db->delete('tech_stack');
+
+        // LOG BEFORE REDIRECT
+        $this->log_activity('Deleted', 'Tech Stack', 'Removed tech item ID: ' . $id);
+        $this->session->set_flashdata('project_success', 'Item removed successfully!');
+        redirect('');
+    }
+
+    public function add_certification() {
+        if (!$this->session->userdata('logged_in')) {
+            redirect('login');
+            return;
+        }
+
+        $badge_img = 'default-cert.png';
+        $cert_image = 'default-cert.jpg';
+
+        if (!empty($_FILES['badge_img']['name'])) {
+            $config['upload_path']   = FCPATH . 'assets/uploads/';
+            $config['allowed_types'] = 'jpg|jpeg|png|webp';
+            $config['file_name']     = 'badge_' . time();
+
+            $this->load->library('upload');
             $this->upload->initialize($config);
 
-            if ($this->upload->do_upload('file')) {
+            if ($this->upload->do_upload('badge_img')) {
                 $uploadData = $this->upload->data();
-                $gallery_list[] = $uploadData['file_name'];
+                $badge_img  = $uploadData['file_name'];
             }
         }
-        $update_data['gallery_images'] = implode(',', $gallery_list);
-    }
 
-    $this->db->where('id', $id);
-    $this->db->update('projects', $update_data);
+        if (!empty($_FILES['cert_image']['name'])) {
+            $config['upload_path']   = FCPATH . 'assets/uploads/';
+            $config['allowed_types'] = 'jpg|jpeg|png|webp';
+            $config['file_name']     = 'cert_' . time();
 
-    $this->session->set_flashdata('project_success', 'Project details updated successfully!');
-    redirect('');
-}
+            $this->load->library('upload');
+            $this->upload->initialize($config);
 
-public function add_tech_stack() {
-    if (!$this->session->userdata('logged_in')) {
-        redirect('login');
-        return;
-    }
-
-    $icon_name = '';
-    if (!empty($_FILES['tech_icon']['name'])) {
-        $config['upload_path']   = FCPATH . 'assets/images/';
-        $config['allowed_types'] = 'jpg|jpeg|png|webp|svg';
-        $config['file_name']     = 'tech_' . time();
-
-        $this->load->library('upload');
-        $this->upload->initialize($config);
-
-        if ($this->upload->do_upload('tech_icon')) {
-            $uploadData = $this->upload->data();
-            $icon_name  = $uploadData['file_name'];
+            if ($this->upload->do_upload('cert_image')) {
+                $uploadData  = $this->upload->data();
+                $cert_image = $uploadData['file_name'];
+            }
         }
-    }
 
+        $title = trim($this->input->post('title', TRUE));
         $data = array(
-                'name'     => trim($this->input->post('name', TRUE)),
-                'icon'     => trim($this->input->post('icon', TRUE)),
-                'category' => $this->input->post('category', TRUE)
-            );
+            'title'      => $title,
+            'issuer'     => trim($this->input->post('issuer', TRUE)),
+            'issue_date' => $this->input->post('issue_date', TRUE),
+            'badge_img'  => $badge_img,
+            'cert_image' => $cert_image
+        );
 
-            $this->db->insert('tech_stack', $data);
-            $this->session->set_flashdata('project_success', 'Tech stack item added successfully!');
-            redirect('');
-}
+        $this->db->insert('certifications', $data);
 
-public function delete_tech_stack($id) {
-    if (!$this->session->userdata('logged_in')) {
-        redirect('login');
-        return;
+        // LOG BEFORE REDIRECT
+        $this->log_activity('Added', 'Certifications', 'Title: ' . $title);
+        $this->session->set_flashdata('project_success', 'Certification added successfully!');
+        redirect('');
     }
 
-    $this->db->where('id', $id);
-    $this->db->delete('tech_stack');
-
-    $this->session->set_flashdata('project_success', 'Item removed successfully!');
-    redirect('');
-}
-
-public function add_certification() {
-    if (!$this->session->userdata('logged_in')) {
-        redirect('login');
-        return;
-    }
-
-    $badge_img = 'default-cert.png';
-    $cert_image = 'default-cert.jpg';
-
-    // Upload Badge Image if provided
-    if (!empty($_FILES['badge_img']['name'])) {
-        $config['upload_path']   = FCPATH . 'assets/uploads/';
-        $config['allowed_types'] = 'jpg|jpeg|png|webp';
-        $config['file_name']     = 'badge_' . time();
-
-        $this->load->library('upload');
-        $this->upload->initialize($config);
-
-        if ($this->upload->do_upload('badge_img')) {
-            $uploadData = $this->upload->data();
-            $badge_img  = $uploadData['file_name'];
+    public function delete_certification($id) {
+        if (!$this->session->userdata('logged_in')) {
+            redirect('login');
+            return;
         }
+
+        $this->db->where('id', $id);
+        $this->db->delete('certifications');
+
+        // LOG BEFORE REDIRECT
+        $this->log_activity('Deleted', 'Certifications', 'Deleted cert ID: ' . $id);
+        $this->session->set_flashdata('project_success', 'Certification deleted successfully!');
+        redirect('');
     }
 
-    // Upload Full Certificate Image if provided
-    if (!empty($_FILES['cert_image']['name'])) {
-        $config['upload_path']   = FCPATH . 'assets/uploads/';
-        $config['allowed_types'] = 'jpg|jpeg|png|webp';
-        $config['file_name']     = 'cert_' . time();
-
-        $this->load->library('upload');
-        $this->upload->initialize($config);
-
-        if ($this->upload->do_upload('cert_image')) {
-            $uploadData  = $this->upload->data();
-            $cert_image = $uploadData['file_name'];
-        }
+    private function log_activity($action, $section, $details = '') {
+        $log_data = array(
+            'user_id'    => $this->session->userdata('user_id') ? $this->session->userdata('user_id') : NULL,
+            'section'    => $section,
+            'action'     => $action,
+            'details'    => $details,
+            'ip_address' => $this->input->ip_address()
+        );
+        $this->db->insert('activity_logs', $log_data);
     }
-
-    $data = array(
-        'title'      => trim($this->input->post('title', TRUE)),
-        'issuer'     => trim($this->input->post('issuer', TRUE)),
-        'issue_date' => $this->input->post('issue_date', TRUE), // Expects YYYY-MM-DD
-        'badge_img'  => $badge_img,
-        'cert_image' => $cert_image
-    );
-
-    $this->db->insert('certifications', $data);
-    $this->session->set_flashdata('project_success', 'Certification added successfully!');
-    redirect('');
-}
-
-public function delete_certification($id) {
-    if (!$this->session->userdata('logged_in')) {
-        redirect('login');
-        return;
-    }
-
-    $this->db->where('id', $id);
-    $this->db->delete('certifications');
-
-    $this->session->set_flashdata('project_success', 'Certification deleted successfully!');
-    redirect('');
-}
 
 }
