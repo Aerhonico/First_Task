@@ -122,38 +122,144 @@ class Home extends CI_Controller {
             redirect('login');
             return;
         }
-    
-        $title       = $this->input->post('title');
-        $description = $this->input->post('description');
-        $tech_stack  = $this->input->post('tech_stack');
-        $image_name  = 'default_project.jpg';
-    
-        // Handle Image Upload
+
+        // 1. Check raw file data
+        if (empty($_FILES['project_img']['name'])) {
+            die('DEBUG ERROR: $_FILES["project_img"] is empty. Check <form enctype="multipart/form-data"> and <input name="project_img">.');
+        }
+
+        // 2. Setup upload directory path
+        $upload_path = FCPATH . 'assets/images/';
+        if (!is_dir($upload_path)) {
+            mkdir($upload_path, 0777, true);
+        }
+
+        $config['upload_path']   = $upload_path;
+        $config['allowed_types'] = '*';
+        $config['file_name']     = 'proj_' . time();
+
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+
+        if ($this->upload->do_upload('project_img')) {
+            $upload_data = $this->upload->data();
+            $image_name  = $upload_data['file_name'];
+
+            $project_data = array(
+                'title'       => trim($this->input->post('title', TRUE)),
+                'description' => trim($this->input->post('description', TRUE)),
+                'tech_stack'  => trim($this->input->post('tech_stack', TRUE)),
+                'project_img' => $image_name,
+                'created_at'  => date('Y-m-d H:i:s')
+            );
+
+            $this->db->insert('projects', $project_data);
+
+            // DIE WITH SUCCESS INFO TO VERIFY DB AND FILE SAVED
+            die('SUCCESS: Uploaded file saved as ' . $image_name . ' in ' . $upload_path);
+        } else {
+            die('CI UPLOAD ERROR: ' . $this->upload->display_errors());
+        }
+    }
+
+    public function edit_project($id) {
+        if (!$this->session->userdata('logged_in')) {
+            redirect('login');
+            return;
+        }
+
+        $update_data = array(
+            'title'       => trim($this->input->post('title', TRUE)),
+            'description' => trim($this->input->post('description', TRUE)),
+            'tech_stack'  => trim($this->input->post('tech_stack', TRUE))
+        );
+
+        // If a new image was uploaded
         if (!empty($_FILES['project_img']['name'])) {
             $config['upload_path']   = './assets/images/';
             $config['allowed_types'] = 'jpg|jpeg|png|webp';
             $config['file_name']     = 'proj_' . time();
-    
+
             $this->load->library('upload', $config);
-    
+
             if ($this->upload->do_upload('project_img')) {
                 $upload_data = $this->upload->data();
-                $image_name  = $upload_data['file_name'];
+                // Match database column name 'project_img'
+                $update_data['project_img'] = $upload_data['file_name'];
             }
         }
-    
-        $project_data = array(
-            'title'       => $title,
-            'description' => $description,
-            'tech_stack'  => $tech_stack,
-            'image'       => $image_name,
-            'created_at'  => date('Y-m-d H:i:s')
-        );
-    
-        $this->db->insert('projects', $project_data);
-    
-        $this->session->set_flashdata('project_success', 'New project added successfully!');
-        redirect(''); // Refresh page
+
+        $this->db->where('id', $id);
+        $this->db->update('projects', $update_data);
+
+        $this->session->set_flashdata('project_success', 'Project updated successfully!');
+        redirect('');
+        // Inside edit_project() or update_project_details():
+        $this->session->set_flashdata('project_success', 'Project updated successfully!');
+        redirect('');
     }
+
+    // Delete Project Action
+    public function delete_project($id) {
+        if (!$this->session->userdata('logged_in')) {
+            redirect('login');
+            return;
+        }
+
+        $this->db->where('id', $id);
+        $this->db->delete('projects');
+
+        $this->session->set_flashdata('project_success', 'Project deleted successfully!');
+        redirect('');
+    }
+
+    public function update_project_details($id) {
+    if (!$this->session->userdata('logged_in')) {
+        redirect('login');
+        return;
+    }
+
+    $update_data = array(
+        'about_project' => trim($this->input->post('about_project', TRUE)),
+        'site_url'      => trim($this->input->post('site_url', TRUE))
+    );
+
+    // Fetch current project to manage existing gallery images
+    $existing = $this->db->get_where('projects', array('id' => $id))->row_array();
+    $gallery_list = !empty($existing['gallery_images']) ? explode(',', $existing['gallery_images']) : array();
+
+    // Handle Multiple Carousel Image Uploads
+    if (!empty($_FILES['carousel_images']['name'][0])) {
+        $filesCount = count($_FILES['carousel_images']['name']);
+        
+        $config['upload_path']   = './assets/images/';
+        $config['allowed_types'] = 'jpg|jpeg|png|webp';
+
+        $this->load->library('upload');
+
+        for ($i = 0; $i < $filesCount; $i++) {
+            $_FILES['file']['name']     = $_FILES['carousel_images']['name'][$i];
+            $_FILES['file']['type']     = $_FILES['carousel_images']['type'][$i];
+            $_FILES['file']['tmp_name'] = $_FILES['carousel_images']['tmp_name'][$i];
+            $_FILES['file']['error']    = $_FILES['carousel_images']['error'][$i];
+            $_FILES['file']['size']     = $_FILES['carousel_images']['size'][$i];
+
+            $config['file_name'] = 'gallery_' . time() . '_' . $i;
+            $this->upload->initialize($config);
+
+            if ($this->upload->do_upload('file')) {
+                $uploadData = $this->upload->data();
+                $gallery_list[] = $uploadData['file_name'];
+            }
+        }
+        $update_data['gallery_images'] = implode(',', $gallery_list);
+    }
+
+    $this->db->where('id', $id);
+    $this->db->update('projects', $update_data);
+
+    $this->session->set_flashdata('project_success', 'Project details updated successfully!');
+    redirect('');
+}
 
 }

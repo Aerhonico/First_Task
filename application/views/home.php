@@ -226,9 +226,12 @@
       <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#editHeroModal">
         <i class="bi bi-person-gear"></i> Edit Hero Section
       </button>
-      <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addProjectModal">
-        <i class="fa-solid fa-plus"></i> Add New Project
-      </button>
+        <button type="button" 
+                class="btn btn-success btn-sm" 
+                data-bs-toggle="modal" 
+                data-bs-target="#addProjectModal">
+            + Add New Project
+        </button>
     </div>
   </div>
 <?php endif; ?>
@@ -240,6 +243,16 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
+
+<div class="container mt-3">
+    <?php if ($this->session->flashdata('project_success')): ?>
+        <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <?= $this->session->flashdata('project_success'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+</div>
 
 <!-- Hero Section -->
 <header id="about" class="py-3 bg-white border-bottom">
@@ -376,20 +389,62 @@
                             <?php if($this->session->userdata('logged_in')): ?>
                                 <!-- Admin Quick Action Badges -->
                                 <div class="position-absolute top-0 end-0 m-2 z-3">
-                                    <button class="btn btn-sm btn-warning shadow-sm me-1" onclick="editProject(<?= isset($project['id']) ? $project['id'] : ''; ?>)">
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?= $project['id']; ?>">
                                         <i class="bi bi-pencil-fill"></i>
                                     </button>
-                                    <a href="<?= base_url('projects/delete/'.$project['id']); ?>" class="btn btn-sm btn-danger shadow-sm" onclick="return confirm('Delete this project?')">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </a>
+                                <a href="<?= site_url('home/delete_project/' . $project['id']); ?>" 
+                                class="btn btn-danger btn-sm" 
+                                onclick="return confirm('Are you sure you want to delete <?= html_escape($project['title']); ?>?');">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                                </div>
+
+                                <!-- Edit Project Modal -->
+                                <div class="modal fade" id="editModal<?= $project['id']; ?>" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Project: <?= html_escape($project['title']); ?></h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="<?= site_url('home/edit_project/' . $project['id']); ?>" method="POST" enctype="multipart/form-data">
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Project Title</label>
+                                                        <input type="text" name="title" class="form-control" value="<?= html_escape($project['title']); ?>" required>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Short Description</label>
+                                                        <textarea name="description" class="form-control" rows="3" required><?= html_escape($project['description']); ?></textarea>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Tech Stack (comma-separated)</label>
+                                                        <input type="text" name="tech_stack" class="form-control" value="<?= html_escape($project['tech_stack']); ?>" placeholder="PHP, MySQL, Bootstrap">
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Main Project Cover Image</label>
+                                                        <input type="file" name="project_img" class="form-control" accept="image/*">
+                                                        <small class="text-muted">Leave blank if you don't want to change the current cover image.</small>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn text-white" style="background-color: #800000;">Save Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             <?php endif; ?>
 
                             <!-- Dynamic Thumbnail Image with Fallback -->
-                            <img src="<?= !empty($project['thumbnail_img']) && file_exists(FCPATH . 'assets/uploads/' . $project['thumbnail_img']) ? base_url('assets/uploads/' . $project['thumbnail_img']) : 'https://via.placeholder.com/400x220?text=Project+Preview'; ?>" 
-                                 class="card-img-top object-fit-contain bg-light p-3"
-                                 alt="<?= html_escape($project['title']); ?>" 
-                                 style="height: 280px;">
+                            <img src="<?= base_url('assets/images/' . (!empty($project['project_img']) ? $project['project_img'] : 'default_project.jpg')); ?>" 
+                                class="card-img-top object-fit-contain bg-light p-3" 
+                                alt="<?= html_escape($project['title']); ?>" 
+                                style="height: 280px;">
                             
                             <div class="card-body d-flex flex-column p-4">
                                 <h5 class="card-title fw-bold"><?= html_escape($project['title']); ?></h5>
@@ -409,7 +464,7 @@
                                 <!-- Action Buttons Footer -->
                                 <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                                     <!-- Details Button linked to Modal -->
-                                    <button type="button" class="btn btn-outline-sdca btn-sm px-3" data-bs-toggle="modal" data-bs-target="#projectModal<?= $project['id']; ?>">
+                                    <button type="button" class="btn btn-outline-sdca btn-sm" data-bs-toggle="modal" data-bs-target="#projectModal<?= $project['id']; ?>">
                                         Details
                                     </button>
                                     
@@ -448,8 +503,8 @@
                                     <div class="modal-body p-4 bg-light">
                                         
                                         <?php 
-                                            // Prepare image array for Carousel
-                                            $images = !empty($project['gallery_images']) ? explode(',', $project['gallery_images']) : [$project['image']];
+                                           $img_name = !empty($project['project_img']) ? $project['project_img'] : 'default_project.jpg';
+                                        $images   = !empty($project['gallery_images']) ? explode(',', $project['gallery_images']) : [$img_name];
                                         ?>
 
                                         <!-- Bootstrap Image Carousel -->
@@ -514,6 +569,7 @@
                         <!-- End Modal -->
 
                     </div> <!-- End col-md-6 col-lg-4 -->
+                    
                 <?php endforeach; ?>
             <?php else: ?>
                 <div class="col-12 text-center text-muted">
@@ -717,6 +773,95 @@
         </div>
     </section>
 
+        <!-- Place this AFTER your project foreach loop finishes -->
+    <?php if (!empty($projects) && $this->session->userdata('logged_in')): ?>
+        <?php foreach ($projects as $project): ?>
+<!-- Details & Admin Edit Modal -->
+<div class="modal fade" id="projectModal<?= $project['id']; ?>" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><?= html_escape($project['title']); ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <?php 
+                    // Prepare images array safely
+                    $main_img = !empty($project['project_img']) ? $project['project_img'] : 'default_project.jpg';
+                    $images   = !empty($project['gallery_images']) ? explode(',', $project['gallery_images']) : array($main_img);
+                ?>
+
+                <!-- Image Carousel -->
+                <div id="carousel<?= $project['id']; ?>" class="carousel slide mb-4 bg-light p-2 rounded" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <?php foreach ($images as $index => $img): ?>
+                            <div class="carousel-item <?= $index === 0 ? 'active' : ''; ?>">
+                                <img src="<?= base_url('assets/images/' . trim($img)); ?>" class="d-block w-100 object-fit-contain" style="height: 300px;" alt="Carousel Image">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php if (count($images) > 1): ?>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel<?= $project['id']; ?>" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel<?= $project['id']; ?>" data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Display Info -->
+                <div class="mb-3">
+                    <h6><strong>About the Project</strong></h6>
+                    <p><?= !empty($project['about_project']) ? nl2br(html_escape($project['about_project'])) : html_escape($project['description']); ?></p>
+                </div>
+
+                <?php if (!empty($project['site_url'])): ?>
+                    <div class="mb-3">
+                        <a href="<?= html_escape($project['site_url']); ?>" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-box-arrow-up-right"></i> Visit Live Site
+                        </a>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Admin Inline Management Form -->
+                <?php if ($this->session->userdata('logged_in')): ?>
+                    <hr>
+                    <!-- Edit Button (Yellow Pencil) -->
+                    <button type="button" 
+                            class="btn btn-warning btn-sm" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editModal<?= $project['id']; ?>">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+
+                    <div class="collapse" id="editDetailsForm<?= $project['id']; ?>">
+                        <form action="<?= site_url('home/update_project_details/' . $project['id']); ?>" method="POST" enctype="multipart/form-data" class="card card-body bg-light">
+                            <div class="mb-3">
+                                <label class="form-label"><strong>About the Project (Detailed)</strong></label>
+                                <textarea name="about_project" class="form-control" rows="4"><?= html_escape($project['about_project']); ?></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Site URL Link</strong></label>
+                                <input type="url" name="site_url" class="form-control" placeholder="https://example.com" value="<?= html_escape($project['site_url']); ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Add Carousel Images (Select Multiple)</strong></label>
+                                <input type="file" name="carousel_images[]" class="form-control" accept="image/*" multiple>
+                            </div>
+                            <button type="submit" class="btn text-white" style="background-color: #800000;">
+                                Save Details & Upload
+                            </button>
+                        </form>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+
     <!-- Hover Animation Style -->
     <style>
         .cert-card:hover {
@@ -828,6 +973,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <!-- ADD NEW PROJECT MODAL -->
+ <form action="<?= site_url('home/add_project'); ?>" method="POST" enctype="multipart/form-data">
 <div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -862,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     <!-- PROJECT IMAGE -->
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Project Image / Banner</label>
+                        <label class="form-label">Project Cover Image</label>
                         <input type="file" name="project_img" class="form-control" accept="image/*" required>
                     </div>
                 </div>
@@ -872,6 +1018,46 @@ document.addEventListener('DOMContentLoaded', function () {
                     <button type="submit" class="btn btn-success">Save Project</button>
                 </div>
 
+            </form>
+        </div>
+    </div>
+</div>
+</form>
+
+<!-- Add New Project Modal -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProjectModalLabel">Add New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="<?= site_url('home/add_project'); ?>" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Project Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="e.g. E-Commerce Store" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Short Description</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Brief summary of the project..." required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tech Stack (comma-separated)</label>
+                        <input type="text" name="tech_stack" class="form-control" placeholder="PHP, CodeIgniter 3, MySQL, Bootstrap 5">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cover Image</label>
+                        <input type="file" name="project_img" class="form-control" accept="image/*" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn text-white" style="background-color: #800000;">Save Project</button>
+                </div>
             </form>
         </div>
     </div>
