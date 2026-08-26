@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
     <!-- Tab Icon -->
     <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/favicon.png'); ?>">
     
@@ -43,11 +45,9 @@
             background-color: #800000 !important;
         }
 
-        /* Navbar Link Underline Styling */
-        .navbar-nav .nav-link {
-            position: relative;
-            padding-bottom: 6px;
-            transition: color 0.3s ease;
+        .navbar-nav .nav-link.active {
+            border-bottom: 2px solid white; 
+            font-weight: bold;
         }
 
         /* Underline for Active Tab */
@@ -167,15 +167,28 @@
             scroll-margin-top: 70px; /* Adjust height based on your navbar height */
         }
 
-    </style>
+        section[id] {
+            scroll-margin-top: 50px; /* Adjust height based on your navbar height */
+        }
+
+        html {
+            scroll-behavior: smooth; /* Enables smooth scrolling animation */
+        }
+
+        .navbar-nav .nav-link.active {
+            border-bottom: 2px solid #ffffff !important; /* Adjust line color/style to match your theme */
+            font-weight: bold;
+        }
+   
+   </style>
 </head>
 <body>
 
 <body data-bs-spy="scroll" data-bs-target="#mainNavbar" data-bs-offset="100" tabindex="0">
 
-<div class="sticky-top style="z-index: 1030;">
+<div class="sticky-top" style="z-index: 1030;">
 <!-- Red Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-dark custom-sdca-nav sticky-top shadow-sm" id="mainNavbar">
+<nav id="mainNavbar" class="navbar navbar-expand-lg navbar-dark custom-sdca-nav sticky-top shadow-sm" id="mainNavbar">
   <div class="container">
     <a class="navbar-brand fw-bold text-white" href="<?= base_url(); ?>">
       PROFESSIONAL PORTFOLIO
@@ -222,7 +235,7 @@
                     <?php endif; ?>
 
 <?php if($this->session->userdata('logged_in')): ?>
-  <div class="bg-dark text-white py-2 px-3 d-flex justify-content-between align-items-center border-bottom border-warning">
+  <div class="bg-dark text-white py-2 px-3 d-flex justify-content-between align-items-center border-warning">
     <span class="small fw-bold text-warning">
       <i class="bi bi-pencil-square me-1"></i> Admin Edit Mode Active
     </span>
@@ -262,8 +275,8 @@
 </div>
 
 <!-- Hero Section -->
-<header id="about" class="pt-4 pb=5 bg-white border-bottom">
-<section class="hero-section py-5">
+<header id="about" class="pt-4 pb-5 bg-white border-bottom">
+<section id="about" class="hero-section py-5" style="scroll-margin-top: 80px;">
     <div class="container py-4">
         <div class="row align-items-center gy-4">
             
@@ -379,7 +392,7 @@
 </header>
 
 <!-- Projects Section -->
-<section id="projects" class="py-5 bg-light">
+<section id="projects" class="py-5 bg-light" style="scroll-margin-top: 10px;">
     <div class="container py-4">
         <div class="text-center mb-5">
             <h2 class="fw-bold">Recent Projects</h2>
@@ -588,7 +601,7 @@
 </section>
 
 <!-- Skills Section -->
-<section id="skills" class="py-5 bg-light border-top border-bottom">
+<section id="skills" class="py-5 bg-light border-top border-bottom" style="scroll-margin-top: 150px;">
     <div class="container py-4">
         <div class="text-center mb-4">
             <h2 class="fw-bold">Tech Stack</h2>
@@ -601,15 +614,19 @@
             <?php endif; ?>
         </div>
 
-        <?php 
-            // Fetch dynamically from DB, fall back to current hardcoded list if table is empty
-            $db_skills = $this->db->get('tech_stack')->result_array();
-            
-            $languages = array_filter($db_skills, function($item) { return $item['category'] === 'language'; });
-            $concepts  = array_filter($db_skills, function($item) { return $item['category'] === 'concept'; });
-        ?>
+<?php
+    // Fetch dynamically from DB
+    $db_skills = $this->db->get('tech_stack')->result_array();
 
- <div class="row align-items-start">
+    $languages = array_filter($db_skills, function($item) {
+        return in_array(strtolower($item['category']), ['language', 'languages & essentials']);
+    });
+
+    $concepts = array_filter($db_skills, function($item) {
+        return in_array(strtolower($item['category']), ['concept', 'development & concepts']);
+    });
+?>
+            <div class="row align-items-start">
     <!-- Left Column: Programming Languages & Essentials -->
     <div class="col-md-5">
         <h5 class="text-center fw-bold mb-4 text-dark">Languages & Essentials</h5>
@@ -646,72 +663,94 @@
 
 <!-- Manage Tech Stack Modal -->
 <?php if ($this->session->userdata('logged_in')): ?>
-<div class="modal fade" id="manageTechModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="fa-solid fa-sliders me-2"></i>Modify Tech Stack & Skills</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="techStackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            
+            <!-- Dark Header -->
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-gear-fill me-2"></i>Modify Tech Stack
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-start">
-                <!-- Form to Add Skill -->
-                <form action="<?= site_url('home/add_tech_stack'); ?>" method="POST" class="card card-body bg-light mb-4">
-                    <h6><strong>Add New Skill/Tool</strong></h6>
-                    <div class="row g-2">
-                        <div class="col-md-4">
-                            <input type="text" name="name" class="form-control" placeholder="Name (e.g. Docker)" required>
+            
+            <!-- Modal Body -->
+            <div class="modal-body p-4 bg-white">
+                
+                <!-- Form Container -->
+                <div class="p-3 mb-4 rounded bg-light border-0 shadow-sm">
+                    <h6 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-plus-circle-fill me-1"></i> Add New Skill / Tool
+                    </h6>
+                    <form action="<?= base_url('home/add_tech_stack'); ?>" method="POST">
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-dark mb-1">Skill Name</label>
+                                <input type="text" name="name" class="form-control bg-white text-dark border" placeholder="e.g. React" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-dark mb-1">Icon Class/URL</label>
+                                <input type="text" name="icon" class="form-control bg-white text-dark border" placeholder="e.g. bi bi-code-slash">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-dark mb-1">Category</label>
+                                <select name="category" class="form-select bg-white text-dark border" required>
+                                    <option value="" disabled selected>Select Category</option>
+                                    <option value="Languages & Essentials">Languages & Essentials</option>
+                                    <option value="Development & Concepts">Development & Concepts</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <button type="submit" class="btn btn-danger w-100 fw-bold py-2">
+                                    <i class="bi bi-plus-circle me-1"></i> Add Tech Item
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <input type="text" name="icon" class="form-control" placeholder="FontAwesome Icon Class (e.g. fa-brands fa-docker text-primary)" required>
-                        </div>
-                        <div class="col-md-4">
-                            <select name="category" class="form-select">
-                                <option value="language">Languages & Essentials</option>
-                                <option value="concept">Development & Concepts</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn text-white mt-3" style="background-color: #800000;">
-                        <i class="fa-solid fa-plus me-1"></i> Add Item
-                    </button>
-                </form>
-
-                <!-- List of Existing Skills with Delete Options -->
-                <h6><strong>Current Skills Inventory</strong></h6>
-                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                    <table class="table table-bordered table-striped align-middle">
-                        <thead>
-                            <tr>
-                                <th>Icon</th>
-                                <th>Name</th>
-                                <th>Category</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($db_skills)): ?>
-                                <?php foreach ($db_skills as $skill): ?>
-                                    <tr>
-                                        <td class="text-center"><i class="<?= html_escape($skill['icon']); ?> fs-5"></i></td>
-                                        <td><?= html_escape($skill['name']); ?></td>
-                                        <td><span class="badge bg-info text-dark"><?= $skill['category']; ?></span></td>
-                                        <td class="text-center">
-                                            <a href="<?= site_url('home/delete_tech_stack/' . $skill['id']); ?>" 
-                                               class="btn btn-danger btn-sm" 
-                                               onclick="return confirm('Are you sure you want to delete this skill?');">
-                                                <i class="fa-solid fa-trash-can"></i> Delete
-                                            </a>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted">No custom skills added yet. Currently displaying default list.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                    </form>
                 </div>
+
+                <!-- Current Items List Table -->
+                <div class="border rounded p-3 bg-light shadow-sm">
+                    <h6 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-list-task me-1"></i> Current Tech Stack
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 bg-white rounded border">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if(!empty($tech_stack)): ?>
+                                    <?php foreach($tech_stack as $item): ?>
+                                        <tr>
+                                            <td class="fw-bold text-dark"><?= html_escape($item['name']); ?></td>
+                                            <td>
+                                                <span class="badge bg-secondary"><?= html_escape($item['category']); ?></span>
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="<?= base_url('home/delete_tech_stack/' . $item['id']); ?>" 
+                                                   class="btn btn-outline-danger btn-sm"
+                                                   onclick="return confirm('Are you sure you want to delete this skill?');">
+                                                    <i class="bi bi-trash-fill"></i> Delete
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-3">No tech stack items found.</td>
+                                    </tr>
+                               Oppositely, <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -719,7 +758,7 @@
 <?php endif; ?>
 
 <!-- Certifications Section -->
-<section id="certifications" class="py-5 bg-light">
+<section id="certifications" class="py-5 bg-light" style="scroll-margin-top: 30px;">
     <div class="container py-4">
         <div class="text-center mb-4">
             <h2 class="fw-bold text-dark">Certifications</h2>
@@ -738,13 +777,13 @@
                 <?php foreach($certifications as $cert): ?>
                     <div class="col-md-6 col-lg-4">
                         <!-- Clickable Card Triggering Modal -->
-                        <div class="card h-100 border-0 shadow-sm p-3 text-center cert-card cursor-pointer" 
+                        <div class="card h-100 border-0 shadow-lg p-3 text-center cert-card cursor-pointer" 
                             data-bs-toggle="modal" 
                             data-bs-target="#certModal<?= $cert['id']; ?>"
                             style="cursor: pointer; transition: transform 0.2s ease, shadow 0.2s ease;">
                             
                             <div class="card-body">
-                                <div class="mb-3 text-center d-flex justify-content-center align-items-center" style="height: 130px;">
+                                <div class="mb-3 text-center d-flex justify-content-center align-items-center" style="height: 100px;">
                                     <img src="<?= base_url('assets/uploads/' . ($cert['badge_img'] ?? 'default-badge.png')); ?>" 
                                         alt="<?= html_escape($cert['title']); ?> Badge" 
                                         class="img-fluid"
@@ -996,48 +1035,119 @@
         </div>
     <?php endif; ?>
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-9 bg-light" style="min-height: 80vh;">
-        <div class="container py-4">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="text-center mb-4">
-                        <h2 class="fw-bold">Get In Touch</h2>
-                        <p class="text-muted">Have a project in mind or a question? Send a message below.</p>
+<!-- Contact Section -->
+<section id="contact" class="py-9 bg-light" style="min-height: 80vh;">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">Get In Touch</h2>
+                    <p class="text-muted">Have a project in mind or a question? Send a message below.</p>
+                </div>
+
+                <!-- Alert Placeholder for AJAX Success/Error Messages -->
+                <div id="contact-alert"></div>
+
+                <!-- Form Helper Open Tag (Embeds CSRF Protection Automatically) -->
+                <form id="contact-form" action="<?= base_url('home/send_message'); ?>" method="POST">
+
+                    <!-- 1. HONEYPOT FIELD (Hidden para sa tao, pero makikita ng spam bots) -->
+                    <div style="display: none !important;" aria-hidden="true">
+                        <input type="text" name="website_hp" id="website_hp" tabindex="-1" autocomplete="off">
                     </div>
 
-                    <!-- Form Validation Errors -->
-                    <?php if (validation_errors()): ?>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <?= validation_errors(); ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark">Name</label>
+                            <input type="text" name="name" class="form-control" required>
                         </div>
-                    <?php endif; ?>
 
-                    <!-- Form Helper Open Tag (Embeds CSRF Protection Automatically) -->
-                    <form action="<?php echo site_url('index.php/home/send_message'); ?>" method="POST">                            <div class="col-md-6 mb-3">
-                                <label>Name</label>
-                                <input type="text" name="name" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Email</label>
-                                <input type="email" name="email" class="form-control" required>
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark">Email</label>
+                            <input type="email" name="email" class="form-control" required>
                         </div>
-                        <div class="mb-3">
-                            <label>Subject</label>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-dark">Subject</label>
                             <input type="text" name="subject" class="form-control" required>
                         </div>
-                        <div class="mb-3">
-                            <label>Message</label>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-dark">Message</label>
                             <textarea name="message" class="form-control" rows="5" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
-                    </form>
-                </div>
+
+                        <!-- 2. MATH CAPTCHA INPUT FIELD -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-dark">
+                                Security Check: What is <span id="math-question-text"><?= isset($math_question) ? $math_question : ''; ?></span>?
+                            </label>
+                            <input type="number" name="math_answer" class="form-control" placeholder="Enter answer" required>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <button type="submit" id="submit-btn" class="btn btn-danger w-100 py-2 fw-bold">Send Message</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+<!-- AJAX JavaScript Handling -->
+<script>
+document.getElementById('contact-form').addEventListener('submit', function(e) {
+    e.preventDefault(); // Blocks standard form submission to prevent page reload
+
+    const form = this;
+    const submitBtn = document.getElementById('submit-btn');
+    const alertBox = document.getElementById('contact-alert');
+    const formData = new FormData(form);
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Sending...';
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Send Message';
+
+        if (data.status === 'success') {
+            alertBox.innerHTML = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                ${data.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+            form.reset(); // Clear form fields after successful submission
+        } else {
+            alertBox.innerHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                ${data.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+        }
+
+        // Dynamically update to new math problem generated by controller
+        if (data.new_math_question) {
+            document.getElementById('math-question-text').innerText = data.new_math_question;
+        }
+    })
+    .catch(error => {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Send Message';
+        alertBox.innerHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+            An unexpected error occurred. Please try again.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>`;
+    });
+});
+</script>
 
     <!-- Footer -->
     <footer class="bg-dark text-white py-4 border-top border-secondary">
@@ -1183,6 +1293,100 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 
 <?php if ($this->session->userdata('logged_in')): ?>
+<div class="modal fade" id="techStackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-gear-fill me-2"></i>Modify Tech Stack
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                
+                <!-- Add New Tech Stack Item Form -->
+                <form action="<?= base_url('home/add_tech_stack'); ?>" method="POST" class="mb-4 p-3 border rounded bg-light">
+                    <h6 class="fw-bold text-dark mb-3">Add New Skill / Tool</h6>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <input type="text" name="name" class="form-control" placeholder="Skill Name (e.g. React)" required>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="icon" class="form-control" placeholder="Icon class/URL (optional)">
+                        </div>
+                        <div class="col-md-4">
+                            <select name="category" class="form-select" required>
+                                <option value="" disabled selected>Select Category</option>
+                                <option value="Languages & Essentials">Languages & Essentials</option>
+                                <option value="Development & Concepts">Development & Concepts</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mt-3 text-end">
+                            <button type="submit" class="btn btn-red-sdca fw-bold">
+                                <i class="bi bi-plus-circle me-1"></i> Add Tech Item
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<script>
+window.addEventListener('scroll', function() {
+    let sections = document.querySelectorAll('section[id], div[id]');
+    let navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    
+    let currentSectionId = '';
+
+    sections.forEach(section => {
+        let sectionTop = section.offsetTop - 150; // Offset para sa navbar height
+        let sectionHeight = section.offsetHeight;
+        
+        if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
+            currentSectionId = section.getAttribute('id');
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (currentSectionId && link.getAttribute('href').includes('#' + currentSectionId)) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const sections = document.querySelectorAll("section[id], header[id]");
+    const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                const activeId = entry.target.getAttribute("id");
+                navLinks.forEach((link) => {
+                    link.classList.remove("active");
+                    if (link.getAttribute("href") === "#" + activeId) {
+                        link.classList.add("active");
+                    }
+                });
+            }
+        });
+    }, {
+        rootMargin: "-20% 0px -60% 0px", // Sinisiguro nitong activated ang About kahit nasa pinakataas pa lang ng page
+        threshold: 0
+    });
+
+    sections.forEach((section) => observer.observe(section));
+});
+
+</script>
+<?php if ($this->session->userdata('logged_in')): ?>
 <div class="modal fade" id="activityLogModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg bg-dark text-light">
@@ -1207,7 +1411,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             <?php if (!empty($logs)): ?>
                                 <?php foreach ($logs as $log): ?>
                                     <tr>
-                                        <td class="text-nowrap text-muted"><?= date('M d, Y h:i A', strtotime($log['created_at'])); ?></td>
+                                        <td class="text-light small text-nowrap">
+                                            <?= date('M d, Y h:i A', strtotime($log['created_at'])); ?></td>
                                         <td><span class="badge bg-secondary"><?= html_escape($log['section']); ?></span></td>
                                         <td>
                                             <?php 

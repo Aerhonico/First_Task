@@ -15,71 +15,132 @@ class Home extends CI_Controller {
     /**
      * Renders the portfolio home page
      */
-    public function index() {
-        $data['page_title'] = 'My Portfolio | First task';
-        
-        // Fetch projects from MySQL using Project_model
-        $data['projects'] = $this->Project_model->get_all_projects();
+public function index() {
+    $data['page_title'] = 'My Portfolio | First task';
+    
+    // Fetch projects from MySQL using Project_model
+    $data['projects'] = $this->Project_model->get_all_projects();
 
-        // Fetch certifications
-        $data['certifications'] = $this->db->get('certifications')->result_array();
+    // Fetch certifications
+    $data['certifications'] = $this->db->get('certifications')->result_array();
 
-        // Get profile details from user_profile table
-        $data['hero'] = $this->db->get_where('user_profile', array('id' => 1))->row_array(); 
+    // Get profile details from user_profile table
+    $data['hero'] = $this->db->get_where('user_profile', array('id' => 1))->row_array(); 
 
-        // Get user account details from users table
-        $data['user'] = $this->db->get_where('users', array('id' => 1))->row_array(); 
+    // Get user account details from users table
+    $data['user'] = $this->db->get_where('users', array('id' => 1))->row_array(); 
 
-        // Fetch the 50 most recent activity logs for admin view
-        $data['logs'] = $this->db->order_by('id', 'DESC')->limit(50)->get('activity_logs')->result_array();
+    // Fetch the 50 most recent activity logs for admin view
+    $data['logs'] = $this->db->order_by('id', 'DESC')->limit(50)->get('activity_logs')->result_array();
 
-        // Load the Bootstrap 5 view and pass all data once
-        $this->load->view('home', $data);
+    // Fetch tech stack items categorized by their type
+    $data['tech_stack'] = $this->db->get('tech_stack')->result_array();
+
+    // Generate Math CAPTCHA Question
+    $n1 = rand(1, 9);
+    $n2 = rand(1, 9);
+    $this->session->set_userdata('math_captcha_ans', $n1 + $n2);
+    $data['math_question'] = "{$n1} + {$n2}";
+
+    // Set form load timestamp BEFORE rendering the view
+    $this->session->set_userdata('form_load_time', time());
+    
+    // Load the view LAST
+    $this->load->view('home', $data);
+}
+
+public function send_message() {
+    
+    // Helper para sa panibagong Math CAPTCHA question
+    $n1 = rand(1, 9);
+    $n2 = rand(1, 9);
+    $this->session->set_userdata('math_captcha_ans', $n1 + $n2);
+    $new_question = "{$n1} + {$n2}";
+
+    // 1. HONEYPOT CHECK
+    if (!empty($this->input->post('website_hp'))) {
+        echo json_encode([
+            'status' => 'success', 
+            'message' => 'Your message has been sent successfully!',
+            'new_math_question' => $new_question
+        ]);
+        return;
     }
 
-    public function send_message() {
-        $name    = $this->input->post('name');
-        $email   = $this->input->post('email');
-        $subject = $this->input->post('subject');
-        $message = $this->input->post('message');
+    // 2. TIME-BASED SPAM CHECK
+    $load_time = $this->session->userdata('form_load_time');
+    $submit_time = time();
 
-        // SMTP Configuration
-        $config = array(
-            'protocol'     => 'smtp',
-            'smtp_host'    => 'ssl://smtp.googlemail.com',
-            'smtp_port'    => 465,
-            'smtp_user'    => 'aerhonlouis_magtira@sdca.edu.ph',
-            'smtp_pass'    => 'rbkz qpwo snyw pdnb', // App Password
-            'mailtype'     => 'html',
-            'charset'      => 'utf-8',
-            'newline'      => "\r\n",
-            'smtp_timeout' => 30
-        );
-
-        $this->load->library('email', $config);
-
-        $this->email->from('aerhonlouismagtira@gmail.com', $name);
-        $this->email->to('aerhonlouis_magtira@sdca.edu.ph'); // Destination email
-        $this->email->reply_to($email, $name);
-        $this->email->subject('Portfolio Inquiry: ' . $subject);
-        
-        $body = "<h3>New Inquiry from Portfolio Website</h3>";
-        $body .= "<p><strong>Name:</strong> {$name}</p>";
-        $body .= "<p><strong>Email:</strong> {$email}</p>";
-        $body .= "<p><strong>Message:</strong><br>{$message}</p>";
-
-        $this->email->message($body);
-
-        if ($this->email->send()) {
-            $this->log_activity('Sent Message', 'Contact', 'Inquiry sent by: ' . $email);
-            $this->session->set_flashdata('contact_success', 'Your message has been sent successfully!');
-        } else {
-            show_error($this->email->print_debugger());
-            return;
-        }
-
-        redirect('#contact');
+    if ($load_time && ($submit_time - $load_time) < 3) {
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Form submitted too fast. Please wait a moment and try again.',
+            'new_math_question' => $new_question
+        ]);
+        return;
     }
+
+    // 3. MATH CAPTCHA CHECK
+    $user_math_ans = (int)$this->input->post('math_answer');
+    $session_math_ans = (int)$this->session->userdata('math_captcha_ans');
+
+    if ($user_math_ans !== $session_math_ans) {
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Incorrect security answer. Please try again.',
+            'new_math_question' => $new_question
+        ]);
+        return;
+    }
+
+    // PROCESS FORM DATA
+    $name    = trim($this->input->post('name', TRUE));
+    $email   = trim($this->input->post('email', TRUE));
+    $subject = trim($this->input->post('subject', TRUE));
+    $message = trim($this->input->post('message', TRUE));
+
+    // SMTP Configuration
+    $config = array(
+        'protocol'     => 'smtp',
+        'smtp_host'    => 'ssl://smtp.googlemail.com',
+        'smtp_port'    => 465,
+        'smtp_user'    => 'aerhonlouis_magtira@sdca.edu.ph',
+        'smtp_pass'    => 'rbkz qpwo snyw pdnb',
+        'mailtype'     => 'html',
+        'charset'      => 'utf-8',
+        'newline'      => "\r\n",
+        'smtp_timeout' => 30
+    );
+
+    $this->load->library('email', $config);
+
+    $this->email->from('aerhonlouismagtira@gmail.com', $name);
+    $this->email->to('aerhonlouis_magtira@sdca.edu.ph');
+    $this->email->reply_to($email, $name);
+    $this->email->subject('Portfolio Inquiry: ' . $subject);
+    
+    $body  = "<h3>New Inquiry from Portfolio Website</h3>";
+    $body .= "<p><strong>Name:</strong> {$name}</p>";
+    $body .= "<p><strong>Email:</strong> {$email}</p>";
+    $body .= "<p><strong>Message:</strong><br>{$message}</p>";
+
+    $this->email->message($body);
+
+    if ($this->email->send()) {
+        $this->log_activity('Sent Message', 'Contact', 'Inquiry sent by: ' . $email);
+        echo json_encode([
+            'status' => 'success', 
+            'message' => 'Your message has been sent successfully!',
+            'new_math_question' => $new_question
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Failed to send email. Please try again later.',
+            'new_math_question' => $new_question
+        ]);
+    }
+}
 
     /**
      * Updates Hero section profile details
