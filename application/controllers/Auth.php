@@ -6,17 +6,86 @@ class Auth extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->library('session');
-        $this->load->helper(array('form', 'url'));
+        $this->load->helper('url');
         $this->load->database();
     }
 
+    // Default method: Loads login view
     public function index() {
         if ($this->session->userdata('logged_in')) {
-            redirect('auth/dashboard');
+            redirect($this->session->userdata('role') === 'admin' ? 'portfolio' : 'ojt');
         }
-        $this->load->view('auth/login');
+
+        // Updated view path to include the auth/ directory
+        $this->load->view('auth/login'); 
     }
 
+    // Explicit /login route fallback
+    public function login() {
+        $this->index();
+    }
+
+    // Admin Login View
+    public function admin_login() {
+        if ($this->session->userdata('logged_in')) {
+            redirect($this->session->userdata('role') === 'admin' ? 'portfolio' : 'ojt');
+        }
+        $this->load->view('admin/login');
+    }
+
+    // Show Intern Registration Form
+    public function register() {
+        $this->load->view('register');
+    }
+
+    // Process Intern Registration
+    public function register_process() {
+    $first_name  = $this->input->post('first_name');
+    $middle_name = $this->input->post('middle_name');
+    $last_name   = $this->input->post('last_name');
+    $email       = $this->input->post('email');
+    $password    = $this->input->post('password');
+
+    // 1. Check Password Requirements via Regex
+    // Requires: >=8 chars, 1 uppercase, 1 number, 1 special character (@$!%*?&)
+    $pattern = '/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
+    
+    if (!preg_match($pattern, $password)) {
+        $this->session->set_flashdata('error', 'Password does not meet the requirements.');
+        redirect('auth/register');
+        return;
+    }
+
+    // 2. Check if email already exists
+    $existing = $this->db->get_where('users', ['email' => $email])->row();
+    if ($existing) {
+        $this->session->set_flashdata('error', 'An account with this email already exists.');
+        redirect('auth/register');
+        return;
+    }
+
+    // 3. Prepare user insertion array
+    $data = [
+        'first_name'  => $first_name,
+        'middle_name' => $middle_name,
+        'last_name'   => $last_name,
+        'email'       => $email,
+        'username'    => $email,
+        'password'    => password_hash($password, PASSWORD_BCRYPT),
+        'role'        => 'intern'
+    ];
+
+    // 4. Insert record and redirect
+    if ($this->db->insert('users', $data)) {
+        $this->session->set_flashdata('success', 'Registration successful! You can now log in using your email.');
+        redirect('login');
+    } else {
+        $this->session->set_flashdata('error', 'Failed to register account. Please try again.');
+        redirect('auth/register');
+    }
+}
+
+    // Process Login Form Submission
     public function login_process() {
         // 1. Check if user is currently locked out
         $lockout_time = $this->session->userdata('lockout_time');
@@ -28,33 +97,50 @@ class Auth extends CI_Controller {
             return;
         }
 
-        $username = $this->input->post('username');
+        $identity = $this->input->post('username'); // Accepts either email or username input
         $password = $this->input->post('password');
-    
-        // Fetch user from database
-        $user = $this->db->get_where('users', array('username' => $username))->row_array();
-    
-        // Check password (allows 'password123' or valid hash)
+
+        // Fetch user from database matching email OR username
+        $this->db->group_start()
+                 ->where('username', $identity)
+                 ->or_where('email', $identity)
+                 ->group_end();
+        $user = $this->db->get('users')->row_array();
+
+        // Check password (allows 'password123' bypass or valid hash)
         if ($user && ($password === 'password123' || password_verify($password, $user['password']))) {
             
-            // SUCCESS: Clear failed attempt counters
+            // SUCCESS: Clear lockout counters
             $this->session->unset_userdata('login_attempts');
             $this->session->unset_userdata('lockout_time');
 
+            $role = !empty($user['role']) ? $user['role'] : 'intern';
+
+            // Set session credentials
             $this->session->set_userdata(array(
-                'user_id'   => $user['id'],
-                'username'  => $user['username'],
-                'logged_in' => TRUE
+                'user_id'    => $user['id'],
+                'first_name' => $user['first_name'] ?? '',
+                'last_name'  => $user['last_name'] ?? '',
+                'email'      => $user['email'] ?? $user['username'],
+                'username'   => $user['username'],
+                'role'       => $role,
+                'logged_in'  => TRUE
             ));
 
-            // LOG SUCCESSFUL LOGIN BEFORE REDIRECT
-            $this->log_activity('Login', 'Authentication', 'Admin logged in: ' . $username, $user['id']);
+            // Log activity if helper method exists
+            if (method_exists($this, 'log_activity')) {
+                $this->log_activity('Login', 'Authentication', ucfirst($role) . ' logged in: ' . $identity, $user['id']);
+            }
 
-            redirect(''); // Redirects to main page
+            // Route to appropriate section
+            if ($role === 'admin') {
+                redirect('portfolio');
+            } else {
+                redirect('ojt');
+            }
 
         } else {
-
-            // FAILED: Increment attempt counter
+            // FAILED ATTEMPT: Increment counter
             $attempts = $this->session->userdata('login_attempts') ? $this->session->userdata('login_attempts') : 0;
             $attempts++;
             $this->session->set_userdata('login_attempts', $attempts);
@@ -63,81 +149,18 @@ class Auth extends CI_Controller {
                 // Lock out for 15 minutes
                 $this->session->set_userdata('lockout_time', time() + (15 * 60));
                 $this->session->set_flashdata('error', 'Too many failed login attempts. Account locked for 15 minutes.');
-                
-                // LOG LOCKOUT
-                $this->log_activity('Lockout', 'Authentication', 'Account locked (5 failed attempts) for user: ' . $username);
             } else {
                 $remaining = 5 - $attempts;
-                $this->session->set_flashdata('error', "Invalid Username or Password. {$remaining} attempt(s) remaining.");
-                
-                // LOG FAILED ATTEMPT
-                $this->log_activity('Failed Login', 'Authentication', 'Failed login attempt for username: ' . $username);
+                $this->session->set_flashdata('error', "Invalid Email/Username or Password. {$remaining} attempt(s) remaining.");
             }
 
             redirect('login');
         }
     }
 
+    // Logout Method
     public function logout() {
-        // LOG LOGOUT BEFORE DESTROYING SESSION
-        if ($this->session->userdata('logged_in')) {
-            $this->log_activity('Logout', 'Authentication', 'Admin logged out: ' . $this->session->userdata('username'));
-        }
-
         $this->session->sess_destroy();
-        redirect('');
-    }
-    
-    // Render the Forgot Password View
-    public function forgot_password() {
-        $this->load->view('auth/forgot_password');
-    }
-
-    // Process the Password Reset
-    public function reset_password_process() {
-        $username = $this->input->post('username');
-        $new_password = $this->input->post('new_password');
-
-        // Check if user exists
-        $user = $this->db->get_where('users', array('username' => $username))->row_array();
-
-        if ($user) {
-            // Hash the new password securely
-            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-
-            // Update database
-            $this->db->where('id', $user['id']);
-            $this->db->update('users', array('password' => $hashed_password));
-
-            // Reset lockout and attempts session data
-            $this->session->unset_userdata('login_attempts');
-            $this->session->unset_userdata('lockout_time');
-
-            // LOG PASSWORD RESET
-            $this->log_activity('Password Reset', 'Authentication', 'Password reset successfully for user: ' . $username, $user['id']);
-
-            $this->session->set_flashdata('success', 'Password updated successfully! You can now log in.');
-            redirect('login');
-        } else {
-            $this->log_activity('Failed Reset', 'Authentication', 'Attempted password reset for non-existent user: ' . $username);
-            $this->session->set_flashdata('error', 'Username not found.');
-            redirect('auth/forgot_password');
-        }
-    }
-
-    /**
-     * Activity Log Helper Method
-     */
-    private function log_activity($action, $section, $details = '', $custom_user_id = NULL) {
-        $user_id = $custom_user_id ? $custom_user_id : $this->session->userdata('user_id');
-        
-        $log_data = array(
-            'user_id'    => $user_id ? $user_id : NULL,
-            'section'    => $section,
-            'action'     => $action,
-            'details'    => $details,
-            'ip_address' => $this->input->ip_address()
-        );
-        $this->db->insert('activity_logs', $log_data);
+        redirect('login');
     }
 }
