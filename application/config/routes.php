@@ -49,10 +49,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
+$route['ojt/time_out'] = 'ojt/time_out';
 $route['default_controller'] = 'auth/login';
 $route['home/send_message'] = 'home/send_message'; 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 $route['login'] = 'auth/login';
 $route['logout'] = 'auth/logout';
+$route['admin'] = 'admin/index';
+$route['portfolio'] = 'home/index';
+$route['portfolio/edit'] = 'home/index';
 $route['ojt/(:any)'] = 'ojt/index/$1';
+$route['profile/email']        = 'profile/email';
+$route['profile/update_email'] = 'profile/update_email';

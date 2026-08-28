@@ -146,13 +146,13 @@ public function send_message() {
      * Updates Hero section profile details
      */
     public function update_hero() {
-        if (!$this->session->userdata('logged_in')) {
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('login');
             return;
         }
     
-        $full_name = $this->input->post('full_name');
-        $bio       = $this->input->post('bio');
+        $full_name = trim($this->input->post('full_name', TRUE));
+        $bio       = trim($this->input->post('bio', TRUE));
     
         $update_data = array(
             'full_name' => $full_name,
@@ -184,7 +184,7 @@ public function send_message() {
     }
 
     public function add_project() {
-        if (!$this->session->userdata('logged_in')) {
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('login');
             return;
         }
@@ -230,7 +230,7 @@ public function send_message() {
     }
 
     public function edit_project($id) {
-        if (!$this->session->userdata('logged_in')) {
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('login');
             return;
         }
@@ -265,7 +265,7 @@ public function send_message() {
     }
 
     public function delete_project($id) {
-        if (!$this->session->userdata('logged_in')) {
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('login');
             return;
         }
@@ -280,7 +280,7 @@ public function send_message() {
     }
 
     public function update_project_details($id) {
-        if (!$this->session->userdata('logged_in')) {
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('login');
             return;
         }
@@ -329,7 +329,7 @@ public function send_message() {
     }
 
     public function add_tech_stack() {
-        if (!$this->session->userdata('logged_in')) {
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('login');
             return;
         }
@@ -338,7 +338,7 @@ public function send_message() {
         $data = array(
             'name'     => $name,
             'icon'     => trim($this->input->post('icon', TRUE)),
-            'category' => $this->input->post('category', TRUE)
+            'category' => trim($this->input->post('category', TRUE))
         );
 
         $this->db->insert('tech_stack', $data);
@@ -350,7 +350,7 @@ public function send_message() {
     }
 
     public function delete_tech_stack($id) {
-        if (!$this->session->userdata('logged_in')) {
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('login');
             return;
         }
@@ -365,7 +365,7 @@ public function send_message() {
     }
 
     public function add_certification() {
-        if (!$this->session->userdata('logged_in')) {
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('login');
             return;
         }
@@ -405,7 +405,7 @@ public function send_message() {
         $data = array(
             'title'      => $title,
             'issuer'     => trim($this->input->post('issuer', TRUE)),
-            'issue_date' => $this->input->post('issue_date', TRUE),
+            'issue_date' => trim($this->input->post('issue_date', TRUE)),
             'badge_img'  => $badge_img,
             'cert_image' => $cert_image
         );
@@ -419,7 +419,7 @@ public function send_message() {
     }
 
     public function delete_certification($id) {
-        if (!$this->session->userdata('logged_in')) {
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('login');
             return;
         }

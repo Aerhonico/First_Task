@@ -9,11 +9,31 @@ class Ojt extends CI_Controller {
         $this->load->model('Ojt_model');
     }
 
-public function index($username = NULL) {
+    public function index($username = NULL) {
+    // FIX: Prevents index from intercepting action controller routes!
+    $reserved_actions = array('time_in', 'time_out', 'update_target_hours', 'email', 'profile', 'update_email', 'update_password', 'update_info', 'analytics', 'logs', 'export_pdf', 'analytics_partial', 'logs_partial', 'request_deletion', 'delete_log');
+    if (in_array(strtolower($username), $reserved_actions)) {
+        $method = strtolower($username);
+        $this->$method();
+        return;
+    }
+    // 0. If someone hits /ojt/email directly, redirect back to main OJT page
+    if (strtolower($username) === 'email') {
+        redirect('ojt');
+        return;
+    }
+
+    $reserved_actions = array('time_in', 'time_out', 'update_target_hours', 'update_email');
+    if (in_array(strtolower($username), $reserved_actions)) {
+        $method = strtolower($username);
+        $this->$method();
+        return;
+    }
+
     // 1. Get logged in user data from session
-    $session_user_id   = $this->session->userdata('user_id');
+    $session_user_id    = $this->session->userdata('user_id');
     $session_first_name = $this->session->userdata('first_name');
-    $session_username  = $this->session->userdata('username');
+    $session_username   = $this->session->userdata('username');
 
     // 2. Determine raw slug priority: first_name -> username -> fallback 'user'
     $raw_slug = !empty($session_first_name) ? $session_first_name : (!empty($session_username) ? $session_username : 'user');
@@ -55,15 +75,17 @@ public function index($username = NULL) {
     $remaining_hours = max(0, $required_hours - $rendered_hours);
     $progress_pct = ($required_hours > 0) ? min(100, round(($rendered_hours / $required_hours) * 100, 1)) : 0;
 
-    // 8. Fetch active attendance log (if currently timed in)
-    $active_log = $this->db->get_where('ojt_logs', array(
-        'user_id' => $user_id,
-        'status'  => 'active'
-    ))->row_array();
+    // 8. FIX: Fetch active attendance log (where time_out is NULL or status matches running)
+    $this->db->where('user_id', $user_id);
+    $this->db->group_start();
+    $this->db->where('time_out IS NULL', NULL, FALSE);
+    $this->db->or_where('status', 'Running...');
+    $this->db->group_end();
+    $active_log = $this->db->get('ojt_logs')->row_array();
 
     // 9. Fetch all time logs for DTR table
     $this->db->where('user_id', $user_id);
-    $this->db->order_by('log_date', 'DESC');
+    $this->db->order_by('id', 'DESC');
     $logs = $this->db->get('ojt_logs')->result_array();
 
     // 10. Pass variables to view
@@ -105,52 +127,61 @@ public function index($username = NULL) {
     redirect('ojt');
 }
 
-    public function time_out() {
-        $user_id = $this->session->userdata('user_id') ? $this->session->userdata('user_id') : 1;
+public function time_out() {
+    $user_id = $this->session->userdata('user_id');
 
-        $active_log = $this->db->get_where('ojt_logs', array('user_id' => $user_id, 'status' => 'active'))->row_array();
-
-        if ($active_log) {
-            $time_in = new DateTime($active_log['time_in']);
-            $time_out = new DateTime();
-            $interval = $time_in->diff($time_out);
-
-            // Calculate total decimal hours (minus 1 hour break if shift >= 5 hours)
-            $hours = $interval->h + ($interval->i / 60);
-            if ($hours >= 5) { $hours -= 1; }
-
-            $update_data = array(
-                'time_out'       => $time_out->format('Y-m-d H:i:s'),
-                'hours_rendered' => max(0, round($hours, 2)),
-                'status'         => 'Approved'
-            );
-
-            $this->db->where('id', $active_log['id']);
-            $this->db->update('ojt_logs', $update_data);
-            $this->session->set_flashdata('success', 'Timed out successfully!');
-        }
-
-        redirect('ojt');
+    // 1. Session check: redirect to login if session has expired or is missing
+    if (empty($user_id)) {
+        redirect('auth/login');
+        return;
     }
 
-    public function update_target_hours() {
-        $user_id = $this->session->userdata('user_id') ? $this->session->userdata('user_id') : 1;
-        $target = $this->input->post('required_hours', TRUE);
+    // 2. Query active log: match user AND find record where time_out is NULL or status is 'Running...'
+    $this->db->where('user_id', $user_id);
+    $this->db->group_start();
+    $this->db->where('time_out IS NULL', NULL, FALSE);
+    $this->db->or_where('status', 'Running...');
+    $this->db->group_end();
+    
+    $active_log = $this->db->get('ojt_logs')->row_array();
 
-        if (!empty($target) && is_numeric($target)) {
-            // Check if profile row exists, update or insert accordingly
-            $exists = $this->db->get_where('user_profile', array('id' => $user_id))->num_rows();
-            if ($exists) {
-                $this->db->where('id', $user_id)->update('user_profile', array('required_hours' => $target));
-            } else {
-                $this->db->insert('user_profile', array('id' => $user_id, 'required_hours' => $target));
-            }
-            $this->session->set_flashdata('success', 'Target hours updated!');
-        }
-
-        redirect('ojt');
+    // 3. Fallback: search for any open log for this user if status string was modified
+    if (empty($active_log)) {
+        $active_log = $this->db->where('user_id', $user_id)
+                               ->where('time_out IS NULL', NULL, FALSE)
+                               ->order_by('id', 'DESC')
+                               ->get('ojt_logs')
+                               ->row_array();
     }
 
+    // 4. Update the record and calculate hours
+    if (!empty($active_log)) {
+        $time_in  = new DateTime($active_log['time_in']);
+        $time_out = new DateTime();
+        $interval = $time_in->diff($time_out);
+
+        // Compute total decimal hours (including multi-day intervals)
+        $hours = ($interval->days * 24) + $interval->h + ($interval->i / 60);
+        
+        // Subtract 1-hour break for shifts of 5 hours or more
+        if ($hours >= 5) { 
+            $hours -= 1; 
+        }
+
+        $update_data = array(
+            'time_out'       => $time_out->format('Y-m-d H:i:s'),
+            'hours_rendered' => max(0, round($hours, 2)),
+            'status'         => 'Approved'
+        );
+
+        $this->db->where('id', $active_log['id']);
+        $this->db->update('ojt_logs', $update_data);
+        $this->session->set_flashdata('success', 'Timed out successfully!');
+    }
+
+    // 5. Redirect back to the OJT dashboard
+    redirect('ojt');
+}
     // --- MANUAL ENTRY & EDITING METHODS ---
 
     public function add_log() {
@@ -216,11 +247,47 @@ public function index($username = NULL) {
     }
 
     public function delete_log($id) {
+        if ($this->session->userdata('role') !== 'admin') {
+            show_error('Only administrators can delete OJT logs.', 403);
+            return;
+        }
+
         if (is_numeric($id)) {
             $this->db->where('id', $id)->delete('ojt_logs');
             $this->session->set_flashdata('success', 'Log deleted successfully!');
         }
-        
+
+        redirect('portfolio');
+    }
+
+    public function request_deletion() {
+        $user_id = $this->session->userdata('user_id');
+        $log_id = $this->input->post('log_id');
+
+        if (empty($user_id) || !is_numeric($log_id)) {
+            show_error('Invalid deletion request.', 400);
+            return;
+        }
+
+        $log = $this->db->get_where('ojt_logs', array(
+            'id' => $log_id,
+            'user_id' => $user_id
+        ))->row_array();
+
+        if (empty($log)) {
+            show_error('The requested OJT log was not found.', 404);
+            return;
+        }
+
+        $this->db->insert('messages', array(
+            'sender_name'  => trim($this->session->userdata('first_name') . ' ' . $this->session->userdata('last_name')),
+            'sender_email' => $this->session->userdata('email'),
+            'subject'      => 'OJT Log Deletion Request #' . $log_id,
+            'message_text' => 'Please review my request to delete OJT log #' . $log_id . ' dated ' . $log['log_date'] . '.',
+            'is_read'      => 0
+        ));
+
+        $this->session->set_flashdata('success', 'Deletion request sent to the administrator.');
         redirect('ojt');
     }
 
@@ -340,6 +407,158 @@ public function analytics_partial() {
 public function logs_partial() {
     // Renders only the inner DTR records & filter card content
     $this->load->view('ojt/logs_view');
+}
+
+public function update_info() {
+    $user_id = $this->session->userdata('user_id');
+
+    if ($user_id) {
+        // Collect posted inputs
+        $update_data = array(
+            'first_name'    => $this->input->post('first_name', TRUE),
+            'middle_name'   => $this->input->post('middle_name', TRUE),
+            'last_name'     => $this->input->post('last_name', TRUE),
+            'gender'        => $this->input->post('gender', TRUE),
+            'birthday'      => $this->input->post('birthday', TRUE),
+            'school'        => $this->input->post('school', TRUE),
+            'year_section'  => $this->input->post('year_section', TRUE),
+            'academic_year' => $this->input->post('academic_year', TRUE),
+            'semester'      => $this->input->post('semester', TRUE)
+        );
+
+        // Update database record
+        $this->db->where('id', $user_id);
+        $this->db->update('users', $update_data);
+
+        // Update session values so the UI reflects changes immediately
+        $this->session->set_userdata($update_data);
+        echo json_encode(array(
+            'status'  => 'success',
+            'message' => 'Personal information updated successfully!'
+        ));
+        return;
+    }
+
+    echo json_encode(array(
+        'status'  => 'error',
+        'message' => 'User session expired or invalid request.'
+    ));
+}
+
+    public function update_password() {
+    $user_id = $this->session->userdata('user_id');
+
+    if (!$user_id) {
+        echo json_encode(array('status' => 'error', 'message' => 'Session expired. Please log in again.'));
+        return;
+    }
+
+    $current_password = $this->input->post('current_password', TRUE);
+    $new_password     = $this->input->post('new_password', TRUE);
+    $confirm_password = $this->input->post('confirm_password', TRUE);
+
+    // Validate empty fields
+    if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
+        echo json_encode(array('status' => 'error', 'message' => 'All fields are required.'));
+        return;
+    }
+
+    // Check if new passwords match
+    if ($new_password !== $confirm_password) {
+        echo json_encode(array('status' => 'error', 'message' => 'New password and confirmation do not match.'));
+        return;
+    }
+
+    // Check if new password is identical to current password
+    if ($current_password === $new_password) {
+        echo json_encode(array('status' => 'error', 'message' => 'New password cannot be the same as your current password.'));
+        return;
+    }
+
+    // Validate password complexity requirements
+    $password_pattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
+    if (!preg_match($password_pattern, $new_password)) {
+        echo json_encode(array(
+            'status' => 'error', 
+            'message' => 'New password does not meet all security requirements.'
+        ));
+        return;
+    }
+
+    // Retrieve current user record
+    $user = $this->db->get_where('users', array('id' => $user_id))->row();
+
+    // Verify current password (supports password_hash or md5 fallback)
+    $password_matches = password_verify($current_password, $user->password) || (md5($current_password) === $user->password);
+
+    if (!$user || !$password_matches) {
+        echo json_encode(array('status' => 'error', 'message' => 'Incorrect current password.'));
+        return;
+    }
+
+    // Hash and update the new password
+    $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+    $this->db->where('id', $user_id);
+    $this->db->update('users', array('password' => $hashed_password));
+
+    echo json_encode(array('status' => 'success', 'message' => 'Password updated successfully!'));
+}
+
+public function update_email() {
+    // Set response header to JSON
+    header('Content-Type: application/json');
+
+    $user_id = $this->session->userdata('user_id');
+
+    if (!$user_id) {
+        echo json_encode(array('status' => 'error', 'message' => 'Session expired. Please log in again.'));
+        return;
+    }
+
+    $new_email = $this->input->post('new_email', TRUE);
+    $current_password = $this->input->post('current_password', TRUE);
+
+    // 1. Validate empty inputs
+    if (empty($new_email) || empty($current_password)) {
+        echo json_encode(array('status' => 'error', 'message' => 'All fields are required.'));
+        return;
+    }
+
+    // 2. Validate email format
+    if (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(array('status' => 'error', 'message' => 'Please enter a valid email address.'));
+        return;
+    }
+
+    // 3. Fetch current user from database
+    $user = $this->db->get_where('users', array('id' => $user_id))->row();
+
+    if (!$user) {
+        echo json_encode(array('status' => 'error', 'message' => 'User account not found.'));
+        return;
+    }
+
+    // 4. Check if current password is correct (supports password_hash or md5 fallback)
+    $password_matches = password_verify($current_password, $user->password) || (md5($current_password) === $user->password);
+
+    if (!$password_matches) {
+        echo json_encode(array('status' => 'error', 'message' => 'Incorrect current password.'));
+        return;
+    }
+
+    // 5. Check if new email is already taken by another user
+    $existing_email = $this->db->get_where('users', array('email' => $new_email, 'id !=' => $user_id))->row();
+    if ($existing_email) {
+        echo json_encode(array('status' => 'error', 'message' => 'This email address is already in use by another account.'));
+        return;
+    }
+
+    // 6. Update email in database and update session data
+    $this->db->where('id', $user_id);
+    $this->db->update('users', array('email' => $new_email));
+    $this->session->set_userdata('email', $new_email);
+
+    echo json_encode(array('status' => 'success', 'message' => 'Email address updated successfully!'));
 }
 
 }

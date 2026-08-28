@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- FontAwesome Icons for Sidebar -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="icon" type="image/png" href="<?= base_url('assets/images/favicon.png'); ?>">
+    <link rel="icon" type="image/png" href="<?= base_url('assets/images/sdcalogoorig.png'); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600&display=swap" rel="stylesheet">
 <style>
     :root { 
@@ -51,6 +51,13 @@
 
     .main-content .container-fluid {
         padding-top: 10px !important;
+    }
+
+    .main-content .btn:not(:disabled):hover,
+    .main-content .btn:not(:disabled):focus {
+        background-color: #25292d !important;
+        border-color: #25292d !important;
+        color: #ffffff !important;
     }
 
     /* TOP NAVBAR */
@@ -276,16 +283,20 @@ body {
     
     }
 
-    /* Welcome Banner Styling */
-    .welcome-banner {
-        border: 1px solid #f0f0f0;
-    }
-
     .quote-accent-line {
         width: 3px;
         height: 38px;
         background-color: #0f3d3e; /* Dark teal/forest green line from reference */
         border-radius: 2px;
+    }
+
+    .log-action-btn {
+        width: 34px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .extra-small {
@@ -421,7 +432,7 @@ body {
 </aside>
 
     <!-- RIGHT MAIN CONTENT AREA -->
-    <main class="main-content">
+    <main class="main-content px-4 py-3">
         <!-- TOP NAVBAR -->
 <!-- Reduced navbar height to 42px -->
 <nav class="navbar navbar-dark bg-sdca p-0 mb-4 shadow-sm" style="min-height: 42px; height: 42px;">
@@ -483,13 +494,13 @@ body {
                         </div>
 
                         <div class="list-group list-group-flush small">
-                        <a href="<?= base_url('profile/email'); ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 text-dark">
+                        <a href="javascript:void(0);" onclick="loadProfileView('update_email')" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 text-dark">
                             <i class="bi bi-envelope-fill text-dark fs-6"></i> Update Email
                         </a>
-                        <a href="<?= base_url('profile/password'); ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 text-dark">
+                        <a href="javascript:void(0);" onclick="loadProfileView('update_password')" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 text-dark">
                             <i class="bi bi-key-fill text-dark fs-6"></i> Update Password
                         </a>
-                        <a href="<?= base_url('profile/settings'); ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 text-dark">
+                        <a href="javascript:void(0);" onclick="loadProfileView('update_info')" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 text-dark">
                             <i class="bi bi-gear-fill text-dark fs-6"></i> Update My Personal Information
                         </a>
                         <a href="<?= base_url('auth/logout'); ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 text-danger fw-bold bg-light">
@@ -519,8 +530,8 @@ body {
     $user_display_name = !empty($current_username) ? ucfirst($current_username) : ($this->session->userdata('username') ? ucfirst($this->session->userdata('username')) : 'Student');
 ?>
 
-<div class="welcome-banner d-flex justify-content-between align-items-center p-4 mb-4 bg-white rounded-3 shadow-sm">
-    <!-- Left Section: Dynamic Greeting -->
+<div class="welcome-banner d-flex justify-content-between align-items-center mb-4">
+        <!-- Left Section: Dynamic Greeting -->
     <div class="greeting-section">
         <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
             <?= $time_greeting . ', ' . htmlspecialchars($user_display_name); ?>! <span class="wave-emoji">👋</span>
@@ -545,6 +556,7 @@ body {
 </div>
 
             <!-- PROGRESS DASHBOARD -->
+             <div id="main-content-area" class="p-4">
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm p-3 text-center border-start border-4 border-danger">
@@ -639,14 +651,15 @@ body {
                                             
                                             <td class="text-center">
                                                 <div class="btn-group btn-group-sm">
-                                                    <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editModal<?= $log['id']; ?>" title="Edit Log & Tasks">
+                                                    <button type="button" class="btn btn-outline-warning log-action-btn" data-bs-toggle="modal" data-bs-target="#editModal<?= $log['id']; ?>" title="Edit Log & Tasks">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
-                                                    <a href="<?= site_url('ojt/delete_log/' . $log['id']); ?>" 
-                                                       class="btn btn-outline-danger" 
-                                                       onclick="return confirm('Are you sure you want to delete this time log?');" title="Delete Log">
-                                                        <i class="bi bi-trash"></i>
-                                                    </a>
+                                                    <form action="<?= site_url('ojt/request_deletion'); ?>" method="POST" class="d-inline">
+                                                        <input type="hidden" name="log_id" value="<?= (int)$log['id']; ?>">
+                                                        <button type="submit" class="btn btn-outline-danger log-action-btn" onclick="return confirm('Send a deletion request to the administrator for this time log?');" title="Request Deletion">
+                                                            <i class="bi bi-envelope-exclamation"></i>
+                                                        </button>
+                                                    </form>
                                                 </div>
 
                                                 <!-- EDIT ACCOMPLISHMENTS MODAL -->
@@ -754,16 +767,25 @@ body {
 
 <!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+<script>
+    // Pass PHP values to global JS state once during initial page render
+    const OJT_DATA = {
+        targetHours: <?= json_encode((float)$required_hours); ?>,
+        renderedHours: <?= json_encode((float)$rendered_hours); ?>
+    };
+</script>
 <!-- REAL-TIME PST CLOCK SCRIPT -->
 <script>
     function tickPHClock() {
         const now = new Date();
-        const timeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        const timeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit' });
         const dateStr = now.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        document.getElementById('phClock').innerText = timeStr;
-        document.getElementById('phDate').innerText = dateStr;
+        const clockElem = document.getElementById('phClock');
+        const dateElem = document.getElementById('phDate');
+
+        if (clockElem) clockElem.innerText = timeStr;
+        if (dateElem) dateElem.innerText = dateStr;
     }
     setInterval(tickPHClock, 1000);
     tickPHClock();
@@ -786,168 +808,447 @@ const USER_DATA = {
     lastName: "<?= $this->session->userdata('last_name') ?? ''; ?>",
     gender: "<?= $this->session->userdata('gender') ?? ''; ?>",
     birthday: "<?= $this->session->userdata('birthday') ?? ''; ?>",
-    school: "<?= $this->session->userdata('school') ? $this->session->userdata('school') : 'St. Dominic College of Asia'; ?>",
+    school: "<?= $this->session->userdata('school') ?? 'St. Dominic College of Asia'; ?>",
     yearSection: "<?= $this->session->userdata('year_section') ?? ''; ?>",
     academicYear: "<?= $this->session->userdata('academic_year') ?? ''; ?>",
     semester: "<?= $this->session->userdata('semester') ?? ''; ?>"
 };
 
 function loadProfileView(viewType) {
-    // 1. Remove active highlight from sidebar items
-    document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(el => {
-        el.classList.remove('active', 'bg-primary', 'text-white');
-    });
-
-    // 2. Build template using JavaScript string literals
+    console.log("Loading view:", viewType);
     let viewContent = '';
 
     if (viewType === 'update_email') {
         viewContent = `
             <div class="card shadow-sm border-0 rounded-3 p-4 mb-4">
                 <div class="border-bottom pb-3 mb-4">
-                    <h5 class="fw-bold text-dark mb-1">
-                        <i class="bi bi-envelope-fill me-2 text-danger"></i>Update Email Address
-                    </h5>
+                    <h5 class="fw-bold text-dark mb-1"><i class="bi bi-envelope-fill me-2 text-danger"></i>Update Email Address</h5>
                     <p class="text-muted small mb-0">Change the primary email address associated with your intern account.</p>
                 </div>
+                
+                <div id="emailAlertContainer"></div>
 
-                <form id="formUpdateEmail" action="${BASE_URL}profile/update_email" method="POST" class="col-lg-8 col-xl-6">
+                <div class="col-lg-8 col-xl-6">
+                    <!-- Moved OUTSIDE the form so form.reset() won't clear it -->
                     <div class="mb-3">
                         <label class="form-label text-muted small fw-bold">CURRENT EMAIL</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-lock-fill"></i></span>
-                            <input type="email" class="form-control bg-light border-start-0" value="${USER_DATA.email}" readonly disabled>
+                        <input type="email" id="currentEmailDisplay" class="form-control bg-light" value="${USER_DATA.email}" readonly disabled>
+                    </div>
+
+                    <form id="formUpdateEmail" onsubmit="submitEmailForm(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">New Email Address</label>
+                            <input type="email" id="new_email" name="new_email" class="form-control" placeholder="e.g. user@sdca.edu.ph" required>
                         </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">New Email Address</label>
-                        <input type="email" name="new_email" class="form-control" placeholder="e.g. user@sdca.edu.ph" required>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Current Password <span class="text-muted fw-normal">(To confirm identity)</span></label>
-                        <input type="password" name="current_password" class="form-control" placeholder="Enter password" required>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <button type="submit" class="btn btn-danger text-white px-4 fw-semibold">Save Changes</button>
-                        <button type="button" onclick="location.reload()" class="btn btn-outline-secondary px-4">Cancel</button>
-                    </div>
-                </form>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Current Password</label>
+                            <div class="input-group">
+                                <input type="password" id="current_email_password" name="current_password" class="form-control" placeholder="Enter password to confirm" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('current_email_password', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="submit" id="btnSubmitEmail" class="btn btn-danger text-white px-4 fw-semibold">Save Changes</button>
+                            <button type="button" onclick="location.reload()" class="btn btn-outline-secondary px-4">Cancel</button>
+                        </div>
+                    </form>
+                </div>
             </div>`;
     } else if (viewType === 'update_password') {
         viewContent = `
             <div class="card shadow-sm border-0 rounded-3 p-4 mb-4">
                 <div class="border-bottom pb-3 mb-4">
-                    <h5 class="fw-bold text-dark mb-1">
-                        <i class="bi bi-key-fill me-2 text-danger"></i>Update Password
-                    </h5>
-                    <p class="text-muted small mb-0">Ensure your account is using a long, random password to stay secure.</p>
+                    <h5 class="fw-bold text-dark mb-1"><i class="bi bi-key-fill me-2 text-danger"></i>Update Password</h5>
+                    <p class="text-muted small mb-0">Ensure your account is using a long, secure password.</p>
                 </div>
 
-                <form id="formUpdatePassword" action="${BASE_URL}profile/update_password" method="POST" class="col-lg-8 col-xl-6">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Current Password</label>
-                        <input type="password" name="current_password" class="form-control" placeholder="Enter current password" required>
+                <div id="passwordAlertContainer"></div>
+
+                <div class="row g-4">
+                    <!-- Left Column: Form -->
+                    <div class="col-lg-7">
+                        <form id="formUpdatePassword" onsubmit="submitPasswordForm(event)">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Current Password</label>
+                                <div class="input-group">
+                                    <input type="password" id="current_password" name="current_password" class="form-control" placeholder="Enter current password" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('current_password', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">New Password</label>
+                                <div class="input-group">
+                                    <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Enter new password" oninput="checkPasswordRequirements(this.value)" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('new_password', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Confirm New Password</label>
+                                <div class="input-group">
+                                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirm new password" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('confirm_password', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="submit" id="btnSubmitPassword" class="btn btn-danger text-white px-4 fw-semibold">Save Changes</button>
+                                <button type="button" onclick="location.reload()" class="btn btn-outline-secondary px-4">Cancel</button>
+                            </div>
+                        </form>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">New Password</label>
-                        <input type="password" name="new_password" class="form-control" placeholder="Enter new password" required>
+                    <!-- Right Column: Password Requirements -->
+                    <div class="col-lg-5">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <h6 class="fw-bold text-dark mb-2">Password Requirements:</h6>
+                            <ul class="list-unstyled small mb-0 d-flex flex-column gap-2">
+                                <li id="req-length" class="d-flex align-items-center text-muted">
+                                    <i class="bi bi-check-circle me-2"></i>At least 8 characters long
+                                </li>
+                                <li id="req-upper" class="d-flex align-items-center text-muted">
+                                    <i class="bi bi-check-circle me-2"></i>At least one uppercase letter (A-Z)
+                                </li>
+                                <li id="req-lower" class="d-flex align-items-center text-muted">
+                                    <i class="bi bi-check-circle me-2"></i>At least one lowercase letter (a-z)
+                                </li>
+                                <li id="req-number" class="d-flex align-items-center text-muted">
+                                    <i class="bi bi-check-circle me-2"></i>At least one number (0-9)
+                                </li>
+                                <li id="req-special" class="d-flex align-items-center text-muted">
+                                    <i class="bi bi-check-circle me-2"></i>At least one special character (@, $, !, %, *, ?, &)
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Confirm New Password</label>
-                        <input type="password" name="confirm_password" class="form-control" placeholder="Re-enter new password" required>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <button type="submit" class="btn btn-danger text-white px-4 fw-semibold">Update Password</button>
-                        <button type="button" onclick="location.reload()" class="btn btn-outline-secondary px-4">Cancel</button>
-                    </div>
-                </form>
+                </div>
             </div>`;
-    } else if (viewType === 'update_profile') {
+    } else if (viewType === 'update_info') {
         viewContent = `
             <div class="card shadow-sm border-0 rounded-3 p-4 mb-4">
                 <div class="border-bottom pb-3 mb-4">
-                    <h5 class="fw-bold text-dark mb-1">
-                        <i class="bi bi-gear-fill me-2 text-danger"></i>Update Personal Information
-                    </h5>
-                    <p class="text-muted small mb-0">Manage your personal, academic, and enrolment details for official DTR records.</p>
+                    <h5 class="fw-bold text-dark mb-1"><i class="bi bi-person-lines-fill me-2 text-danger"></i>Update Personal Information</h5>
+                    <p class="text-muted small mb-0">Update your basic profile, demographics, and academic details.</p>
                 </div>
+                
+                <div id="alertContainer"></div>
 
-                <form id="formUpdateProfile" action="${BASE_URL}profile/update_info" method="POST">
-                    <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-person-fill me-1"></i> Basic Profile</h6>
-                    <div class="row g-3 mb-4">
+                <form id="formUpdateInfo" onsubmit="submitInfoForm(event)" class="col-lg-10 col-xl-9">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">First Name</label>
-                            <input type="text" name="first_name" class="form-control" value="${USER_DATA.firstName}" required>
+                            <input type="text" name="first_name" class="form-control" value="${USER_DATA.firstName || ''}" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Middle Name</label>
-                            <input type="text" name="middle_name" class="form-control" value="${USER_DATA.middleName}" placeholder="Optional">
+                            <input type="text" name="middle_name" class="form-control" value="${USER_DATA.middleName || ''}">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Last Name</label>
-                            <input type="text" name="last_name" class="form-control" value="${USER_DATA.lastName}" required>
+                            <input type="text" name="last_name" class="form-control" value="${USER_DATA.lastName || ''}" required>
                         </div>
-                        <div class="col-md-6">
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold">Gender</label>
                             <select name="gender" class="form-select" required>
-                                <option value="" disabled>Select gender</option>
+                                <option value="">Select Gender</option>
                                 <option value="Male" ${USER_DATA.gender === 'Male' ? 'selected' : ''}>Male</option>
                                 <option value="Female" ${USER_DATA.gender === 'Female' ? 'selected' : ''}>Female</option>
                                 <option value="Prefer not to say" ${USER_DATA.gender === 'Prefer not to say' ? 'selected' : ''}>Prefer not to say</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold">Birthday</label>
-                            <input type="date" name="birthday" class="form-control" value="${USER_DATA.birthday}" required>
+                            <input type="date" name="birthday" class="form-control" value="${USER_DATA.birthday || ''}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">School / University</label>
+                            <input type="text" name="school" class="form-control" value="${USER_DATA.school || 'St. Dominic College of Asia'}" required>
                         </div>
                     </div>
 
-                    <hr class="my-4 text-muted opacity-25">
-
-                    <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-mortarboard-fill me-1"></i> Academic Details</h6>
                     <div class="row g-3 mb-4">
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">School / Institution</label>
-                            <input type="text" name="school" class="form-control" value="${USER_DATA.school}" required>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Year & Section</label>
+                            <input type="text" name="year_section" class="form-control" value="${USER_DATA.yearSection || ''}" placeholder="e.g. BSIT 4-1" required>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Year Level & Section</label>
-                            <input type="text" name="year_section" class="form-control" placeholder="e.g. 4th Year - BSIT 4A" value="${USER_DATA.yearSection}" required>
-                        </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold">Academic Year</label>
-                            <input type="text" name="academic_year" class="form-control" placeholder="e.g. 2026-2027" value="${USER_DATA.academicYear}" required>
+                            <input type="text" name="academic_year" class="form-control" value="${USER_DATA.academicYear || ''}" placeholder="e.g. 2025-2026" required>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold">Semester</label>
                             <select name="semester" class="form-select" required>
+                                <option value="">Select Semester</option>
                                 <option value="1st Semester" ${USER_DATA.semester === '1st Semester' ? 'selected' : ''}>1st Semester</option>
                                 <option value="2nd Semester" ${USER_DATA.semester === '2nd Semester' ? 'selected' : ''}>2nd Semester</option>
-                                <option value="Summer / Midyear" ${USER_DATA.semester === 'Summer / Midyear' ? 'selected' : ''}>Summer / Midyear</option>
+                                <option value="Summer" ${USER_DATA.semester === 'Summer' ? 'selected' : ''}>Summer</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center gap-2 pt-2">
-                        <button type="submit" class="btn btn-danger text-white px-4 fw-semibold">Save Information</button>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="submit" id="btnSubmitInfo" class="btn btn-danger text-white px-4 fw-semibold">Save Changes</button>
                         <button type="button" onclick="location.reload()" class="btn btn-outline-secondary px-4">Cancel</button>
                     </div>
                 </form>
             </div>`;
     }
 
-    // 3. Output to the target container
-    const targetArea = document.getElementById('main-content-area');
-    if (targetArea) {
-        targetArea.innerHTML = viewContent;
+    const contentArea = document.getElementById('main-content-area') || document.getElementById('dashboardContent') || document.querySelector('.content-body');
+    if (contentArea) {
+        contentArea.innerHTML = viewContent;
     }
 }
+
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+
+function submitEmailForm(event) {
+    event.preventDefault();
+
+    const form = document.getElementById('formUpdateEmail');
+    const alertContainer = document.getElementById('emailAlertContainer');
+    const submitBtn = document.getElementById('btnSubmitEmail');
+    const newEmailValue = document.getElementById('new_email').value;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+    const formData = new FormData(form);
+
+    fetch(`${BASE_URL}ojt/update_email`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Save Changes';
+
+        if (data.status === 'success') {
+            // Update local memory state
+            USER_DATA.email = newEmailValue;
+
+            // Update the display field outside the form
+            document.getElementById('currentEmailDisplay').value = newEmailValue;
+
+            // Clear input fields (New Email & Current Password)
+            form.reset();
+
+            // Display success message
+            alertContainer.innerHTML = `
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                    <div>${data.message || 'Email address updated successfully!'}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+        } else {
+            alertContainer.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                    <div>${data.message || 'Failed to update email address.'}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Save Changes';
+        alertContainer.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <div>An unexpected error occurred. Please try again.</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`;
+    });
+}
+
+    function submitInfoForm(event) {
+    event.preventDefault();
+
+    const form = document.getElementById('formUpdateInfo');
+    const formData = new FormData(form);
+    const alertContainer = document.getElementById('alertContainer');
+    const submitBtn = document.getElementById('btnSubmitInfo');
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+    fetch(`${BASE_URL}ojt/update_info`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Save Changes';
+
+        if (data.status === 'success') {
+            alertContainer.innerHTML = `
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                    <div>${data.message}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+        } else {
+            alertContainer.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                    <div>${data.message || 'Failed to update personal information.'}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Save Changes';
+        console.error('Error:', error);
+    });
+}
+
+function checkPasswordRequirements(password) {
+    const rules = [
+        { id: 'req-length', valid: password.length >= 8 },
+        { id: 'req-upper', valid: /[A-Z]/.test(password) },
+        { id: 'req-lower', valid: /[a-z]/.test(password) },
+        { id: 'req-number', valid: /[0-9]/.test(password) },
+        { id: 'req-special', valid: /[@$!%*?&]/.test(password) }
+    ];
+
+    rules.forEach(rule => {
+        const el = document.getElementById(rule.id);
+        if (!el) return;
+
+        const icon = el.querySelector('i');
+
+        if (rule.valid) {
+            el.classList.remove('text-muted');
+            el.classList.add('text-success', 'fw-semibold');
+            icon.classList.remove('bi-check-circle');
+            icon.classList.add('bi-check-circle-fill');
+        } else {
+            el.classList.remove('text-success', 'fw-semibold');
+            el.classList.add('text-muted');
+            icon.classList.remove('bi-check-circle-fill');
+            icon.classList.add('bi-check-circle');
+        }
+    });
+}
+
+function submitPasswordForm(event) {
+    event.preventDefault();
+
+    const currentPass = document.getElementById('current_password').value;
+    const newPass = document.getElementById('new_password').value;
+    const confirmPass = document.getElementById('confirm_password').value;
+    const alertContainer = document.getElementById('passwordAlertContainer');
+    const submitBtn = document.getElementById('btnSubmitPassword');
+
+    // 1. Check if same as current password
+    if (currentPass === newPass) {
+        alertContainer.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <div>New password cannot be the same as your current password.</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+        return;
+    }
+
+    // 2. Check if confirm password matches
+    if (newPass !== confirmPass) {
+        alertContainer.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <div>New password and confirmation do not match.</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+        return;
+    }
+
+    // 3. Check password complexity requirements
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordPattern.test(newPass)) {
+        alertContainer.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <div>Password does not meet all complexity requirements listed on the right.</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+        return;
+    }
+
+    // Disable button to prevent double clicks
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+    // 4. Send request via FormData
+    const formData = new FormData(document.getElementById('formUpdatePassword'));
+
+    fetch('update_password', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Save Changes';
+
+        if (data.status === 'success') {
+            alertContainer.innerHTML = `
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                    <div>${data.message || 'Password updated successfully!'}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>`;
+            document.getElementById('formUpdatePassword').reset();
+        } else {
+            alertContainer.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                    <div>${data.message || 'Failed to update password.'}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Save Changes';
+        alertContainer.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <div>An unexpected error occurred. Please try again.</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+    });
+}
+
 </script>
 
 <script>
@@ -981,11 +1282,11 @@ function loadMainView(viewType, element = null) {
         
     } else if (viewType === 'analytics') {
         // 1. Retrieve dynamic backend variables directly from PHP session
-    <?php 
-        $target_hours   = !empty($this->session->userdata('target_hours')) ? $this->session->userdata('target_hours') : 500.0;
-        $rendered_hours = !empty($this->session->userdata('hours_rendered')) ? $this->session->userdata('hours_rendered') : 0.0;
-        $remaining      = max(0, $target_hours - $rendered_hours);
-        $percentage     = ($target_hours > 0) ? round(($rendered_hours / $target_hours) * 100, 1) : 0;
+    <?php
+        $target_hours = (float)$required_hours;
+        $rendered_hours = (float)$rendered_hours;
+        $remaining = (float)$remaining_hours;
+        $percentage = (float)$progress_pct;
     ?>
 
     // 2. Render dynamic HTML layout
@@ -1087,13 +1388,30 @@ function loadMainView(viewType, element = null) {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="fw-bold text-dark">Aug 27, 2026</td>
-                                <td>10:54 AM</td>
-                                <td><span class="badge bg-warning text-dark px-2 py-1">Running</span></td>
-                                <td><span class="badge bg-danger px-2 py-1">0.00 hrs</span></td>
-                                <td class="text-muted fst-italic">No description recorded</td>
-                            </tr>
+                            <?php if (!empty($logs)): ?>
+                                <?php foreach ($logs as $log): ?>
+                                    <?php
+                                        $dtr_badge_class = ((float)$log['hours_rendered'] >= 8) ? 'bg-success' : (((float)$log['hours_rendered'] > 0) ? 'bg-primary' : 'bg-danger');
+                                    ?>
+                                    <tr>
+                                        <td class="fw-bold text-dark"><?= date('M d, Y', strtotime($log['log_date'])); ?></td>
+                                        <td><?= date('h:i A', strtotime($log['time_in'])); ?></td>
+                                        <td>
+                                            <?php if (!empty($log['time_out'])): ?>
+                                                <?= date('h:i A', strtotime($log['time_out'])); ?>
+                                            <?php else: ?>
+                                                <span class="badge bg-warning text-dark px-2 py-1">Running</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><span class="badge <?= $dtr_badge_class; ?> px-2 py-1"><?= number_format((float)$log['hours_rendered'], 2); ?> hrs</span></td>
+                                        <td class="<?= empty($log['task_summary']) ? 'text-muted fst-italic' : ''; ?>"><?= !empty($log['task_summary']) ? html_escape($log['task_summary']) : 'No description recorded'; ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">No time logs submitted yet.</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>

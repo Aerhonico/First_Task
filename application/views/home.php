@@ -13,7 +13,7 @@
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <!-- Tab Icon -->
-    <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/favicon.png'); ?>">
+    <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/sdcalogoorig.png'); ?>">
     
     <style>
         :root {
@@ -234,7 +234,7 @@
                         </div>
                     <?php endif; ?>
 
-<?php if($this->session->userdata('logged_in')): ?>
+<?php if($this->session->userdata('role') === 'admin'): ?>
   <div class="bg-dark text-white py-2 px-3 d-flex justify-content-between align-items-center border-warning">
     <span class="small fw-bold text-warning">
       <i class="bi bi-pencil-square me-1"></i> Admin Edit Mode Active
@@ -406,7 +406,7 @@
                     <div class="col-md-6 col-lg-4">
                         <div class="card h-100 position-relative shadow border-0">
 
-                            <?php if($this->session->userdata('logged_in')): ?>
+                            <?php if($this->session->userdata('role') === 'admin'): ?>
                                 <!-- Admin Quick Action Badges -->
                                 <div class="position-absolute top-0 end-0 m-2 z-3">
                                     <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?= $project['id']; ?>">
@@ -607,7 +607,7 @@
             <h2 class="fw-bold">Tech Stack</h2>
             <p class="text-muted">Tools and technologies I use to build web and mobile applications.</p>
             
-            <?php if ($this->session->userdata('logged_in')): ?>
+            <?php if ($this->session->userdata('role') === 'admin'): ?>
                 <button class="btn btn-warning btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#techStackModal">
                     <i class="bi bi-gear-fill me-1"></i> Modify Tech Stack
                 </button>
@@ -662,7 +662,7 @@
 </section>
 
 <!-- Manage Tech Stack Modal -->
-<?php if ($this->session->userdata('logged_in')): ?>
+<?php if ($this->session->userdata('role') === 'admin'): ?>
 <div class="modal fade" id="techStackModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
@@ -765,7 +765,7 @@
             <p class="text-muted mb-2">Click on any of my certificate to view full information.</p>
             
             <!-- Modify Button for Logged-In Admin -->
-            <?php if ($this->session->userdata('logged_in')): ?>
+            <?php if ($this->session->userdata('role') === 'admin'): ?>
                 <button class="btn btn-warning btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#manageCertModal">
                     <i class="bi bi-gear-fill me-1"></i> Modify Certifications
                 </button>
@@ -848,7 +848,7 @@
 </section>
 
 <!-- Modal for Modifying Certifications (Add / Delete) -->
-<?php if ($this->session->userdata('logged_in')): ?>
+<?php if ($this->session->userdata('role') === 'admin'): ?>
 <div class="modal fade" id="manageCertModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content border-0 shadow">
@@ -932,7 +932,7 @@
 <?php endif; ?>
 
         <!-- Place this AFTER your project foreach loop finishes -->
-    <?php if (!empty($projects) && $this->session->userdata('logged_in')): ?>
+    <?php if (!empty($projects) && $this->session->userdata('role') === 'admin'): ?>
         <?php foreach ($projects as $project): ?>
 <!-- Details & Admin Edit Modal -->
 <div class="modal fade" id="projectModal<?= $project['id']; ?>" tabindex="-1" aria-hidden="true">
@@ -983,7 +983,7 @@
                 <?php endif; ?>
 
                 <!-- Admin Inline Management Form -->
-                <?php if ($this->session->userdata('logged_in')): ?>
+                <?php if ($this->session->userdata('role') === 'admin'): ?>
                     <hr>
                     <!-- Edit Button (Yellow Pencil) -->
                     <button type="button" 
@@ -1292,7 +1292,7 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
 </div>
 
-<?php if ($this->session->userdata('logged_in')): ?>
+<?php if ($this->session->userdata('role') === 'admin'): ?>
 <div class="modal fade" id="techStackModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content border-0 shadow">
@@ -1386,7 +1386,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 </script>
-<?php if ($this->session->userdata('logged_in')): ?>
+<?php if ($this->session->userdata('role') === 'admin'): ?>
 <div class="modal fade" id="activityLogModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg bg-dark text-light">

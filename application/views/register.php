@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Intern Registration - SDCA OJT Tracker</title>
+    <link rel="icon" type="image/png" href="<?= base_url('assets/images/sdcalogoorig.png'); ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -147,7 +148,7 @@
                 </button>
 
                 <div class="text-center d-flex flex-column gap-2">
-                    <a href="<?= base_url('auth/login'); ?>" class="text-danger fw-bold text-decoration-none small">
+                    <a href="<?= base_url('auth/login'); ?>" class="text-muted text-decoration-underline small">
                         Already have an account? Sign In
                     </a>
                 </div>
