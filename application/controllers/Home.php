@@ -266,17 +266,55 @@ public function send_message() {
 
     public function delete_project($id) {
         if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
-            redirect('login');
+            if ($this->input->is_ajax_request()) {
+                echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+            } else {
+                redirect('login');
+            }
             return;
         }
 
         $this->db->where('id', $id);
         $this->db->delete('projects');
 
-        // LOG BEFORE REDIRECT
+        // LOG BEFORE RESPONSE
         $this->log_activity('Deleted', 'Projects', 'Deleted project ID: ' . $id);
-        $this->session->set_flashdata('project_success', 'Project deleted successfully!');
-        redirect('');
+
+        if ($this->input->is_ajax_request()) {
+            echo json_encode(['status' => 'success', 'message' => 'Project deleted successfully']);
+        } else {
+            $this->session->set_flashdata('project_success', 'Project deleted successfully!');
+            redirect('');
+        }
+    }
+
+    public function update_project_order() {
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+            return;
+        }
+
+        if (!$this->input->is_ajax_request()) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
+            return;
+        }
+
+        // Get the JSON input
+        $input = json_decode(file_get_contents('php://input'), TRUE);
+        
+        if (!isset($input['projects']) || !is_array($input['projects'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid project data']);
+            return;
+        }
+
+        // Update each project's display_order
+        foreach ($input['projects'] as $project) {
+            $this->db->where('id', (int)$project['id']);
+            $this->db->update('projects', ['display_order' => (int)$project['order']]);
+        }
+
+        $this->log_activity('Updated', 'Projects', 'Reordered projects via drag-and-drop');
+        echo json_encode(['status' => 'success', 'message' => 'Project order updated']);
     }
 
     public function update_project_details($id) {
@@ -420,17 +458,26 @@ public function send_message() {
 
     public function delete_certification($id) {
         if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
-            redirect('login');
+            if ($this->input->is_ajax_request()) {
+                echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+            } else {
+                redirect('login');
+            }
             return;
         }
 
         $this->db->where('id', $id);
         $this->db->delete('certifications');
 
-        // LOG BEFORE REDIRECT
+        // LOG BEFORE RESPONSE
         $this->log_activity('Deleted', 'Certifications', 'Deleted cert ID: ' . $id);
-        $this->session->set_flashdata('project_success', 'Certification deleted successfully!');
-        redirect('');
+
+        if ($this->input->is_ajax_request()) {
+            echo json_encode(['status' => 'success', 'message' => 'Certification deleted successfully']);
+        } else {
+            $this->session->set_flashdata('project_success', 'Certification deleted successfully!');
+            redirect('');
+        }
     }
 
     private function log_activity($action, $section, $details = '') {

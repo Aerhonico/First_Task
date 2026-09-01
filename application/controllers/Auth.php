@@ -98,15 +98,15 @@ class Auth extends CI_Controller {
 
     // Process Login Form Submission
     public function login_process() {
-        // 1. Check if user is currently locked out
-        $lockout_time = $this->session->userdata('lockout_time');
-        if ($lockout_time && time() < $lockout_time) {
-            $seconds_left = $lockout_time - time();
-            $minutes_left = ceil($seconds_left / 60);
-            $this->session->set_flashdata('error', "Too many failed attempts. Try again in {$minutes_left} minute(s).");
-            redirect('login');
-            return;
-        }
+        // 1. Check if user is currently locked out - TEMPORARILY DISABLED
+        // $lockout_time = $this->session->userdata('lockout_time');
+        // if ($lockout_time && time() < $lockout_time) {
+        //     $seconds_left = $lockout_time - time();
+        //     $minutes_left = ceil($seconds_left / 60);
+        //     $this->session->set_flashdata('error', "Too many failed attempts. Try again in {$minutes_left} minute(s).");
+        //     redirect('login');
+        //     return;
+        // }
 
         $identity = $this->input->post('username'); // Accepts either email or username input
         $password = $this->input->post('password');
@@ -170,14 +170,17 @@ class Auth extends CI_Controller {
             $attempts++;
             $this->session->set_userdata('login_attempts', $attempts);
 
-            if ($attempts >= 5) {
-                // Lock out for 15 minutes
-                $this->session->set_userdata('lockout_time', time() + (15 * 60));
-                $this->session->set_flashdata('error', 'Too many failed login attempts. Account locked for 15 minutes.');
-            } else {
-                $remaining = 5 - $attempts;
-                $this->session->set_flashdata('error', "Invalid Email/Username or Password. {$remaining} attempt(s) remaining.");
-            }
+            // TEMPORARILY DISABLED: 15-minute lockout
+            // if ($attempts >= 5) {
+            //     // Lock out for 15 minutes
+            //     $this->session->set_userdata('lockout_time', time() + (15 * 60));
+            //     $this->session->set_flashdata('error', 'Too many failed login attempts. Account locked for 15 minutes.');
+            // } else {
+            //     $remaining = 5 - $attempts;
+            //     $this->session->set_flashdata('error', "Invalid Email/Username or Password. {$remaining} attempt(s) remaining.");
+            // }
+
+            $this->session->set_flashdata('error', 'Invalid Email/Username or Password.');
 
             redirect('login');
         }

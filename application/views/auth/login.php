@@ -7,6 +7,8 @@
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/sdcalogoorig.png'); ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -27,9 +29,9 @@
             width: 100vw;
         }
 
-        /* Left Panel - Building Image & Overlay */
+        /* Left Panel - Expand to take up more space */
         .left-panel {
-            flex: 1;
+            flex: 1.4;
             position: relative;
             background-color: #8b0000; /* SDCA Red background */
             display: flex;
@@ -52,20 +54,9 @@
             z-index: 1;
         }
 
-        /* Left Panel - Expand to take up more space */
-        .left-panel {
-            flex: 1.4; /* Expanded from 1 to give the image more room */
-            position: relative;
-            background-color: #8b0000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
         /* Right Panel - Narrower width & sharp vertical divider */
         .right-panel {
-            flex: 0.8; /* Reduced from 1 to narrow the login side */
+            flex: 0.8;
             background: #ffffff;
             display: flex;
             align-items: center;
@@ -134,6 +125,23 @@
                 margin-left: 0;
             }
         }
+
+        /* Smooth entrance fade for the page */
+        body {
+            animation: pageFadeIn 0.5s ease-in-out forwards;
+        }
+
+        @keyframes pageFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px); /* Subtle slide-up effect */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -143,7 +151,7 @@
     <!-- LEFT SIDE: SDCA Building Image (50% Opacity) -->
     <div class="left-panel">
         <div class="left-panel-content">
-            <p class="lead">St. Dominic College of Asia</p>
+            <p class="lead text-white fw-bold"></p>
         </div>
     </div>
 
@@ -172,7 +180,7 @@
                 <div id="loginAlert" class="alert alert-success p-2 small text-center mb-3 d-none" role="alert"></div>
             <?php endif; ?>
 
-            <form action="<?= base_url('auth/login_process'); ?>" method="POST" class="text-start">
+            <form id="mainLoginForm" action="<?= base_url('auth/login_process'); ?>" method="POST" class="text-start">
                 <input type="hidden" name="portal" value="intern">
                 
                 <!-- Username Input -->
@@ -180,7 +188,7 @@
                     <label class="form-label fw-semibold small text-secondary">Email Address</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i class="bi bi-person text-muted"></i></span>
-                        <input type="text" name="username" class="form-control" placeholder="Enter your Email" required autofocus>
+                        <input type="text" name="username" class="form-control" placeholder="Enter your email" required autofocus>
                     </div>
                 </div>
 
@@ -189,7 +197,7 @@
                     <label class="form-label fw-semibold small text-secondary">Password</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i class="bi bi-lock text-muted"></i></span>
-                        <input type="password" name="password" id="passwordInput" class="form-control" placeholder="••••••••" required>
+                        <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Password" required>
                         <button class="btn btn-outline-secondary" type="button" id="togglePasswordBtn">
                             <i class="bi bi-eye" id="toggleIcon"></i>
                         </button>
@@ -215,7 +223,7 @@
                     </a>
 
                     <!-- ADMIN PORTAL ACCESS -->
-                    <a href="<?= base_url('auth/admin_login'); ?>" class="btn btn-outline-dark btn-sm fw-bold py-2">
+                    <a href="<?= base_url('admin/dev_login'); ?>" class="btn btn-outline-dark btn-sm fw-bold py-2">
                         <i class="bi bi-shield-lock me-1"></i> Admin Portal Login
                     </a>
                 </div>
@@ -290,6 +298,32 @@
         toggleIcon.classList.toggle('bi-eye');
         toggleIcon.classList.toggle('bi-eye-slash');
     });
+
+    // POST-LOGIN TRANSITION ANIMATION
+    const mainLoginForm = document.getElementById('mainLoginForm');
+    if (mainLoginForm) {
+        mainLoginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Authenticating...',
+                text: 'Loading your workspace',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                customClass: {
+                    popup: 'rounded-0'
+                }
+            });
+
+            setTimeout(() => {
+                mainLoginForm.submit();
+            }, 800);
+        });
+    }
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

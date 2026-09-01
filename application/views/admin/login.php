@@ -7,6 +7,10 @@
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/sdcalogoorig.png'); ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         * { box-sizing: border-box; }
         body { min-height: 100vh; margin: 0; background: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -32,7 +36,7 @@
                 <?php if ($this->session->flashdata('error')): ?>
                     <div class="alert alert-danger p-2 small text-center mb-3"><?= html_escape($this->session->flashdata('error')); ?></div>
                 <?php endif; ?>
-                <form action="<?= base_url('auth/login_process'); ?>" method="POST" class="text-start">
+                <form id="adminLoginForm" action="<?= base_url('auth/login_process'); ?>" method="POST" class="text-start">
                     <input type="hidden" name="portal" value="admin">
                     <div class="mb-3">
                         <label class="form-label fw-semibold small text-secondary">Admin Username or Email</label>
@@ -41,7 +45,7 @@
                     <div class="mb-4">
                         <label class="form-label fw-semibold small text-secondary">Password</label>
                         <div class="input-group">
-                            <input type="password" name="password" id="adminPasswordInput" class="form-control" required>
+                            <input type="password" name="password" id="adminPasswordInput" class="form-control" placeholder="Password" required>
                             <button class="btn btn-outline-secondary" type="button" id="toggleAdminPassword" aria-label="Show or hide admin password">
                                 <i class="bi bi-eye" id="toggleAdminPasswordIcon"></i>
                             </button>
@@ -54,6 +58,7 @@
     </div>
 </div>
 <script>
+    // Password visibility toggle
     const adminPasswordInput = document.getElementById('adminPasswordInput');
     const toggleAdminPassword = document.getElementById('toggleAdminPassword');
     const toggleAdminPasswordIcon = document.getElementById('toggleAdminPasswordIcon');
@@ -64,6 +69,32 @@
         toggleAdminPasswordIcon.classList.toggle('bi-eye', !isPassword);
         toggleAdminPasswordIcon.classList.toggle('bi-eye-slash', isPassword);
     });
+
+    // POST-LOGIN ADMIN TRANSITION ANIMATION
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    if (adminLoginForm) {
+        adminLoginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Verifying Admin Credentials...',
+                text: 'Preparing administrative portal',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                customClass: {
+                    popup: 'rounded-0'
+                }
+            });
+
+            setTimeout(() => {
+                adminLoginForm.submit();
+            }, 800);
+        });
+    }
 </script>
 </body>
 </html>

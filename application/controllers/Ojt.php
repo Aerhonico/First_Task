@@ -10,98 +10,129 @@ class Ojt extends CI_Controller {
     }
 
     public function index($username = NULL) {
-    // FIX: Prevents index from intercepting action controller routes!
-    $reserved_actions = array('time_in', 'time_out', 'update_target_hours', 'email', 'profile', 'update_email', 'update_password', 'update_info', 'analytics', 'logs', 'export_pdf', 'analytics_partial', 'logs_partial', 'request_deletion', 'delete_log');
-    if (in_array(strtolower($username), $reserved_actions)) {
-        $method = strtolower($username);
-        $this->$method();
-        return;
+        // FIX: Prevents index from intercepting action controller routes!
+        $reserved_actions = array('time_in', 'time_out', 'update_target_hours', 'email', 'profile', 'update_email', 'update_password', 'update_info', 'analytics', 'logs', 'export_pdf', 'analytics_partial', 'logs_partial', 'request_deletion', 'delete_log');
+        if (in_array(strtolower($username), $reserved_actions)) {
+            $method = strtolower($username);
+            $this->$method();
+            return;
+        }
+        // 0. If someone hits /ojt/email directly, redirect back to main OJT page
+        if (strtolower($username) === 'email') {
+            redirect('ojt');
+            return;
+        }
+
+        $reserved_actions = array('time_in', 'time_out', 'update_target_hours', 'update_email');
+        if (in_array(strtolower($username), $reserved_actions)) {
+            $method = strtolower($username);
+            $this->$method();
+            return;
+        }
+
+        // 1. Get logged in user data from session
+        $session_user_id    = $this->session->userdata('user_id');
+        $session_first_name = $this->session->userdata('first_name');
+        $session_username   = $this->session->userdata('username');
+        $session_role       = $this->session->userdata('role'); // Get role (admin vs intern)
+
+        // Ensure user is logged in
+        if (empty($session_user_id)) {
+            redirect('auth/login');
+            return;
+        }
+
+        // 2. Determine raw slug priority: first_name -> username -> fallback 'user'
+        $raw_slug = !empty($session_first_name) ? $session_first_name : (!empty($session_username) ? $session_username : 'user');
+
+        // Clean slug: remove email domain/special chars to prevent URI character errors
+        $clean_slug = strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '', explode('@', $raw_slug)[0]));
+
+        // 3. Handle URL Redirection if no slug is present in URL
+        if (empty($username)) {
+            redirect('ojt/' . $clean_slug);
+            return;
+        }
+
+        // 4. Resolve target user details from database (matches username OR first_name)
+        $this->db->group_start();
+        $this->db->where('username', $username);
+        $this->db->or_where('first_name', $username);
+        $this->db->group_end();
+        $user = $this->db->get('users')->row_array();
+
+        if (!empty($user)) {
+            $user_id = $user['id'];
+        } else {
+            // Fallback to active session user_id or default to 1
+            $user_id = !empty($session_user_id) ? $session_user_id : 1;
+        }
+
+        // ==========================================
+        // SECURITY AUTHORIZATION CHECK (IDOR PREVENT)
+        // ==========================================
+        // If NOT an admin and trying to view someone else's profile via URL tweak:
+        if ($session_role !== 'admin' && (int)$user_id !== (int)$session_user_id) {
+            // Force redirect back to their own profile URL
+            redirect('ojt/' . $clean_slug);
+            return;
+        }
+
+        // 5. Fetch target hours from user_profile (Default: 500)
+        $profile = $this->db->get_where('user_profile', array('id' => $user_id))->row_array();
+        $required_hours = (!empty($profile) && !empty($profile['required_hours'])) ? (float)$profile['required_hours'] : 500;
+
+        // 6. Compute total rendered hours from database
+        $this->db->select_sum('hours_rendered');
+        $this->db->where('user_id', $user_id);
+        $query = $this->db->get('ojt_logs')->row_array();
+        $rendered_hours = !empty($query['hours_rendered']) ? (float)$query['hours_rendered'] : 0.00;
+
+        // 7. Compute remaining hours and percentage progress
+        $remaining_hours = max(0, $required_hours - $rendered_hours);
+        $progress_pct = ($required_hours > 0) ? min(100, round(($rendered_hours / $required_hours) * 100, 1)) : 0;
+
+        // 8. FIX: Fetch active attendance log (where time_out is NULL or status matches running)
+        $this->db->where('user_id', $user_id);
+        $this->db->group_start();
+        $this->db->where('time_out IS NULL', NULL, FALSE);
+        $this->db->or_where('status', 'Running...');
+        $this->db->group_end();
+        $active_log = $this->db->get('ojt_logs')->row_array();
+
+        // 9. Fetch all time logs for DTR table
+        $this->db->where('user_id', $user_id);
+        $this->db->order_by('id', 'DESC');
+        $this->db->limit(4); // <--- Restricts main dashboard view to top 4 records
+        $logs = $this->db->get('ojt_logs')->result_array();
+
+        // 10. Fetch active announcements for inbox
+        $this->db->where('is_active', 1);
+        $this->db->group_start();
+        $this->db->where('expires_at IS NULL', NULL, FALSE);
+        $this->db->or_where('expires_at >', date('Y-m-d H:i:s'));
+        $this->db->group_end();
+        $this->db->order_by('created_at', 'DESC');
+        $announcements = $this->db->select('announcements.*, users.first_name, users.last_name')
+            ->from('announcements')
+            ->join('users', 'users.id = announcements.admin_id', 'left')
+            ->get()->result_array();
+
+        // 11. Pass variables to view
+        $data = array(
+            'page_title'       => 'OJT Hours Tracker',
+            'current_username' => $username,
+            'required_hours'   => $required_hours,
+            'rendered_hours'   => $rendered_hours,
+            'remaining_hours'  => $remaining_hours,
+            'progress_pct'     => $progress_pct,
+            'active_log'       => $active_log,
+            'logs'             => $logs,
+            'announcements'    => $announcements
+        );
+
+        $this->load->view('ojt_tracker', $data);
     }
-    // 0. If someone hits /ojt/email directly, redirect back to main OJT page
-    if (strtolower($username) === 'email') {
-        redirect('ojt');
-        return;
-    }
-
-    $reserved_actions = array('time_in', 'time_out', 'update_target_hours', 'update_email');
-    if (in_array(strtolower($username), $reserved_actions)) {
-        $method = strtolower($username);
-        $this->$method();
-        return;
-    }
-
-    // 1. Get logged in user data from session
-    $session_user_id    = $this->session->userdata('user_id');
-    $session_first_name = $this->session->userdata('first_name');
-    $session_username   = $this->session->userdata('username');
-
-    // 2. Determine raw slug priority: first_name -> username -> fallback 'user'
-    $raw_slug = !empty($session_first_name) ? $session_first_name : (!empty($session_username) ? $session_username : 'user');
-
-    // Clean slug: remove email domain/special chars to prevent URI character errors
-    $clean_slug = strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '', explode('@', $raw_slug)[0]));
-
-    // 3. Handle URL Redirection if no slug is present in URL
-    if (empty($username)) {
-        redirect('ojt/' . $clean_slug);
-        return;
-    }
-
-    // 4. Resolve target user details from database (matches username OR first_name)
-    $this->db->group_start();
-    $this->db->where('username', $username);
-    $this->db->or_where('first_name', $username);
-    $this->db->group_end();
-    $user = $this->db->get('users')->row_array();
-
-    if (!empty($user)) {
-        $user_id = $user['id'];
-    } else {
-        // Fallback to active session user_id or default to 1
-        $user_id = !empty($session_user_id) ? $session_user_id : 1;
-    }
-
-    // 5. Fetch target hours from user_profile (Default: 500)
-    $profile = $this->db->get_where('user_profile', array('id' => $user_id))->row_array();
-    $required_hours = (!empty($profile) && !empty($profile['required_hours'])) ? (float)$profile['required_hours'] : 500;
-
-    // 6. Compute total rendered hours from database
-    $this->db->select_sum('hours_rendered');
-    $this->db->where('user_id', $user_id);
-    $query = $this->db->get('ojt_logs')->row_array();
-    $rendered_hours = !empty($query['hours_rendered']) ? (float)$query['hours_rendered'] : 0.00;
-
-    // 7. Compute remaining hours and percentage progress
-    $remaining_hours = max(0, $required_hours - $rendered_hours);
-    $progress_pct = ($required_hours > 0) ? min(100, round(($rendered_hours / $required_hours) * 100, 1)) : 0;
-
-    // 8. FIX: Fetch active attendance log (where time_out is NULL or status matches running)
-    $this->db->where('user_id', $user_id);
-    $this->db->group_start();
-    $this->db->where('time_out IS NULL', NULL, FALSE);
-    $this->db->or_where('status', 'Running...');
-    $this->db->group_end();
-    $active_log = $this->db->get('ojt_logs')->row_array();
-
-    // 9. Fetch all time logs for DTR table
-    $this->db->where('user_id', $user_id);
-    $this->db->order_by('id', 'DESC');
-    $logs = $this->db->get('ojt_logs')->result_array();
-
-    // 10. Pass variables to view
-    $data = array(
-        'page_title'       => 'OJT Hours Tracker',
-        'current_username' => $username,
-        'required_hours'   => $required_hours,
-        'rendered_hours'   => $rendered_hours,
-        'remaining_hours'  => $remaining_hours,
-        'progress_pct'     => $progress_pct,
-        'active_log'       => $active_log,
-        'logs'             => $logs
-    );
-
-    $this->load->view('ojt_tracker', $data);
-}
 
     // --- REAL-TIME ATTENDANCE METHODS ---
 

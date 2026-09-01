@@ -131,19 +131,35 @@
                     </div>
                 </div>
 
-                <!-- Password Requirements List -->
+                <!-- Password Requirements List with Real-time Feedback -->
                 <div class="password-reqs text-secondary mb-3">
-                    <div class="fw-semibold mb-1 text-dark" style="font-size: 0.8rem;">Password must contain:</div>
-                    <ul class="mb-0 ps-3">
-                        <li>At least 8 characters long</li>
-                        <li>At least one uppercase letter (A-Z)</li>
-                        <li>At least one number (0-9)</li>
-                        <li>At least one special character (@, $, !, %, *, ?, &)</li>
-                    </ul>
+                    <div class="fw-semibold mb-2 text-dark" style="font-size: 0.8rem;">Password must contain:</div>
+                    <div class="ps-2">
+                        <div class="mb-1 d-flex align-items-center" id="req-length">
+                            <i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: #dc3545;"></i>
+                            <span style="font-size: 0.75rem;">At least 8 characters long</span>
+                        </div>
+                        <div class="mb-1 d-flex align-items-center" id="req-uppercase">
+                            <i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: #dc3545;"></i>
+                            <span style="font-size: 0.75rem;">At least one uppercase letter (A-Z)</span>
+                        </div>
+                        <div class="mb-1 d-flex align-items-center" id="req-lowercase">
+                            <i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: #dc3545;"></i>
+                            <span style="font-size: 0.75rem;">At least one lowercase letter (a-z)</span>
+                        </div>
+                        <div class="mb-1 d-flex align-items-center" id="req-number">
+                            <i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: #dc3545;"></i>
+                            <span style="font-size: 0.75rem;">At least one number (0-9)</span>
+                        </div>
+                        <div class="d-flex align-items-center" id="req-special">
+                            <i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: #dc3545;"></i>
+                            <span style="font-size: 0.75rem;">At least one special character (@, $, !, %, *, ?, &)</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Register Submit Button -->
-                <button type="submit" class="btn btn-sdca w-100 fw-bold py-2 mb-3">
+                <button type="submit" class="btn btn-sdca w-100 fw-bold py-2 mb-3" id="submitBtn" disabled>
                     Complete Registration
                 </button>
 
@@ -163,7 +179,65 @@
     const toggleBtn = document.getElementById('toggleRegPassword');
     const passwordInput = document.getElementById('regPassword');
     const toggleIcon = document.getElementById('toggleIcon');
+    const submitBtn = document.getElementById('submitBtn');
 
+    // Password validation requirements
+    const requirements = {
+        length: { regex: /.{8,}/, element: document.getElementById('req-length') },
+        uppercase: { regex: /[A-Z]/, element: document.getElementById('req-uppercase') },
+        lowercase: { regex: /[a-z]/, element: document.getElementById('req-lowercase') },
+        number: { regex: /[0-9]/, element: document.getElementById('req-number') },
+        special: { regex: /[@$!%*?&]/, element: document.getElementById('req-special') }
+    };
+
+    // Function to validate a single requirement
+    function validateRequirement(regex, value) {
+        return regex.test(value);
+    }
+
+    // Function to update requirement indicator
+    function updateRequirementIndicator(requirement, isMet) {
+        const icon = requirement.element.querySelector('i');
+        const span = requirement.element.querySelector('span');
+        
+        if (isMet) {
+            icon.classList.remove('bi-circle-fill');
+            icon.classList.add('bi-check-circle-fill');
+            icon.style.color = '#28a745';
+            span.classList.add('text-success', 'fw-semibold');
+            span.classList.remove('text-secondary');
+        } else {
+            icon.classList.remove('bi-check-circle-fill');
+            icon.classList.add('bi-circle-fill');
+            icon.style.color = '#dc3545';
+            span.classList.remove('text-success', 'fw-semibold');
+            span.classList.add('text-secondary');
+        }
+    }
+
+    // Function to check all requirements
+    function checkAllRequirements(password) {
+        let allMet = true;
+        
+        for (const [key, requirement] of Object.entries(requirements)) {
+            const isMet = validateRequirement(requirement.regex, password);
+            updateRequirementIndicator(requirement, isMet);
+            
+            if (!isMet) {
+                allMet = false;
+            }
+        }
+        
+        return allMet;
+    }
+
+    // Add event listener to password input
+    passwordInput.addEventListener('input', function () {
+        const allRequirementsMet = checkAllRequirements(this.value);
+        submitBtn.disabled = !allRequirementsMet;
+    });
+
+    // Toggle password visibility
     toggleBtn.addEventListener('click', function () {
         const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordInput.setAttribute('type', type);

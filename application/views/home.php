@@ -10,11 +10,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- SortableJS for Drag-and-Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Tab Icon -->
     <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/sdcalogoorig.png'); ?>">
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         :root {
             --sdca-red: #800000;
@@ -179,6 +183,122 @@
             border-bottom: 2px solid #ffffff !important; /* Adjust line color/style to match your theme */
             font-weight: bold;
         }
+
+        /* Toast Notification Styles */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 300px;
+            padding: 16px 20px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            animation: slideInRight 0.3s ease-out, slideOutRight 0.3s ease-in 2.7s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toast-notification.success {
+            background-color: #28a745;
+        }
+
+        .toast-notification.error {
+            background-color: #dc3545;
+        }
+
+        .toast-notification.warning {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .toast-notification-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0;
+            opacity: 0.7;
+        }
+
+        .toast-notification-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Drag-and-Drop Styles */
+        .sortable-ghost {
+            opacity: 0.5;
+            background-color: #e0e0e0;
+            border: 2px dashed #999;
+        }
+
+        .sortable-drag {
+            opacity: 1;
+            z-index: 100;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-card-sortable {
+            cursor: grab;
+        }
+
+        .project-card-sortable:active {
+            cursor: grabbing;
+        }
+
+        .hidden-cert {
+            display: none;
+        }
+
+        .cert-hidden-container {
+            display: none;
+        }
+
+        .cert-hidden-container.show {
+            display: block;
+        }
+
+        /* Change button background to match navbar maroon */
+        #view-more-certs-btn, 
+        .btn-view-more {
+            background-color: #800000 !important; /* Matches top header maroon */
+            border-color: #800000 !important;
+            color: #ffffff !important;
+        }
+
+        /* Optional hover state */
+        #view-more-certs-btn:hover, 
+        .btn-view-more:hover {
+            background-color: #5a0000 !important; /* Slightly darker maroon on hover */
+            border-color: #5a0000 !important;
+        }
    
    </style>
 </head>
@@ -212,9 +332,15 @@
         <!-- LOGIN / LOGOUT BUTTON -->
         <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
           <?php if($this->session->userdata('logged_in')): ?>
-            <a href="<?= base_url('logout'); ?>" class="btn btn-sm btn-outline-light px-3 rounded-pill">
-              <i class="bi bi-box-arrow-right me-1"></i> Logout
+            <?php if($this->session->userdata('role') === 'admin'): ?>
+              <a href="<?= base_url('admin'); ?>" class="btn btn-sm btn-outline-light px-3 rounded-pill">
+                <i class="bi bi-box-arrow-left me-1"></i> Return to Admin
+              </a>
+            <?php else: ?>
+              <a href="<?= base_url('logout'); ?>" class="btn btn-sm btn-outline-light px-3 rounded-0 btn-logout">
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
             </a>
+            <?php endif; ?>
           <?php else: ?>
             <a href="<?php echo base_url('login'); ?>" class="btn btn-outline-light rounded-pill px-3" target="_blank" rel="noopener noreferrer">
               <i class="fa-solid fa-lock me-1"></i> Login
@@ -399,11 +525,11 @@
             <p class="text-muted">Selected works presented as Capstone Project and Internet of Things (IoT).</p>
         </div>
 
-        <div class="row g-4 justify-content-center">
+        <div class="row g-4 justify-content-center" <?php if($this->session->userdata('role') === 'admin'): ?>id="sortable-projects"<?php endif; ?>>
             <?php if (!empty($projects) && is_array($projects)): ?>
                 <?php foreach ($projects as $project): ?>
                     <!-- Added missing Bootstrap column wrapper -->
-                    <div class="col-md-6 col-lg-4">
+                    <div class="col-md-6 col-lg-4 project-card-sortable" data-project-id="<?= (int)$project['id']; ?>">
                         <div class="card h-100 position-relative shadow border-0">
 
                             <?php if($this->session->userdata('role') === 'admin'): ?>
@@ -412,11 +538,11 @@
                                     <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?= $project['id']; ?>">
                                         <i class="bi bi-pencil-fill"></i>
                                     </button>
-                                <a href="<?= site_url('home/delete_project/' . $project['id']); ?>" 
-                                class="btn btn-danger btn-sm" 
-                                onclick="return confirm('Are you sure you want to delete <?= html_escape($project['title']); ?>?');">
+                                <button class="btn btn-danger btn-sm delete-project-btn" 
+                                        data-project-id="<?= (int)$project['id']; ?>"
+                                        data-project-title="<?= html_escape($project['title']); ?>">
                                     <i class="bi bi-trash-fill"></i>
-                                </a>
+                                </button>
                                 </div>
 
                                 <!-- Edit Project Modal -->
@@ -650,9 +776,9 @@
     <!-- Right Column: Development & Backend Concepts -->
     <div class="col-md-5 mt-4 mt-md-0">
         <h5 class="text-center fw-bold mb-4 text-dark">Development & Concepts</h5>
-        <div class="d-flex flex-wrap justify-content-center gap-2">
+        <div class="d-flex flex-wrap justify-content-center gap-2" id="concepts-grid" <?php if($this->session->userdata('role') === 'admin'): ?>data-sortable="true"<?php endif; ?>>
             <?php foreach ($concepts as $concept): ?>
-                <span class="badge bg-secondary p-2 px-3 fs-6">
+                <span class="badge bg-secondary p-2 px-3 fs-6 tech-item" data-tech-id="<?= (int)$concept['id']; ?>" <?php if($this->session->userdata('role') === 'admin'): ?>style="cursor: grab;"<?php endif; ?>>
                     <i class="<?= html_escape($concept['icon']); ?> me-1"></i> <?= html_escape($concept['name']); ?>
                 </span>
             <?php endforeach; ?>
@@ -772,12 +898,12 @@
             <?php endif; ?>
         </div>
 
-        <div class="row g-4 justify-content-center">
+        <div class="row g-4 justify-content-center" id="certifications-grid" <?php if($this->session->userdata('role') === 'admin'): ?>data-sortable="true"<?php endif; ?>>
             <?php if(!empty($certifications)): ?>
-                <?php foreach($certifications as $cert): ?>
-                    <div class="col-md-6 col-lg-4">
+                <?php foreach(array_slice($certifications, 0, 6) as $cert): ?>
+                    <div class="col-md-6 col-lg-4 cert-card-container" data-cert-id="<?= (int)$cert['id']; ?>">
                         <!-- Clickable Card Triggering Modal -->
-                        <div class="card h-100 border-0 shadow-lg p-3 text-center cert-card cursor-pointer" 
+                        <div class="card h-100 border-0 shadow-lg p-3 text-center cert-card cursor-pointer" <?php if($this->session->userdata('role') === 'admin'): ?>style="cursor: grab;"<?php endif; ?> 
                             data-bs-toggle="modal" 
                             data-bs-target="#certModal<?= $cert['id']; ?>"
                             style="cursor: pointer; transition: transform 0.2s ease, shadow 0.2s ease;">
@@ -844,6 +970,85 @@
                 </div>
             <?php endif; ?>
         </div>
+
+        <!-- Hidden Certifications Container -->
+        <?php if(count($certifications) > 6): ?>
+            <div id="hidden-certifications" class="cert-hidden-container mt-5">
+                <div class="row g-4 justify-content-center">
+                    <?php foreach(array_slice($certifications, 6) as $cert): ?>
+                        <div class="col-md-6 col-lg-4 cert-card-container" data-cert-id="<?= (int)$cert['id']; ?>">
+                            <!-- Clickable Card Triggering Modal -->
+                            <div class="card h-100 border-0 shadow-lg p-3 text-center cert-card cursor-pointer" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#certModal<?= $cert['id']; ?>"
+                                style="cursor: pointer; transition: transform 0.2s ease, shadow 0.2s ease;" <?php if($this->session->userdata('role') === 'admin'): ?>onclick="event.stopPropagation();"<?php endif; ?>>
+                                
+                                <div class="card-body">
+                                    <div class="mb-3 text-center d-flex justify-content-center align-items-center" style="height: 100px;">
+                                        <img src="<?= base_url('assets/uploads/' . ($cert['badge_img'] ?? 'default-badge.png')); ?>" 
+                                            alt="<?= html_escape($cert['title']); ?> Badge" 
+                                            class="img-fluid"
+                                            style="max-height: 125px; width: auto; object-fit: contain;"
+                                            onerror="this.onerror=null; this.src='https://via.placeholder.com/85?text=Badge';">
+                                    </div>
+
+                                    <div class="mt-2 text-danger small fw-bold">
+                                        <i class="bi bi-eye-fill me-1"></i> View Certificate
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal for displaying Certificate Image and Details -->
+                            <div class="modal fade" id="certModal<?= $cert['id']; ?>" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-content shadow border-0">
+                                        <div class="modal-header bg-sdca text-white">
+                                            <h5 class="modal-title fw-bold"><i class="bi bi-award me-2"></i><?= html_escape($cert['title']); ?></h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-center p-4 bg-light">
+                                            <!-- Certificate Preview Image -->
+                                            <div class="mb-4">
+                                                <img src="<?= base_url('assets/uploads/' . $cert['cert_image']); ?>" 
+                                                    alt="<?= html_escape($cert['title']); ?>" 
+                                                    class="img-fluid rounded border shadow-sm"
+                                                    style="max-height: 400px; width: auto;">
+                                            </div>
+
+                                            <!-- Details Info -->
+                                            <div class="row g-2 text-start bg-white p-3 rounded border">
+                                                <div class="col-md-6">
+                                                    <strong>Issuing Organization:</strong> <?= html_escape($cert['issuer']); ?>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong>Date Issued:</strong> <?= date('F d, Y', strtotime($cert['issue_date'])); ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer bg-white">
+                                            <?php if(!empty($cert['credential_url'])): ?>
+                                                <a href="<?= $cert['credential_url']; ?>" target="_blank" class="btn btn-outline-danger btn-sm">
+                                                    Verify Credential <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- View More Button -->
+            <div class="text-center mt-5">
+                <button id="view-more-btn" class="btn text-white fw-bold px-4 py-2" style="background-color: #800000;">
+                    <i class="fas fa-eye me-2"></i> View More Certifications (1 more)
+                </button>
+            </div>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -902,18 +1107,18 @@
                         <tbody class="small">
                             <?php if (!empty($certifications)): ?>
                                 <?php foreach ($certifications as $c): ?>
-                                    <tr>
+                                    <tr data-cert-id="<?= (int)$c['id']; ?>">
                                         <td class="text-center">
                                             <img src="<?= base_url('assets/uploads/' . ($c['badge_img'] ?? 'default-badge.png')); ?>" style="width: 30px; height: 30px; object-fit: contain;">
                                         </td>
                                         <td class="fw-bold"><?= html_escape($c['title']); ?></td>
                                         <td><?= html_escape($c['issuer']); ?></td>
                                         <td class="text-center">
-                                            <a href="<?= site_url('home/delete_certification/' . $c['id']); ?>" 
-                                               class="btn btn-outline-danger btn-sm py-0 px-2" 
-                                               onclick="return confirm('Delete this certification?');">
+                                            <button class="btn btn-outline-danger btn-sm py-0 px-2 delete-cert-btn" 
+                                                   data-cert-id="<?= (int)$c['id']; ?>"
+                                                   data-cert-title="<?= html_escape($c['title']); ?>">
                                                 <i class="bi bi-trash-fill"></i>
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -1439,6 +1644,157 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
 </div>
 <?php endif; ?>
+
+<!-- TOAST NOTIFICATION & AJAX HANDLER SCRIPT -->
+<script>
+// Toast Notification Function
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    toast.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : type === 'error' ? 'bi-exclamation-circle-fill' : 'bi-info-circle-fill'}"></i>
+            ${message}
+        </div>
+        <button class="toast-notification-close" onclick="this.parentElement.remove()">×</button>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 3000);
+}
+
+// AJAX Delete Project Handler
+document.querySelectorAll('.delete-project-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const projectId = this.dataset.projectId;
+        const projectTitle = this.dataset.projectTitle;
+        
+        if (confirm(`Are you sure you want to delete "${projectTitle}"?`)) {
+            fetch(`<?= base_url('home/delete_project/'); ?>${projectId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Remove the project card from DOM
+                    const projectCard = document.querySelector(`[data-project-id="${projectId}"]`);
+                    if (projectCard) {
+                        projectCard.style.animation = 'slideOutRight 0.3s ease-in';
+                        setTimeout(() => projectCard.remove(), 300);
+                    }
+                    showToast(`${projectTitle} deleted successfully!`, 'success');
+                } else {
+                    showToast(`Error deleting project: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Error deleting project. Please try again.', 'error');
+                console.error('Delete error:', error);
+            });
+        }
+    });
+});
+
+// AJAX Delete Certification Handler (from management modal)
+document.querySelectorAll('.delete-cert-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const certId = this.dataset.certId;
+        const certTitle = this.dataset.certTitle;
+        
+        if (confirm(`Are you sure you want to delete "${certTitle}"?`)) {
+            fetch(`<?= base_url('home/delete_certification/'); ?>${certId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Remove from table
+                    const row = document.querySelector(`[data-cert-id="${certId}"]`);
+                    if (row) {
+                        row.style.animation = 'slideOutRight 0.3s ease-in';
+                        setTimeout(() => row.remove(), 300);
+                    }
+                    showToast(`${certTitle} deleted successfully!`, 'success');
+                } else {
+                    showToast(`Error deleting certification: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Error deleting certification. Please try again.', 'error');
+                console.error('Delete error:', error);
+            });
+        }
+    });
+});
+
+// Initialize Sortable.js for drag-and-drop project reordering (Admin only)
+document.addEventListener('DOMContentLoaded', function() {
+    const sortableElement = document.getElementById('sortable-projects');
+    if (sortableElement) {
+        Sortable.create(sortableElement, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            onEnd: function(evt) {
+                // Build new order array
+                const projectIds = [];
+                document.querySelectorAll('[data-project-id]').forEach((el, index) => {
+                    projectIds.push({
+                        id: el.dataset.projectId,
+                        order: index + 1
+                    });
+                });
+                
+                // Send to server via AJAX
+                fetch('<?= base_url('home/update_project_order'); ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ projects: projectIds })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showToast('Project order updated!', 'success');
+                    } else {
+                        showToast('Error updating order', 'error');
+                    }
+                })
+                /* .catch(error => {
+                    showToast('Error updating project order', 'error');
+                    console.error('Order update error:', error); 
+                }); */
+            }
+        });
+    }
+
+    // View More Certifications Button
+    const viewMoreBtn = document.getElementById('view-more-btn');
+    if (viewMoreBtn) {
+        viewMoreBtn.addEventListener('click', function() {
+            const hiddenCerts = document.getElementById('hidden-certifications');
+            if (hiddenCerts) {
+                hiddenCerts.classList.add('show');
+                this.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
 
 </body>
 </html>

@@ -30,12 +30,51 @@
         .top-navbar { height: 48px; background: var(--sdca-red); position: fixed; top: 0; left: 240px; width: calc(100% - 240px); z-index: 1020; }
         .main-content-area { padding: 76px 32px 28px; }
         .section-anchor { scroll-margin-top: 70px; }
-        .main-content .btn:not(:disabled):hover, .main-content .btn:not(:disabled):focus { background-color: #25292d !important; border-color: #25292d !important; color: #ffffff !important; }
-        .stat-card { border: 0; border-left: 4px solid var(--sdca-red); }
+/* Update button hover/focus to use dark maroon instead of dark grey */
+.main-content .btn:not(:disabled):hover, 
+.main-content .btn:not(:disabled):focus { 
+    background-color: #5a0000 !important; /* Dark maroon hover block */
+    border-color: #5a0000 !important; 
+    color: #ffffff !important; 
+    border-radius: 0 !important; /* Retain blocky sharp edges */
+}        .stat-card { border: 0; border-left: 4px solid var(--sdca-red); }
         .section-card { border: 0; }
         .table td, .table th { vertical-align: middle; }
         .progress { height: 8px; min-width: 130px; }
         @media (max-width: 768px) { .sidebar { width: 76px; } .sidebar-brand span, .sidebar-menu span, .sidebar-clock { display: none; } .sidebar-menu a { justify-content: center; padding: 15px 8px; } .main-content { margin-left: 76px; } .main-content-area { padding: 76px 14px 20px; } .top-navbar { left: 76px; width: calc(100% - 76px); } .top-navbar .navbar-brand span { display: none; } }
+        /* Container adjustments */
+        .navbar-top, .top-header {
+            background-color: #800000 !important; /* Base maroon header background */
+            padding: 0 !important;
+    
+}
+
+/* Individual navbar block items (Inbox, Profile dropdown) */
+.navbar-top .nav-item, 
+.navbar-top .dropdown,
+.navbar-top .inbox-btn {
+    border-radius: 0 !important;
+    border-left: 1px solid rgba(0, 0, 0, 0.2) !important; /* Dark vertical divider */
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important; /* Light vertical highlight */
+    padding: 8px 16px !important;
+    margin: 0 !important;
+}
+
+/* Darker background state for the active profile tab */
+.navbar-top .user-profile-tab {
+    background-color: #5a0000 !important; /* Darker maroon block */
+    border-radius: 0 !important;
+}
+
+/* Inbox notification pill styling */
+.navbar-top .badge-danger, 
+.navbar-top .inbox-count {
+    background-color: #dc2626 !important;
+    border-radius: 4px !important; /* Slightly rounded square pill */
+    padding: 2px 6px !important;
+    font-weight: bold;
+    font-size: 11px;
+}
     </style>
 </head>
 <body>
@@ -52,11 +91,12 @@
             <li><a href="#ojt-management"><i class="fas fa-user-clock"></i><span>OJT Management</span></a></li>
             <li><a href="#dtr-records"><i class="fas fa-calendar-alt"></i><span>DTR and Time Records</span></a></li>
             <li><a href="#analytics"><i class="fas fa-chart-line"></i><span>Analytics and Reports</span></a></li>
+            <li><a href="<?= base_url('admin/announcements'); ?>"><i class="bi bi-megaphone"></i><span>Announcements</span></a></li>
             <li><a href="#admin-tools"><i class="fas fa-cogs"></i><span>Administrative Tools</span></a></li>
         </ul>
     </aside>
     <div class="main-content">
-        <nav class="top-navbar navbar navbar-dark p-0 shadow-sm"><div class="container-fluid px-4 d-flex align-items-stretch justify-content-between h-100"><a class="navbar-brand fw-bold d-flex align-items-center m-0 p-0 h-100" href="#dashboard"><i class="bi bi-clock-history me-2"></i>OJT Hours Tracker</a><div class="d-flex align-items-stretch h-100"><div class="d-flex align-items-stretch h-100"><div class="dropdown d-flex align-items-stretch h-100"><button class="btn text-white d-flex align-items-center gap-2 px-3 border-0" type="button" data-bs-toggle="dropdown"><span class="badge bg-danger"><?= (int)$pending_count; ?></span><i class="bi bi-inbox-fill opacity-75"></i><span class="fw-semibold">Inbox</span></button><ul class="dropdown-menu dropdown-menu-end shadow-sm p-2"><li class="dropdown-header fw-bold">Pending approvals and requests</li><li><hr class="dropdown-divider"></li><li class="small px-2 py-1">Attendance approvals: <?= (int)$pending_log_count; ?></li><li class="small px-2 py-1">Deletion requests: <?= (int)$request_count; ?></li></ul></div><div class="dropdown admin-nav-divider d-flex align-items-center h-100"><button class="btn dropdown-toggle d-flex align-items-center gap-2 px-3 border-0 bg-transparent text-white h-100" type="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle fs-4"></i><div class="text-start lh-sm"><span class="d-block fw-bold text-white" style="font-size:.85rem;">Administrator</span><span class="d-block text-white-50" style="font-size:.7rem;">Admin</span></div></button><div class="dropdown-menu dropdown-menu-end shadow border-0 p-0 overflow-hidden" style="width:260px;"><div class="text-center p-3 bg-light border-bottom"><i class="bi bi-shield-lock display-5 text-dark d-block mb-1"></i><h6 class="fw-bold mb-0">Administrator</h6><small class="text-muted">ADMIN ACCOUNT</small></div><div class="list-group list-group-flush small"><a href="<?= base_url('portfolio'); ?>" class="list-group-item list-group-item-action py-2"><i class="bi bi-eye me-2"></i>View Portfolio</a><a href="<?= base_url('portfolio/edit'); ?>" class="list-group-item list-group-item-action py-2"><i class="bi bi-pencil-square me-2"></i>Edit Portfolio</a><a href="<?= base_url('auth/logout'); ?>" class="list-group-item list-group-item-action py-2 text-danger fw-bold"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></div></div></div></div></div></div></nav>
+        <nav class="top-navbar navbar navbar-dark p-0 shadow-sm"><div class="container-fluid px-4 d-flex align-items-stretch justify-content-between h-100"><a class="navbar-brand fw-bold d-flex align-items-center m-0 p-0 h-100" href="#dashboard"><i class="bi bi-clock-history me-2"></i>OJT Hours Tracker</a><div class="d-flex align-items-stretch h-100"><div class="d-flex align-items-stretch h-100"><div class="dropdown d-flex align-items-stretch h-100"><button class="btn text-white d-flex align-items-center gap-2 px-3 border-0" type="button" data-bs-toggle="dropdown"><span class="badge bg-danger"><?= (int)$pending_count; ?></span><i class="bi bi-inbox-fill opacity-75"></i><span class="fw-semibold">Inbox</span></button><ul class="dropdown-menu dropdown-menu-end shadow-sm p-2"><li class="dropdown-header fw-bold">Pending approvals and requests</li><li><hr class="dropdown-divider"></li><li class="small px-2 py-1">Attendance approvals: <?= (int)$pending_log_count; ?></li><li class="small px-2 py-1">Deletion requests: <?= (int)$request_count; ?></li></ul></div><div class="dropdown admin-nav-divider d-flex align-items-center h-100"><button class="btn dropdown-toggle d-flex align-items-center gap-2 px-3 border-0 bg-transparent text-white h-100" type="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle fs-4"></i><div class="text-start lh-sm"><span class="d-block fw-bold text-white" style="font-size:.85rem;">Administrator</span><span class="d-block text-white-50" style="font-size:.7rem;">Admin</span></div></button><div class="dropdown-menu dropdown-menu-end shadow border-0 p-0 overflow-hidden" style="width:260px;"><div class="text-center p-3 bg-light border-bottom"><i class="bi bi-shield-lock display-5 text-dark d-block mb-1"></i><h6 class="fw-bold mb-0">Administrator</h6><small class="text-muted">ADMIN ACCOUNT</small></div><div class="list-group list-group-flush small"><a href="<?= base_url('portfolio'); ?>" class="list-group-item list-group-item-action py-2"><i class="bi bi-eye me-2"></i>View Portfolio</a><a href="<?= base_url('portfolio/edit'); ?>" class="list-group-item list-group-item-action py-2"><i class="bi bi-pencil-square me-2"></i>Edit Portfolio</a><a href="<?= base_url('auth/logout'); ?>" class="list-group-item list-group-item-action py-2 text-danger fw-bold btn-logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></div></div></div></div></div></div></nav>
         <main class="main-content-area">
             <?php if ($this->session->flashdata('success')): ?><div class="alert alert-success alert-dismissible fade show"><?= html_escape($this->session->flashdata('success')); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div><?php endif; ?>
             <?php if ($this->session->flashdata('error')): ?><div class="alert alert-danger alert-dismissible fade show"><?= html_escape($this->session->flashdata('error')); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div><?php endif; ?>
@@ -85,6 +125,40 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Load SweetAlert2 Library -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Universal event listener that handles logout across all Admin layouts
+document.addEventListener('click', function (e) {
+    const logoutTarget = e.target.closest('.btn-logout, a[href*="auth/logout"], a[href*="admin/logout"]');
+
+    if (logoutTarget) {
+        e.preventDefault();
+        const targetUrl = logoutTarget.getAttribute('href');
+
+        Swal.fire({
+            title: 'Confirm Admin Logout',
+            text: 'Are you sure you want to exit the Administrative Portal?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#800000', /* Maroon theme */
+            cancelButtonColor: '#4a5568',  /* Dark neutral gray */
+            confirmButtonText: 'Yes, Log Out',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                popup: 'rounded-0',        /* Sharp corners matching UI design */
+                confirmButton: 'rounded-0',
+                cancelButton: 'rounded-0'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = targetUrl;
+            }
+        });
+    }
+});
+</script>
 <script>
     const adminModuleIds = [
         'dashboard',
@@ -190,8 +264,13 @@
 
     document.querySelectorAll('.sidebar-menu a').forEach(function(link) {
         link.addEventListener('click', function(event) {
-            event.preventDefault();
-            switchAdminModule(link.getAttribute('href').substring(1), link);
+            const href = link.getAttribute('href');
+            // Only prevent default for anchor links (starting with #)
+            if (href.startsWith('#')) {
+                event.preventDefault();
+                switchAdminModule(href.substring(1), link);
+            }
+            // Allow full URLs to navigate normally (e.g., /admin/announcements)
         });
     });
 

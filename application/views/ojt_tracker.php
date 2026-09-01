@@ -61,38 +61,37 @@
     }
 
     /* TOP NAVBAR */
-/* Reduce Top Navbar Height to 48px */
-.bg-sdca { 
-    background-color: var(--sdca-red);
-    position: fixed !important;
-    top: 0 !important;
-    left: 240px !important;
-    width: calc(100vw - 240px) !important;
-    height: 48px !important; /* Reduced from 60px */
-    min-height: 48px !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    z-index: 1000 !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    display: flex !important;
-    align-items: center !important; /* Centers navbar items vertically */
-}
+    .bg-sdca { 
+        background-color: var(--sdca-red);
+        position: fixed !important;
+        top: 0 !important;
+        left: 240px !important;
+        width: calc(100vw - 240px) !important;
+        height: 48px !important; /* Reduced from 60px */
+        min-height: 48px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        z-index: 1000 !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important; /* Centers navbar items vertically */
+    }
 
-/* Adjust Body Padding to match the thinner height */
-body {
-    padding-top: 48px !important; /* Reduced from 60px */
-}
+    /* Adjust Body Padding to match the thinner height */
+    body {
+        padding-top: 48px !important; /* Reduced from 60px */
+    }
 
-/* Optional: Slim down inner navbar elements if Bootstrap adds extra padding */
-.bg-sdca .container-fluid,
-.bg-sdca .navbar-collapse,
-.bg-sdca .nav-link,
-.bg-sdca .btn {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    line-height: 48px !important;
-}
+    /* Optional: Slim down inner navbar elements if Bootstrap adds extra padding */
+    .bg-sdca .container-fluid,
+    .bg-sdca .navbar-collapse,
+    .bg-sdca .nav-link,
+    .bg-sdca .btn {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        line-height: 48px !important;
+    }
 
     /* SIDEBAR (Starts at absolute top and covers left side of navbar) */
     .sidebar {
@@ -219,68 +218,112 @@ body {
         color: var(--sdca-red) !important;
     }
 
+    /* COMPACT PROFILE DROPDOWN MENU */
+    .dropdown-menu {
+        min-width: 250px !important;
+        max-width: 270px !important;
+        padding: 6px 0 !important;
+        border-radius: 10px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Header Profile Section inside Dropdown */
+    .dropdown-menu .px-4,
+    .dropdown-menu .p-3,
+    .dropdown-menu .text-center {
+        padding: 12px 15px 10px 15px !important;
+    }
+
+    /* Avatar Icon Size */
+    .dropdown-menu i.fa-user-circle,
+    .dropdown-menu i.fa-circle-user,
+    .dropdown-menu svg.bi-person-circle {
+        font-size: 2.5rem !important;
+        margin-bottom: 4px !important;
+    }
+
+    /* Compact Typography inside Header */
+    .dropdown-menu h6, 
+    .dropdown-menu .fw-bold {
+        font-size: 0.95rem !important;
+        margin-bottom: 2px !important;
+    }
+
+    .dropdown-menu small,
+    .dropdown-menu .text-muted {
+        font-size: 0.72rem !important;
+    }
+
+    /* Email Pill Tag Slimming */
+    .dropdown-menu .badge,
+    .dropdown-menu .btn-outline-secondary,
+    .dropdown-menu .border {
+        font-size: 0.72rem !important;
+        padding: 3px 8px !important;
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
+    }
+
+    /* Slim Dropdown List Items */
+    .dropdown-menu .dropdown-item,
+    .dropdown-menu .list-group-item {
+        padding: 7px 16px !important;
+        font-size: 0.85rem !important;
+        line-height: 1.3 !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .dropdown-menu .dropdown-item i,
+    .dropdown-menu .list-group-item i {
+        font-size: 0.88rem !important;
+        width: 18px !important;
+        margin-right: 10px !important;
+        text-align: center;
+    }
+
     /* DROPDOWN MENU HOVER EFFECTS */
     .dropdown-menu .list-group-item-action:hover,
-    .dropdown-menu .list-group-item-action:focus {
-        background-color: #e2e8f0 !important;
+    .dropdown-menu .list-group-item-action:focus,
+    .dropdown-menu .dropdown-item:hover,
+    .dropdown-menu .dropdown-item:focus {
+        background-color: #f1f5f9 !important;
         color: #1a202c !important;
     }
 
-    .dropdown-menu .list-group-item-action.text-danger:hover {
+    .dropdown-menu .list-group-item-action.text-danger:hover,
+    .dropdown-menu .dropdown-item.text-danger:hover {
         background-color: #fee2e2 !important;
         color: #dc3545 !important;
     }
 
-        .nav-boxed-group {
-
+    .nav-boxed-group {
         height: 100%;
-
         align-self: stretch;
-
     }
 
     .nav-boxed-btn {
-
         background-color: transparent !important;
-
         color: #ffffff !important;
-
         height: 100% !important;
-
         padding-top: 0 !important;
-
         padding-bottom: 0 !important;
-
         margin: 0 !important;
-
         border-radius: 0 !important;
-
         box-shadow: none !important;
-
         display: flex !important;
-
         align-items: center !important;
-
         transition: background-color 0.2s ease-in-out;
-
     }
 
-
-
     /* Dark background on hover */
-
     .nav-boxed-btn:hover,
-
     .nav-boxed-btn:focus,
-
     .nav-boxed-btn:active,
-
     .nav-boxed-btn.show {
-
         background-color: rgba(0, 0, 0, 0.35) !important;
-
         color: #ffffff !important;
-    
     }
 
     .quote-accent-line {
@@ -373,6 +416,40 @@ body {
         box-shadow: none !important;
     }
 
+    /* Smooth entrance fade on dashboard load */
+    body {
+        animation: fadeInPage 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+    }
+
+    @keyframes fadeInPage {
+        0% {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* 1. Hide scrollbar for Chrome, Safari, Edge, and Opera */
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    .wrapper::-webkit-scrollbar,
+    .content-wrapper::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* 2. Hide scrollbar for Firefox and IE/Edge */
+    html, 
+    body, 
+    .wrapper, 
+    .content-wrapper {
+        -ms-overflow-style: none !important;  /* IE and Edge */
+        scrollbar-width: none !important;  /* Firefox */
+    }
 </style>
 </head>
 <body>
@@ -450,14 +527,33 @@ body {
                 <!-- Notifications / Inbox Button -->
                 <div class="dropdown d-flex align-items-stretch h-100">
                     <button class="nav-boxed-btn btn gap-2 px-3 border-0 border-end border-dark border-opacity-50 small" type="button" data-bs-toggle="dropdown">
-                        <span class="badge bg-danger font-monospace">0</span>
+                        <span class="badge bg-danger font-monospace"><?= isset($announcements) ? count($announcements) : 0; ?></span>
                         <i class="bi bi-inbox-fill text-white opacity-75"></i>
                         <span class="fw-semibold">Inbox</span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm p-2" style="min-width: 240px;">
-                        <li class="dropdown-header fw-bold text-uppercase">Notifications</li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm p-2" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
+                        <li class="dropdown-header fw-bold text-uppercase">Announcements</li>
                         <li><hr class="dropdown-divider"></li>
-                        <li class="text-center text-muted small py-2">No new notifications</li>
+                        <?php if (isset($announcements) && !empty($announcements)): ?>
+                            <?php foreach ($announcements as $announcement): ?>
+                                <li>
+                                    <a href="javascript:void(0);" class="dropdown-item p-2 border-bottom small" data-bs-toggle="modal" data-bs-target="#announcementModal<?= (int)$announcement['id']; ?>" style="cursor: pointer; white-space: normal;">
+                                        <div class="d-flex gap-2">
+                                            <div style="flex: 1;">
+                                                <strong class="d-block text-dark"><?= html_escape($announcement['title']); ?></strong>
+                                                <small class="text-muted d-block"><?= html_escape(substr($announcement['message'], 0, 60) . (strlen($announcement['message']) > 60 ? '...' : '')); ?></small>
+                                                <small class="text-muted d-block"><?= date('M d, Y', strtotime($announcement['created_at'])); ?> · <?= html_escape($announcement['first_name'] . ' ' . $announcement['last_name']); ?></small>
+                                            </div>
+                                            <?php if (!empty($announcement['category'])): ?>
+                                                <span class="badge bg-secondary text-white align-self-start" style="font-size: 0.7rem;"><?= html_escape($announcement['category']); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <li class="text-center text-muted small py-2">No new announcements</li>
+                        <?php endif; ?>
                     </ul>
                 </div>
 
@@ -503,7 +599,7 @@ body {
                         <a href="javascript:void(0);" onclick="loadProfileView('update_info')" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 text-dark">
                             <i class="bi bi-gear-fill text-dark fs-6"></i> Update My Personal Information
                         </a>
-                        <a href="<?= base_url('auth/logout'); ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 text-danger fw-bold bg-light">
+                        <a href="<?= base_url('auth/logout'); ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 text-danger fw-bold bg-light btn-logout">
                             <i class="bi bi-box-arrow-right fs-6"></i> Logout
                         </a>
                     </div>
@@ -724,6 +820,48 @@ body {
     </div>
 </div>
 
+<!-- ANNOUNCEMENT DETAIL MODALS -->
+<?php if (isset($announcements) && !empty($announcements)): ?>
+    <?php foreach ($announcements as $announcement): ?>
+        <div class="modal fade" id="announcementModal<?= (int)$announcement['id']; ?>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content shadow border-0">
+                    <div class="modal-header bg-sdca text-white">
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0"><?= html_escape($announcement['title']); ?></h5>
+                            <?php if (!empty($announcement['category'])): ?>
+                                <small class="text-white-50">
+                                    <i class="bi bi-tag me-1"></i><?= html_escape($announcement['category']); ?>
+                                </small>
+                            <?php endif; ?>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body bg-light">
+                        <div class="mb-3">
+                            <p class="text-muted small mb-1">
+                                <strong>From:</strong> <?= html_escape($announcement['first_name'] . ' ' . $announcement['last_name']); ?>
+                            </p>
+                            <p class="text-muted small mb-3">
+                                <i class="bi bi-calendar-event me-1"></i><?= date('F j, Y \a\t g:i A', strtotime($announcement['created_at'])); ?>
+                                <?php if (!empty($announcement['expires_at'])): ?>
+                                    <br><i class="bi bi-calendar-x me-1"></i>Expires: <?= date('F j, Y', strtotime($announcement['expires_at'])); ?>
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                        <div class="border-top pt-3">
+                            <p class="text-dark"><?= nl2br(html_escape($announcement['message'])); ?></p>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-white">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+<?php endif; ?>
+
 <!-- CALCULATOR MODAL -->
 <div class="modal fade" id="calcModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -773,6 +911,39 @@ body {
         targetHours: <?= json_encode((float)$required_hours); ?>,
         renderedHours: <?= json_encode((float)$rendered_hours); ?>
     };
+</script>
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.btn-logout').forEach(function (element) {
+        element.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetUrl = this.getAttribute('href');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of your current session.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#800000', /* Brand Maroon */
+                cancelButtonColor: '#4a5568',  /* Dark Neutral Gray */
+                confirmButtonText: 'Yes, Log Out',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    popup: 'rounded-0',
+                    confirmButton: 'rounded-0',
+                    cancelButton: 'rounded-0'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = targetUrl;
+                }
+            });
+        });
+    });
+});
 </script>
 <!-- REAL-TIME PST CLOCK SCRIPT -->
 <script>
@@ -1459,6 +1630,24 @@ function updateSidebarClock() {
 // Initialize and start 1-second interval ticker
 updateSidebarClock();
 setInterval(updateSidebarClock, 1000);
+</script>
+
+<script>
+    // Disable browser automatic scroll restoration
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+
+    // Force scroll to top on DOM load and page unload/refresh
+    window.addEventListener('beforeunload', function() {
+        window.scrollTo(0, 0);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    });
 </script>
 
 </body>

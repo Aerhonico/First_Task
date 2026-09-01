@@ -18,6 +18,32 @@ class Admin extends CI_Controller {
         return TRUE;
     }
 
+    // DEVELOPMENT ONLY: Auto-authenticate as admin and redirect to dashboard
+    public function dev_login() {
+        // Fetch the first admin account from database
+        $admin = $this->db->where('role', 'admin')->limit(1)->get('users')->row_array();
+        
+        if (!$admin) {
+            $this->session->set_flashdata('error', 'No admin account found. Please create one first.');
+            redirect('auth/admin_login');
+            return;
+        }
+
+        // Auto-authenticate this admin session (DEVELOPMENT ONLY)
+        $this->session->set_userdata(array(
+            'user_id'    => $admin['id'],
+            'first_name' => $admin['first_name'] ?? '',
+            'last_name'  => $admin['last_name'] ?? '',
+            'email'      => $admin['email'] ?? $admin['username'],
+            'username'   => $admin['username'],
+            'role'       => 'admin',
+            'logged_in'  => TRUE,
+            'dev_mode'   => TRUE  // Flag to indicate development mode
+        ));
+
+        redirect('admin');
+    }
+
     public function index() {
         if (!$this->require_admin()) {
             return;
@@ -173,5 +199,200 @@ class Admin extends CI_Controller {
         $this->db->where('id', (int)$id)->update('messages', array('is_read' => 1));
         $this->session->set_flashdata('success', 'Deletion request marked as reviewed.');
         redirect('admin');
+    }
+
+    // Show Create Admin Account Form
+    public function create_admin() {
+        if (!$this->require_admin()) {
+            return;
+        }
+        $this->load->view('admin/create_admin');
+    }
+
+    // Process Create Admin Account Form
+    public function create_admin_process() {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        $first_name = trim($this->input->post('first_name', TRUE));
+        $last_name = trim($this->input->post('last_name', TRUE));
+        $email = strtolower(trim($this->input->post('email', TRUE)));
+        $username = trim($this->input->post('username', TRUE));
+        $password = $this->input->post('password', TRUE);
+
+        // Validation
+        if (empty($first_name) || empty($last_name) || empty($email) || empty($username) || empty($password)) {
+            $this->session->set_flashdata('error', 'All fields are required.');
+            redirect('admin/create_admin');
+            return;
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->session->set_flashdata('error', 'Invalid email format.');
+            redirect('admin/create_admin');
+            return;
+        }
+
+        // Check password requirements
+        $pattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
+        if (!preg_match($pattern, $password)) {
+            $this->session->set_flashdata('error', 'Password must be at least 8 characters with uppercase, lowercase, number, and special character.');
+            redirect('admin/create_admin');
+            return;
+        }
+
+        // Check if email or username already exists
+        $this->db->group_start()
+                 ->where('email', $email)
+                 ->or_where('username', $username)
+                 ->group_end();
+        $existing = $this->db->get('users')->row();
+        if ($existing) {
+            $this->session->set_flashdata('error', 'An account with this email or username already exists.');
+            redirect('admin/create_admin');
+            return;
+        }
+
+        // Insert new admin
+        $data = array(
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'email' => $email,
+            'username' => $username,
+            'password' => password_hash($password, PASSWORD_BCRYPT),
+            'role' => 'admin',
+            'account_status' => 'approved'
+        );
+
+        if ($this->db->insert('users', $data)) {
+            $this->session->set_flashdata('success', "Admin account created successfully for $first_name $last_name.");
+            redirect('admin/create_admin');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to create admin account. Please try again.');
+            redirect('admin/create_admin');
+        }
+    }
+
+    // ANNOUNCEMENTS MODULE
+    // Display all announcements
+    public function announcements() {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        $data['announcements'] = $this->db
+            ->select('announcements.*, users.first_name, users.last_name')
+            ->from('announcements')
+            ->join('users', 'users.id = announcements.admin_id', 'left')
+            ->order_by('announcements.created_at', 'DESC')
+            ->get()->result_array();
+
+        $this->load->view('admin/announcements', $data);
+    }
+
+    // Show create announcement form
+    public function create_announcement() {
+        if (!$this->require_admin()) {
+            return;
+        }
+        $this->load->view('admin/create_announcement');
+    }
+
+    // Process create announcement form
+    public function create_announcement_process() {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        $title = trim($this->input->post('title', TRUE));
+        $message = trim($this->input->post('message', TRUE));
+        $category = trim($this->input->post('category', TRUE));
+        $expires_at = trim($this->input->post('expires_at', TRUE));
+
+        if (empty($title) || empty($message)) {
+            $this->session->set_flashdata('error', 'Title and message are required.');
+            redirect('admin/create_announcement');
+            return;
+        }
+
+        $data = array(
+            'admin_id' => $this->session->userdata('user_id'),
+            'title' => $title,
+            'message' => $message,
+            'category' => $category,
+            'expires_at' => !empty($expires_at) ? $expires_at : NULL,
+            'is_active' => 1
+        );
+
+        if ($this->db->insert('announcements', $data)) {
+            $this->session->set_flashdata('success', 'Announcement posted successfully to all interns!');
+            redirect('admin/announcements');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to create announcement. Please try again.');
+            redirect('admin/create_announcement');
+        }
+    }
+
+    // Edit announcement
+    public function edit_announcement($id) {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        $id = (int)$id;
+        $data['announcement'] = $this->db->where('id', $id)->get('announcements')->row_array();
+
+        if (empty($data['announcement'])) {
+            $this->session->set_flashdata('error', 'Announcement not found.');
+            redirect('admin/announcements');
+            return;
+        }
+
+        $this->load->view('admin/edit_announcement', $data);
+    }
+
+    // Update announcement
+    public function update_announcement($id) {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        $id = (int)$id;
+        $title = trim($this->input->post('title', TRUE));
+        $message = trim($this->input->post('message', TRUE));
+        $category = trim($this->input->post('category', TRUE));
+        $expires_at = trim($this->input->post('expires_at', TRUE));
+        $is_active = (int)$this->input->post('is_active', TRUE);
+
+        if (empty($title) || empty($message)) {
+            $this->session->set_flashdata('error', 'Title and message are required.');
+            redirect('admin/edit_announcement/' . $id);
+            return;
+        }
+
+        $update_data = array(
+            'title' => $title,
+            'message' => $message,
+            'category' => $category,
+            'expires_at' => !empty($expires_at) ? $expires_at : NULL,
+            'is_active' => $is_active
+        );
+
+        $this->db->where('id', $id)->update('announcements', $update_data);
+        $this->session->set_flashdata('success', 'Announcement updated successfully.');
+        redirect('admin/announcements');
+    }
+
+    // Delete announcement
+    public function delete_announcement($id) {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        $id = (int)$id;
+        $this->db->where('id', $id)->delete('announcements');
+        $this->session->set_flashdata('success', 'Announcement deleted successfully.');
+        redirect('admin/announcements');
     }
 }
