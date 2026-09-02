@@ -88,7 +88,7 @@ class Auth extends CI_Controller {
 
     // 4. Insert record and redirect
     if ($this->db->insert('users', $data)) {
-        $this->session->set_flashdata('success', 'Registration successful! You can now log in using your email.');
+        $this->session->set_flashdata('success', 'Registration successful! Please wait for administrator approval before logging in.');
         redirect('login');
     } else {
         $this->session->set_flashdata('error', 'Failed to register account. Please try again.');
@@ -127,8 +127,13 @@ class Auth extends CI_Controller {
 
             $role = !empty($user['role']) ? $user['role'] : 'intern';
 
+            if (!$this->db->field_exists('profile_completed', 'users')) {
+                $this->db->query('ALTER TABLE users ADD profile_completed TINYINT(1) NOT NULL DEFAULT 0');
+            }
+            $user['profile_completed'] = isset($user['profile_completed']) ? (int)$user['profile_completed'] : 0;
+
             if ($role === 'intern' && isset($user['account_status']) && $user['account_status'] !== 'approved') {
-                $this->session->set_flashdata('error', $user['account_status'] === 'pending' ? 'Your intern account is awaiting administrator approval.' : 'Your intern account is currently deactivated.');
+                $this->session->set_flashdata('error', $user['account_status'] === 'pending' ? 'Your intern account is awaiting administrator approval.' : 'Your intern account registration is rejected. Please contact the administrator.');
                 redirect('login');
                 return;
             }
@@ -149,6 +154,7 @@ class Auth extends CI_Controller {
                 'email'      => $user['email'] ?? $user['username'],
                 'username'   => $user['username'],
                 'role'       => $role,
+                'profile_completed' => $user['profile_completed'],
                 'logged_in'  => TRUE
             ));
 

@@ -11,7 +11,7 @@ class Ojt extends CI_Controller {
 
     public function index($username = NULL) {
         // FIX: Prevents index from intercepting action controller routes!
-        $reserved_actions = array('time_in', 'time_out', 'update_target_hours', 'email', 'profile', 'update_email', 'update_password', 'update_info', 'analytics', 'logs', 'export_pdf', 'analytics_partial', 'logs_partial', 'request_deletion', 'delete_log');
+        $reserved_actions = array('time_in', 'time_out', 'update_target_hours', 'email', 'profile', 'update_email', 'update_password', 'update_info', 'analytics', 'logs', 'export_pdf', 'analytics_partial', 'logs_partial', 'request_deletion', 'delete_log', 'documents', 'upload_document', 'inquiries', 'submit_inquiry', 'mark_announcements_read');
         if (in_array(strtolower($username), $reserved_actions)) {
             $method = strtolower($username);
             $this->$method();
@@ -23,7 +23,7 @@ class Ojt extends CI_Controller {
             return;
         }
 
-        $reserved_actions = array('time_in', 'time_out', 'update_target_hours', 'update_email');
+        $reserved_actions = array('time_in', 'time_out', 'update_target_hours', 'update_email', 'documents', 'upload_document', 'inquiries', 'submit_inquiry', 'mark_announcements_read');
         if (in_array(strtolower($username), $reserved_actions)) {
             $method = strtolower($username);
             $this->$method();
@@ -100,23 +100,73 @@ class Ojt extends CI_Controller {
         $this->db->group_end();
         $active_log = $this->db->get('ojt_logs')->row_array();
 
+        $has_completed_shift = $this->db
+            ->where('user_id', $user_id)
+            ->where('time_out IS NOT NULL', NULL, FALSE)
+            ->count_all_results('ojt_logs') > 0;
+
         // 9. Fetch all time logs for DTR table
         $this->db->where('user_id', $user_id);
         $this->db->order_by('id', 'DESC');
         $this->db->limit(4); // <--- Restricts main dashboard view to top 4 records
         $logs = $this->db->get('ojt_logs')->result_array();
 
+        // The DTR module needs the intern's full history, separate from the dashboard preview.
+        $this->db->where('user_id', $user_id);
+        $this->db->order_by('log_date', 'DESC');
+        $this->db->order_by('id', 'DESC');
+        $all_logs = $this->db->get('ojt_logs')->result_array();
+
+        // Build a complete Monday-Sunday series for the previous week's Analytics graph.
+        $last_week_start = date('Y-m-d', strtotime('monday last week'));
+        $last_week_end = date('Y-m-d', strtotime('sunday last week'));
+        $weekly_chart = array('Mon' => 0, 'Tue' => 0, 'Wed' => 0, 'Thu' => 0, 'Fri' => 0, 'Sat' => 0, 'Sun' => 0);
+
+        $this->db->select('log_date, SUM(hours_rendered) AS total_hours');
+        $this->db->where('user_id', $user_id);
+        $this->db->where('log_date >=', $last_week_start);
+        $this->db->where('log_date <=', $last_week_end);
+        $this->db->group_by('log_date');
+        $last_week_logs = $this->db->get('ojt_logs')->result_array();
+
+        foreach ($last_week_logs as $log) {
+            $day_name = date('D', strtotime($log['log_date']));
+            if (isset($weekly_chart[$day_name])) {
+                $weekly_chart[$day_name] = (float)$log['total_hours'];
+            }
+        }
+
+        $this->Ojt_model->ensure_support_tables();
+        $documents = $this->Ojt_model->get_documents($user_id);
+        $inquiries = $this->Ojt_model->get_inquiries($user_id);
+
         // 10. Fetch active announcements for inbox
+        if (!$this->db->field_exists('target_user_id', 'announcements')) {
+            $this->db->query('ALTER TABLE announcements ADD target_user_id INT NULL AFTER admin_id');
+        }
         $this->db->where('is_active', 1);
         $this->db->group_start();
+        $this->db->where('target_user_id IS NULL', NULL, FALSE);
+        $this->db->or_where('target_user_id', $user_id);
+        $this->db->group_end();
+        $this->db->group_start();
         $this->db->where('expires_at IS NULL', NULL, FALSE);
-        $this->db->or_where('expires_at >', date('Y-m-d H:i:s'));
+        $this->db->or_where('DATE(expires_at) >=', date('Y-m-d'), FALSE);
         $this->db->group_end();
         $this->db->order_by('created_at', 'DESC');
         $announcements = $this->db->select('announcements.*, users.first_name, users.last_name')
             ->from('announcements')
             ->join('users', 'users.id = announcements.admin_id', 'left')
+            ->join('announcement_reads', 'announcement_reads.announcement_id = announcements.id AND announcement_reads.user_id = ' . (int)$user_id, 'left')
             ->get()->result_array();
+        $unread_announcement_count = 0;
+        foreach ($announcements as &$announcement) {
+            $announcement['is_unread'] = empty($announcement['read_at']);
+            if ($announcement['is_unread']) {
+                $unread_announcement_count++;
+            }
+        }
+        unset($announcement);
 
         // 11. Pass variables to view
         $data = array(
@@ -127,8 +177,18 @@ class Ojt extends CI_Controller {
             'remaining_hours'  => $remaining_hours,
             'progress_pct'     => $progress_pct,
             'active_log'       => $active_log,
+            'has_completed_shift' => $has_completed_shift,
             'logs'             => $logs,
-            'announcements'    => $announcements
+            'all_logs'         => $all_logs,
+            'last_week_labels' => array_keys($weekly_chart),
+            'last_week_hours'  => array_values($weekly_chart),
+            'last_week_start'  => $last_week_start,
+            'last_week_end'    => $last_week_end,
+            'documents'        => $documents,
+            'inquiries'        => $inquiries,
+            'active_module'    => $this->session->flashdata('active_module'),
+            'announcements'    => $announcements,
+            'unread_announcement_count' => $unread_announcement_count
         );
 
         $this->load->view('ojt_tracker', $data);
@@ -137,7 +197,23 @@ class Ojt extends CI_Controller {
     // --- REAL-TIME ATTENDANCE METHODS ---
 
     public function time_in() {
-    $user_id = $this->session->userdata('user_id') ? $this->session->userdata('user_id') : 1;
+    $user_id = $this->session->userdata('user_id');
+
+    if (empty($user_id)) {
+        redirect('auth/login');
+        return;
+    }
+
+    $has_completed_shift = $this->db
+        ->where('user_id', $user_id)
+        ->where('time_out IS NOT NULL', NULL, FALSE)
+        ->count_all_results('ojt_logs') > 0;
+
+    if ($has_completed_shift) {
+        $this->session->set_flashdata('error', 'Your attendance session has already been completed.');
+        redirect('ojt');
+        return;
+    }
 
     // Check kung may nakabinbing active shift
     $active = $this->db->get_where('ojt_logs', array('user_id' => $user_id, 'status' => 'active'))->row();
@@ -322,6 +398,178 @@ public function time_out() {
         redirect('ojt');
     }
 
+    public function documents() {
+        $user_id = $this->session->userdata('user_id');
+        if (empty($user_id)) {
+            redirect('auth/login');
+            return;
+        }
+
+        $this->Ojt_model->ensure_support_tables();
+        $this->session->set_flashdata('active_module', 'documents');
+        redirect('ojt');
+    }
+
+    public function upload_document() {
+        $user_id = $this->session->userdata('user_id');
+        $allowed_document_types = array('Resume / CV', 'Registration Form / COE', 'Endorsement Letter', 'Internship Agreement / Waiver');
+        $document_type = trim($this->input->post('document_type', TRUE));
+        $is_ajax = $this->input->is_ajax_request();
+
+        if (empty($user_id)) {
+            if ($is_ajax) {
+                $this->output->set_status_header(401)->set_content_type('application/json')->set_output(json_encode(array('status' => 'error', 'message' => 'Your session has expired. Please log in again.')));
+                return;
+            }
+            redirect('auth/login');
+            return;
+        }
+        if (!in_array($document_type, $allowed_document_types, TRUE) || empty($_FILES['document_file']['name'])) {
+            if ($is_ajax) {
+                $this->output->set_status_header(422)->set_content_type('application/json')->set_output(json_encode(array('status' => 'error', 'message' => 'Select a document type and a file to upload.')));
+                return;
+            }
+            $this->session->set_flashdata('error', 'Select a document type and a file to upload.');
+            $this->session->set_flashdata('active_module', 'documents');
+            redirect('ojt');
+            return;
+        }
+
+        $this->Ojt_model->ensure_support_tables();
+        $upload_path = FCPATH . 'assets/uploads/intern_documents/' . (int)$user_id . '/';
+        if (!is_dir($upload_path) && !mkdir($upload_path, 0755, TRUE)) {
+            if ($is_ajax) {
+                $this->output->set_status_header(500)->set_content_type('application/json')->set_output(json_encode(array('status' => 'error', 'message' => 'Unable to prepare the document upload folder.')));
+                return;
+            }
+            $this->session->set_flashdata('error', 'Unable to prepare the document upload folder.');
+            $this->session->set_flashdata('active_module', 'documents');
+            redirect('ojt');
+            return;
+        }
+
+        $this->load->library('upload', array(
+            'upload_path' => $upload_path,
+            'allowed_types' => 'pdf|doc|docx|jpg|jpeg|png',
+            'max_size' => 5120,
+            'encrypt_name' => TRUE,
+            'remove_spaces' => TRUE
+        ));
+
+        if (!$this->upload->do_upload('document_file')) {
+            if ($is_ajax) {
+                $this->output->set_status_header(422)->set_content_type('application/json')->set_output(json_encode(array('status' => 'error', 'message' => strip_tags($this->upload->display_errors('', '')))));
+                return;
+            }
+            $this->session->set_flashdata('error', strip_tags($this->upload->display_errors('', '')));
+            $this->session->set_flashdata('active_module', 'documents');
+            redirect('ojt');
+            return;
+        }
+
+        $upload_data = $this->upload->data();
+        $file_path = 'assets/uploads/intern_documents/' . (int)$user_id . '/' . $upload_data['file_name'];
+        $saved = $this->Ojt_model->save_document($user_id, $document_type, $file_path, basename($upload_data['orig_name']));
+        if ($is_ajax) {
+            if (!$saved) {
+                $this->output->set_status_header(500)->set_content_type('application/json')->set_output(json_encode(array('status' => 'error', 'message' => 'Unable to save your document. Please try again.')));
+                return;
+            }
+            $this->output->set_content_type('application/json')->set_output(json_encode(array(
+                'status' => 'success',
+                'message' => 'Document uploaded and submitted for verification.',
+                'document' => array(
+                    'document_type' => $document_type,
+                    'file_path' => $file_path,
+                    'original_name' => basename($upload_data['orig_name']),
+                    'status' => 'Pending'
+                )
+            )));
+            return;
+        }
+        $this->session->set_flashdata('success', 'Document uploaded and submitted for verification.');
+        $this->session->set_flashdata('active_module', 'documents');
+        redirect('ojt');
+    }
+
+    public function inquiries() {
+        $user_id = $this->session->userdata('user_id');
+        if (empty($user_id)) {
+            redirect('auth/login');
+            return;
+        }
+
+        $this->Ojt_model->ensure_support_tables();
+        $this->session->set_flashdata('active_module', 'inquiries');
+        redirect('ojt');
+    }
+
+    public function submit_inquiry() {
+        $user_id = $this->session->userdata('user_id');
+        $category = trim($this->input->post('category', TRUE));
+        $message = trim($this->input->post('message', TRUE));
+        $allowed_categories = array('DTR Discrepancy', 'Requirement Query', 'General Concern');
+        $is_ajax = $this->input->is_ajax_request();
+
+        if (empty($user_id)) {
+            if ($is_ajax) {
+                $this->output->set_status_header(401)->set_content_type('application/json')->set_output(json_encode(array('status' => 'error', 'message' => 'Your session has expired. Please log in again.')));
+                return;
+            }
+            redirect('auth/login');
+            return;
+        }
+        if (!in_array($category, $allowed_categories, TRUE) || empty($message) || strlen($message) > 2000) {
+            if ($is_ajax) {
+                $this->output->set_status_header(422)->set_content_type('application/json')->set_output(json_encode(array('status' => 'error', 'message' => 'Choose a category and enter a message of up to 2,000 characters.')));
+                return;
+            }
+            $this->session->set_flashdata('error', 'Choose a category and enter your concern.');
+            redirect('ojt/inquiries');
+            return;
+        }
+
+        $this->Ojt_model->ensure_support_tables();
+        $saved = $this->Ojt_model->create_inquiry($user_id, $category, $message);
+        if ($is_ajax) {
+            if (!$saved) {
+                $this->output->set_status_header(500)->set_content_type('application/json')->set_output(json_encode(array('status' => 'error', 'message' => 'Unable to submit your inquiry. Please try again.')));
+                return;
+            }
+            $this->output->set_content_type('application/json')->set_output(json_encode(array(
+                'status' => 'success',
+                'message' => 'Your inquiry has been submitted to the administrator.',
+                'inquiry' => array(
+                    'category' => $category,
+                    'message' => $message,
+                    'admin_reply' => NULL,
+                    'status' => 'Open'
+                )
+            )));
+            return;
+        }
+        $this->session->set_flashdata('success', 'Your inquiry has been submitted to the administrator.');
+        $this->session->set_flashdata('active_module', 'inquiries');
+        redirect('ojt');
+    }
+
+    public function mark_announcements_read() {
+        $user_id = $this->session->userdata('user_id');
+        if (empty($user_id)) {
+            $this->output->set_status_header(401)->set_content_type('application/json')->set_output(json_encode(array('status' => 'error')));
+            return;
+        }
+
+        $this->Ojt_model->ensure_support_tables();
+        $this->db->query('INSERT IGNORE INTO announcement_reads (user_id, announcement_id, read_at)
+            SELECT ?, announcements.id, NOW()
+            FROM announcements
+            WHERE announcements.is_active = 1
+              AND (announcements.target_user_id IS NULL OR announcements.target_user_id = ?)
+              AND (announcements.expires_at IS NULL OR DATE(announcements.expires_at) >= CURDATE())', array((int)$user_id, (int)$user_id));
+        $this->output->set_content_type('application/json')->set_output(json_encode(array('status' => 'success')));
+    }
+
 // Feature 3 & 6: Analytics Dashboard & Weekly Goal Progress Ring
 public function analytics() {
     $user_id = $this->session->userdata('user_id') ? $this->session->userdata('user_id') : 1;
@@ -353,15 +601,46 @@ public function analytics() {
         }
     }
 
+    $target = $this->db->order_by('id', 'ASC')->get('ojt_settings')->row_array();
+    $weekly_goal = !empty($target['required_hours']) ? (float)$target['required_hours'] : 40.0;
+
     $data = array(
         'page_title'   => 'OJT Analytics & Weekly Goals',
         'weekly_hours' => $weekly_hours,
-        'weekly_goal'  => 40.0, // Standard 40-hr OJT weekly target
+        'weekly_goal'  => $weekly_goal,
         'chart_labels' => json_encode(array_keys($daily_chart)),
         'chart_data'   => json_encode(array_values($daily_chart))
     );
 
     $this->load->view('ojt_analytics', $data);
+}
+
+public function update_target_hours() {
+    $user_id = $this->session->userdata('user_id');
+    $required_hours = $this->input->post('required_hours', TRUE);
+
+    if (empty($user_id)) {
+        redirect('auth/login');
+        return;
+    }
+
+    if (!is_numeric($required_hours) || (float)$required_hours <= 0) {
+        $this->session->set_flashdata('error', 'Target hours must be greater than zero.');
+        redirect('ojt/analytics');
+        return;
+    }
+
+    $target = $this->db->order_by('id', 'ASC')->get('ojt_settings')->row_array();
+    $target_hours = round((float)$required_hours, 1);
+
+    if (!empty($target)) {
+        $this->db->where('id', $target['id'])->update('ojt_settings', array('required_hours' => $target_hours));
+    } else {
+        $this->db->insert('ojt_settings', array('required_hours' => $target_hours));
+    }
+
+    $this->session->set_flashdata('success', 'Target hours updated successfully.');
+    redirect('ojt/analytics');
 }
 
 // Feature 2: Detailed DTR Log Records with Date Range Filter & Search
@@ -458,11 +737,16 @@ public function update_info() {
         );
 
         // Update database record
+        if (!$this->db->field_exists('profile_completed', 'users')) {
+            $this->db->query('ALTER TABLE users ADD profile_completed TINYINT(1) NOT NULL DEFAULT 0');
+        }
+        $update_data['profile_completed'] = 1;
         $this->db->where('id', $user_id);
         $this->db->update('users', $update_data);
 
         // Update session values so the UI reflects changes immediately
         $this->session->set_userdata($update_data);
+        $this->session->set_userdata('profile_completed', 1);
         echo json_encode(array(
             'status'  => 'success',
             'message' => 'Personal information updated successfully!'

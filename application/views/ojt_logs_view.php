@@ -58,7 +58,7 @@
                     <input type="date" name="end_date" class="form-control" value="<?= $end_date; ?>">
                 </div>
                 <div class="col-md-2 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary w-100 fw-bold"><i class="bi bi-search me-1"></i> Filter</button>
+                    <button type="submit" class="btn btn-sdca w-100 fw-bold"><i class="bi bi-search me-1"></i> Filter</button>
                     <a href="<?= base_url('ojt/logs'); ?>" class="btn btn-outline-secondary" title="Reset"><i class="bi bi-arrow-clockwise"></i></a>
                 </div>
             </form>

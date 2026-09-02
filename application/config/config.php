@@ -24,6 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 $config['base_url'] = 'http://10.0.0.80/portfolio-project/';
+// $config['base_url'] = 'http://localhost/portfolio-project/';
 $config['encryption_key'] = 'YOUR_SECRET_KEY_HERE';
 /*
 |--------------------------------------------------------------------------

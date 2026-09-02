@@ -8,6 +8,7 @@ class Admin extends CI_Controller {
         $this->load->library('session');
         $this->load->helper(array('url', 'security'));
         $this->load->database();
+        $this->load->model('Ojt_model');
     }
 
     private function require_admin() {
@@ -59,20 +60,44 @@ class Admin extends CI_Controller {
             ->get()->result_array();
         $data['intern_count'] = count($data['interns']);
 
-        $hours_result = $this->db->select_sum('hours_rendered')->get('ojt_logs')->row();
-        $data['total_hours'] = !empty($hours_result->hours_rendered) ? (float)$hours_result->hours_rendered : 0;
+        $today = date('Y-m-d');
+        $scheduled_start_time = '08:00:00';
+        $data['time_ins_today'] = $this->db
+            ->where('log_date', $today)
+            ->where('time_in IS NOT NULL', NULL, FALSE)
+            ->count_all_results('ojt_logs');
+        $data['late_today'] = $this->db
+            ->where('log_date', $today)
+            ->where('time_in >', $scheduled_start_time)
+            ->count_all_results('ojt_logs');
         $data['log_count'] = $this->db->count_all('ojt_logs');
-        $data['pending_log_count'] = $this->db->where('status', 'Pending')->count_all_results('ojt_logs');
+        $data['pending_intern_count'] = $this->db
+            ->where('role', 'intern')
+            ->where('account_status', 'pending')
+            ->count_all_results('users');
         $data['request_count'] = $this->db->like('subject', 'OJT Log Deletion Request')->where('is_read', 0)->count_all_results('messages');
-        $data['pending_count'] = $data['pending_log_count'] + $data['request_count'];
-        $data['active_count'] = $this->db->group_start()->where('status', 'active')->or_where('time_out IS NULL', NULL, FALSE)->group_end()->count_all_results('ojt_logs');
-        $data['timed_out_count'] = max(0, $data['intern_count'] - $data['active_count']);
+        $data['pending_count'] = $data['pending_intern_count'] + $data['request_count'];
         $data['newly_approved_interns'] = $this->db
             ->where('role', 'intern')->where('account_status', 'approved')
             ->order_by('created_at', 'DESC')->limit(3)->get('users')->result_array();
         $data['interns_to_approve'] = $this->db
             ->where('role', 'intern')->where('account_status', 'pending')
             ->order_by('created_at', 'ASC')->limit(3)->get('users')->result_array();
+        $this->ensure_announcement_target_column();
+        $this->Ojt_model->ensure_support_tables();
+        $data['announcements'] = $this->db
+            ->select('announcements.*, users.first_name, users.last_name, recipients.first_name AS recipient_first_name, recipients.last_name AS recipient_last_name')
+            ->from('announcements')
+            ->join('users', 'users.id = announcements.admin_id', 'left')
+            ->join('users AS recipients', 'recipients.id = announcements.target_user_id', 'left')
+            ->order_by('announcements.created_at', 'DESC')
+            ->get()->result_array();
+        $data['announcement_interns'] = $this->db
+            ->select('id, first_name, last_name, email')
+            ->where('role', 'intern')->where('account_status', 'approved')
+            ->order_by('first_name', 'ASC')->get('users')->result_array();
+        $data['inquiries'] = $this->Ojt_model->get_all_inquiries();
+        $data['active_module'] = $this->session->flashdata('active_module');
         $data['required_hours'] = 500;
         $profile = $this->db->get_where('user_profile', array('id' => 1))->row_array();
         if (!empty($profile['required_hours'])) {
@@ -86,7 +111,7 @@ class Admin extends CI_Controller {
             ->order_by('ojt_logs.id', 'DESC')
             ->limit(30)
             ->get()->result_array();
-        $data['requests'] = $this->db->like('subject', 'OJT Log Deletion Request')->order_by('id', 'DESC')->limit(3)->get('messages')->result_array();
+        $data['requests'] = $this->db->like('subject', 'OJT Log Deletion Request')->where('is_read', 0)->order_by('id', 'DESC')->limit(3)->get('messages')->result_array();
         $data['latest_attendance'] = $data['recent_logs'];
 
         $data['departments'] = $this->db
@@ -146,6 +171,20 @@ class Admin extends CI_Controller {
         redirect('admin');
     }
 
+    public function reject_intern($id) {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        $this->db
+            ->where('id', (int)$id)
+            ->where('role', 'intern')
+            ->where('account_status', 'pending')
+            ->update('users', array('account_status' => 'rejected'));
+        $this->session->set_flashdata('success', 'Intern registration request denied.');
+        redirect('admin');
+    }
+
     public function update_log($id) {
         if (!$this->require_admin()) {
             return;
@@ -198,6 +237,50 @@ class Admin extends CI_Controller {
 
         $this->db->where('id', (int)$id)->update('messages', array('is_read' => 1));
         $this->session->set_flashdata('success', 'Deletion request marked as reviewed.');
+        redirect('admin');
+    }
+
+    public function clear_deletion_requests() {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        if ($this->input->method(TRUE) !== 'POST') {
+            show_error('Invalid request method.', 405);
+            return;
+        }
+
+        $this->db->like('subject', 'OJT Log Deletion Request')->delete('messages');
+        $this->session->set_flashdata('success', 'Deletion requests cleared successfully.');
+        redirect('admin');
+    }
+
+    public function inquiries() {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        $this->session->set_flashdata('active_module', 'inquiries');
+        redirect('admin');
+    }
+
+    public function reply_to_inquiry($id) {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        $reply = trim($this->input->post('admin_reply', TRUE));
+        if ((int)$id <= 0 || empty($reply)) {
+            $this->session->set_flashdata('error', 'An inquiry reply is required.');
+            $this->session->set_flashdata('active_module', 'inquiries');
+            redirect('admin');
+            return;
+        }
+
+        $this->Ojt_model->ensure_support_tables();
+        $this->Ojt_model->reply_to_inquiry($id, $reply);
+        $this->session->set_flashdata('success', 'Inquiry reply sent successfully.');
+        $this->session->set_flashdata('active_module', 'inquiries');
         redirect('admin');
     }
 
@@ -280,15 +363,8 @@ class Admin extends CI_Controller {
         if (!$this->require_admin()) {
             return;
         }
-
-        $data['announcements'] = $this->db
-            ->select('announcements.*, users.first_name, users.last_name')
-            ->from('announcements')
-            ->join('users', 'users.id = announcements.admin_id', 'left')
-            ->order_by('announcements.created_at', 'DESC')
-            ->get()->result_array();
-
-        $this->load->view('admin/announcements', $data);
+        $this->session->set_flashdata('active_module', 'announcements');
+        redirect('admin');
     }
 
     // Show create announcement form
@@ -305,15 +381,37 @@ class Admin extends CI_Controller {
             return;
         }
 
+        $this->ensure_announcement_target_column();
         $title = trim($this->input->post('title', TRUE));
         $message = trim($this->input->post('message', TRUE));
         $category = trim($this->input->post('category', TRUE));
         $expires_at = trim($this->input->post('expires_at', TRUE));
+        $target_type = $this->input->post('target_type', TRUE);
+        $target_user_id = (int)$this->input->post('target_user_id', TRUE);
 
         if (empty($title) || empty($message)) {
             $this->session->set_flashdata('error', 'Title and message are required.');
-            redirect('admin/create_announcement');
+            $this->session->set_flashdata('active_module', 'announcements');
+            redirect('admin');
             return;
+        }
+
+        if (!in_array($target_type, array('all', 'specific'), TRUE)) {
+            $target_type = 'all';
+        }
+
+        if ($target_type === 'specific') {
+            $recipient = $this->db
+                ->where('id', $target_user_id)
+                ->where('role', 'intern')
+                ->where('account_status', 'approved')
+                ->get('users')->row_array();
+            if (empty($recipient)) {
+                $this->session->set_flashdata('error', 'Please select an approved intern recipient.');
+                $this->session->set_flashdata('active_module', 'announcements');
+                redirect('admin');
+                return;
+            }
         }
 
         $data = array(
@@ -321,17 +419,30 @@ class Admin extends CI_Controller {
             'title' => $title,
             'message' => $message,
             'category' => $category,
-            'expires_at' => !empty($expires_at) ? $expires_at : NULL,
+            'expires_at' => $this->normalize_announcement_expiration($expires_at),
+            'target_user_id' => $target_type === 'specific' ? $target_user_id : NULL,
             'is_active' => 1
         );
 
         if ($this->db->insert('announcements', $data)) {
-            $this->session->set_flashdata('success', 'Announcement posted successfully to all interns!');
-            redirect('admin/announcements');
+            $this->session->set_flashdata('success', $target_type === 'specific' ? 'Announcement sent to the selected intern.' : 'Announcement broadcast to all approved interns.');
+            $this->session->set_flashdata('active_module', 'announcements');
+            redirect('admin');
         } else {
             $this->session->set_flashdata('error', 'Failed to create announcement. Please try again.');
-            redirect('admin/create_announcement');
+            $this->session->set_flashdata('active_module', 'announcements');
+            redirect('admin');
         }
+    }
+
+    private function ensure_announcement_target_column() {
+        if (!$this->db->field_exists('target_user_id', 'announcements')) {
+            $this->db->query('ALTER TABLE announcements ADD target_user_id INT NULL AFTER admin_id');
+        }
+    }
+
+    private function normalize_announcement_expiration($expires_at) {
+        return !empty($expires_at) ? date('Y-m-d 23:59:59', strtotime($expires_at)) : NULL;
     }
 
     // Edit announcement
@@ -375,7 +486,7 @@ class Admin extends CI_Controller {
             'title' => $title,
             'message' => $message,
             'category' => $category,
-            'expires_at' => !empty($expires_at) ? $expires_at : NULL,
+            'expires_at' => $this->normalize_announcement_expiration($expires_at),
             'is_active' => $is_active
         );
 

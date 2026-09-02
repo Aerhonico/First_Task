@@ -218,6 +218,24 @@
         color: var(--sdca-red) !important;
     }
 
+    .sidebar-contact {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2;
+        padding: 10px 16px 12px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #6c757d;
+        font-size: 0.63rem;
+    }
+
+    .sidebar-contact hr { margin: 0 0 8px; }
+    .sidebar-contact-heading { color: var(--sdca-red); font-size: 0.67rem; font-weight: 700; }
+    .sidebar-contact p { margin: 0 0 6px; line-height: 1.3; }
+    .sidebar-contact strong { color: #343a40; font-size: 0.65rem; }
+    .sidebar-contact a { color: var(--sdca-red); text-decoration: none; }
+
     /* COMPACT PROFILE DROPDOWN MENU */
     .dropdown-menu {
         min-width: 250px !important;
@@ -505,7 +523,27 @@
                 <span>Export DTR (PDF)</span>
             </a>
         </li>
+        <li>
+            <a href="javascript:void(0);" onclick="loadMainView('documents', this)">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Documents</span>
+            </a>
+        </li>
+        <li>
+            <a href="javascript:void(0);" onclick="loadMainView('inquiries', this)">
+                <i class="bi bi-question-circle"></i>
+                <span>Inquiries / Support</span>
+            </a>
+        </li>
     </ul>
+    <div class="sidebar-contact">
+        <hr>
+        <p class="sidebar-contact-heading"><i class="bi bi-geo-alt-fill me-2"></i>ST. DOMINIC COLLEGE OF ASIA</p>
+        <p>EMILIO AGUINALDO HIGHWAY<br>TALABA III, CITY OF BACOOR, PHILIPPINES 4102</p>
+        <p class="sidebar-contact-heading"><i class="bi bi-telephone-fill me-2"></i>CONTACT US</p>
+        <p><strong>Basic Education</strong><br><i class="bi bi-telephone-fill me-1"></i>+63 998.551.7972<br><i class="bi bi-envelope-fill me-1"></i><a href="mailto:bedadmission@sdca.edu.ph">bedadmission@sdca.edu.ph</a></p>
+        <p class="mb-0"><strong>Higher Education</strong><br><i class="bi bi-telephone-fill me-1"></i>+63 998.551.8001<br><i class="bi bi-envelope-fill me-1"></i><a href="mailto:headmission@sdca.edu.ph">headmission@sdca.edu.ph</a></p>
+    </div>
 </aside>
 
     <!-- RIGHT MAIN CONTENT AREA -->
@@ -526,8 +564,8 @@
 
                 <!-- Notifications / Inbox Button -->
                 <div class="dropdown d-flex align-items-stretch h-100">
-                    <button class="nav-boxed-btn btn gap-2 px-3 border-0 border-end border-dark border-opacity-50 small" type="button" data-bs-toggle="dropdown">
-                        <span class="badge bg-danger font-monospace"><?= isset($announcements) ? count($announcements) : 0; ?></span>
+                    <button id="inboxDropdown" class="nav-boxed-btn btn gap-2 px-3 border-0 border-end border-dark border-opacity-50 small" type="button" data-bs-toggle="dropdown">
+                        <span id="announcementBadge" class="badge bg-danger font-monospace"><?= isset($unread_announcement_count) ? (int)$unread_announcement_count : 0; ?></span>
                         <i class="bi bi-inbox-fill text-white opacity-75"></i>
                         <span class="fw-semibold">Inbox</span>
                     </button>
@@ -693,12 +731,15 @@
                     <div class="card border-0 shadow-sm p-4 text-center">
                         <h5 class="fw-bold mb-3 text-start"><i class="bi bi-person-badge me-2"></i>Attendance Log</h5>
                         
-                        <?php $has_active_log = isset($active_log) && !empty($active_log); ?>
+                        <?php
+                            $has_active_log = isset($active_log) && !empty($active_log);
+                            $attendance_complete = isset($has_completed_shift) && $has_completed_shift;
+                        ?>
 
                         <div class="d-grid gap-3 mb-3">
                             <!-- Time In Form -->
                             <form action="<?= site_url('ojt/time_in'); ?>" method="POST">
-                                <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-3" <?= $has_active_log ? 'disabled' : ''; ?>>
+                                <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-3" <?= ($has_active_log || $attendance_complete) ? 'disabled' : ''; ?>>
                                     <i class="bi bi-box-arrow-in-right me-2"></i> TIME IN
                                 </button>
                             </form>
@@ -711,8 +752,8 @@
                             </form>
                         </div>
 
-                        <div class="alert <?= $has_active_log ? 'alert-success' : 'alert-secondary'; ?> mb-0 small fw-bold">
-                            Status: <?= $has_active_log ? 'Currently Timed In since ' . date('h:i A', strtotime($active_log['time_in'])) : 'Currently Timed Out'; ?>
+                        <div class="alert <?= $has_active_log ? 'alert-success' : ($attendance_complete ? 'alert-info' : 'alert-secondary'); ?> mb-0 small fw-bold">
+                            Status: <?= $has_active_log ? 'Currently Timed In since ' . date('h:i A', strtotime($active_log['time_in'])) : ($attendance_complete ? 'Attendance session completed' : 'Currently Timed Out'); ?>
                         </div>
                     </div>
                 </div>
@@ -862,6 +903,10 @@
     <?php endforeach; ?>
 <?php endif; ?>
 
+<?php if ($this->session->userdata('role') === 'intern' && !$this->session->userdata('profile_completed')): ?>
+<div class="modal fade" id="initialInformationModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="initialInformationModalLabel" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header bg-sdca text-white"><h5 class="modal-title" id="initialInformationModalLabel"><i class="bi bi-person-vcard me-2"></i>Complete Your Information Sheet</h5></div><form id="initialInformationForm"><div class="modal-body"><p class="text-muted small">Please complete your profile before using the OJT tracker.</p><input type="hidden" name="first_name" value="<?= html_escape($this->session->userdata('first_name')); ?>"><input type="hidden" name="middle_name" value="<?= html_escape($this->session->userdata('middle_name')); ?>"><input type="hidden" name="last_name" value="<?= html_escape($this->session->userdata('last_name')); ?>"><div class="row g-3"><div class="col-md-6"><label class="form-label">School / University</label><input class="form-control" name="school" required></div><div class="col-md-6"><label class="form-label">Birthday</label><input class="form-control" type="date" name="birthday" required></div><div class="col-md-6"><label class="form-label">Gender</label><select class="form-select" name="gender" required><option value="">Select gender</option><option>Male</option><option>Female</option><option>Prefer not to say</option></select></div><div class="col-md-6"><label class="form-label">Year &amp; Section</label><input class="form-control" name="year_section" placeholder="e.g. BSIT 4-1" required></div><div class="col-md-6"><label class="form-label">Academic Year</label><input class="form-control" name="academic_year" placeholder="e.g. 2026-2027" required></div><div class="col-md-6"><label class="form-label">Semester</label><select class="form-select" name="semester" required><option value="">Select semester</option><option>1st Semester</option><option>2nd Semester</option><option>Summer</option></select></div></div></div><div class="modal-footer"><button id="saveInitialInformation" class="btn btn-danger" type="submit">Save Information</button></div></form></div></div></div>
+<?php endif; ?>
+
 <!-- CALCULATOR MODAL -->
 <div class="modal fade" id="calcModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -906,14 +951,76 @@
 <!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+const initialInformationModalElement = document.getElementById('initialInformationModal');
+if (initialInformationModalElement) {
+    const initialInformationModal = new bootstrap.Modal(initialInformationModalElement);
+    const initialInformationForm = document.getElementById('initialInformationForm');
+    initialInformationModal.show();
+
+    initialInformationForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const saveButton = document.getElementById('saveInitialInformation');
+        saveButton.disabled = true;
+        saveButton.textContent = 'Saving...';
+
+        fetch('<?= site_url('ojt/update_info'); ?>', {
+            method: 'POST',
+            body: new FormData(initialInformationForm),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function(response) {
+            return response.json();
+        }).then(function(result) {
+            if (result.status !== 'success') {
+                throw new Error(result.message || 'Unable to save your information.');
+            }
+            initialInformationModal.hide();
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '1100';
+            toastContainer.innerHTML = '<div class="toast align-items-center text-bg-success border-0"><div class="d-flex"><div class="toast-body">Welcome! Your information sheet has been saved.</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>';
+            document.body.appendChild(toastContainer);
+            new bootstrap.Toast(toastContainer.querySelector('.toast'), { delay: 4000 }).show();
+        }).catch(function(error) {
+            saveButton.disabled = false;
+            saveButton.textContent = 'Save Information';
+            alert(error.message);
+        });
+    });
+}
+</script>
+<script>
     // Pass PHP values to global JS state once during initial page render
     const OJT_DATA = {
         targetHours: <?= json_encode((float)$required_hours); ?>,
-        renderedHours: <?= json_encode((float)$rendered_hours); ?>
+        renderedHours: <?= json_encode((float)$rendered_hours); ?>,
+        documents: <?= json_encode($documents); ?>,
+        inquiries: <?= json_encode($inquiries); ?>,
+        lastWeekLabels: <?= json_encode($last_week_labels); ?>,
+        lastWeekHours: <?= json_encode($last_week_hours); ?>,
+        lastWeekStart: <?= json_encode($last_week_start); ?>,
+        lastWeekEnd: <?= json_encode($last_week_end); ?>
     };
+</script>
+<script>
+const inboxDropdown = document.getElementById('inboxDropdown');
+if (inboxDropdown) {
+    inboxDropdown.addEventListener('shown.bs.dropdown', function() {
+        fetch('<?= site_url('ojt/mark_announcements_read'); ?>', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function(response) {
+            return response.json();
+        }).then(function(result) {
+            if (result.status === 'success') {
+                document.getElementById('announcementBadge').textContent = '0';
+            }
+        }).catch(function() {});
+    });
+}
 </script>
 <!-- SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -1430,6 +1537,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const targetArea = document.getElementById('main-content-area');
     if (targetArea) {
         defaultDashboardHTML = targetArea.innerHTML;
+        const activeModule = <?= json_encode(!empty($active_module) ? $active_module : ''); ?>;
+        if (activeModule) {
+            const moduleLink = Array.from(document.querySelectorAll('.sidebar-menu a')).find(function(link) {
+                return link.getAttribute('onclick') && link.getAttribute('onclick').indexOf("'" + activeModule + "'") !== -1;
+            });
+            loadMainView(activeModule, moduleLink || null);
+        }
     }
 });
 
@@ -1446,6 +1560,24 @@ function loadMainView(viewType, element = null) {
 
     const targetArea = document.getElementById('main-content-area');
     if (!targetArea) return;
+
+    const escapeHtml = function(value) {
+        const element = document.createElement('div');
+        element.textContent = value == null ? '' : String(value);
+        return element.innerHTML;
+    };
+
+    const showPortalToast = function(message, type) {
+        const toastId = 'portalToast';
+        document.getElementById(toastId)?.remove();
+        const toastContainer = document.createElement('div');
+        toastContainer.id = toastId;
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '1100';
+        toastContainer.innerHTML = `<div class="toast align-items-center text-bg-${type} border-0" role="status" aria-live="polite"><div class="d-flex"><div class="toast-body">${escapeHtml(message)}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div></div>`;
+        document.body.appendChild(toastContainer);
+        new bootstrap.Toast(toastContainer.querySelector('.toast'), { delay: 4000 }).show();
+    };
 
     // View Routing
     if (viewType === 'dashboard') {
@@ -1505,20 +1637,54 @@ function loadMainView(viewType, element = null) {
                 </div>
             </div>
 
-            <!-- Chart Container -->
-            <div class="p-4 text-center border rounded-3 bg-light">
-                <i class="fas fa-chart-area fa-3x text-secondary mb-3"></i>
-                <h6 class="fw-bold text-dark mb-1">Weekly Rendered Hours Trend</h6>
-                <p class="text-muted small mb-0">Interactive weekly hours graph and estimated completion date will render here.</p>
+            <!-- Last week's chart -->
+            <div class="p-4 border rounded-3 bg-light">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">Weekly Rendered Hours Trend</h6>
+                        <p class="text-muted small mb-0">${OJT_DATA.lastWeekStart} to ${OJT_DATA.lastWeekEnd}</p>
+                    </div>
+                    <i class="fas fa-chart-bar fs-3 text-secondary"></i>
+                </div>
+                <div style="height: 260px;">
+                    <canvas id="lastWeekHoursChart"></canvas>
+                </div>
             </div>
         </div>`;
+
+        const chartElement = document.getElementById('lastWeekHoursChart');
+        new Chart(chartElement, {
+            type: 'bar',
+            data: {
+                labels: OJT_DATA.lastWeekLabels,
+                datasets: [{
+                    label: 'Hours rendered',
+                    data: OJT_DATA.lastWeekHours,
+                    backgroundColor: '#800000',
+                    borderRadius: 4,
+                    maxBarThickness: 48
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 },
+                        title: { display: true, text: 'Hours' }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
 
     } else if (viewType === 'dtr') {
         targetArea.innerHTML = `
             <div class="card shadow-sm border-0 rounded-3 p-4 mb-4">
                 <!-- Header -->
                 <div class="d-flex align-items-center gap-2 border-bottom pb-3 mb-4">
-                    <i class="fas fa-list-alt fs-4 text-primary"></i>
+                    <i class="fas fa-list-alt fs-4 text-danger"></i>
                     <h5 class="fw-bold text-dark mb-0">DTR Records & Search Filter</h5>
                 </div>
 
@@ -1537,7 +1703,7 @@ function loadMainView(viewType, element = null) {
                         <input type="date" id="filterEndDate" name="end_date" class="form-control">
                     </div>
                     <div class="col-md-2 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary w-100 fw-semibold">
+                        <button type="submit" class="btn btn-danger w-100 fw-semibold">
                             <i class="fas fa-search me-1"></i> Filter
                         </button>
                         <button type="reset" class="btn btn-outline-secondary">
@@ -1559,8 +1725,8 @@ function loadMainView(viewType, element = null) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (!empty($logs)): ?>
-                                <?php foreach ($logs as $log): ?>
+                            <?php if (!empty($all_logs)): ?>
+                                <?php foreach ($all_logs as $log): ?>
                                     <?php
                                         $dtr_badge_class = ((float)$log['hours_rendered'] >= 8) ? 'bg-success' : (((float)$log['hours_rendered'] > 0) ? 'bg-primary' : 'bg-danger');
                                     ?>
@@ -1587,6 +1753,78 @@ function loadMainView(viewType, element = null) {
                     </table>
                 </div>
             </div>`;
+
+    } else if (viewType === 'documents') {
+        const documentTypes = ['Resume / CV', 'Registration Form / COE', 'Endorsement Letter', 'Internship Agreement / Waiver'];
+        const documentCards = documentTypes.map(function(documentType) {
+            const document = OJT_DATA.documents.find(function(item) { return item.document_type === documentType; });
+            const status = document ? document.status : 'Missing';
+            const statusClass = status === 'Verified' ? 'bg-success' : (status === 'Rejected' ? 'bg-danger' : (status === 'Pending' ? 'bg-warning text-dark' : 'bg-secondary'));
+            const fileDetails = document ? `<small class="text-muted d-block text-break">${escapeHtml(document.original_name)}</small><a class="btn btn-sm btn-outline-secondary mt-3" href="<?= base_url(); ?>${encodeURI(document.file_path)}" target="_blank" rel="noopener"><i class="bi bi-eye me-1"></i>View File</a>` : '<small class="text-muted">Not uploaded yet</small>';
+            return `<div class="col-md-6"><div class="card border-0 shadow-sm h-100 border-start border-4 border-danger"><div class="card-body"><div class="d-flex justify-content-between gap-3"><h6 class="fw-bold mb-2">${documentType}</h6><span class="badge ${statusClass} align-self-start">${status}</span></div>${fileDetails}</div></div></div>`;
+        }).join('');
+        targetArea.innerHTML = `<div class="card shadow-sm border-0 rounded-3 p-4 mb-4"><div class="d-flex align-items-center gap-2 border-bottom pb-3 mb-4"><i class="bi bi-file-earmark-text fs-4 text-danger"></i><div><h5 class="fw-bold text-dark mb-0">Documents</h5><p class="text-muted small mb-0">Upload and track required internship documents.</p></div></div><form id="documentUploadForm" action="<?= site_url('ojt/upload_document'); ?>" method="post" enctype="multipart/form-data" class="row g-3 align-items-start mb-4"><div class="col-md-4"><label class="form-label fw-semibold small">Document Type</label><select name="document_type" class="form-select" required><option value="">Select a document</option>${documentTypes.map(function(type) { return `<option value="${type}">${type}</option>`; }).join('')}</select></div><div class="col-md-5"><label class="form-label fw-semibold small">File</label><input class="form-control" type="file" name="document_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required><small class="text-muted">PDF, DOC, DOCX, JPG, or PNG, up to 5 MB.</small></div><div class="col-md-3"><label class="form-label fw-semibold small invisible">Upload</label><button class="btn btn-danger w-100 fw-semibold" type="submit"><i class="bi bi-upload me-1"></i>Upload</button></div></form><div class="row g-3">${documentCards}</div></div>`;
+
+        document.getElementById('documentUploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(function(response) {
+                return response.json();
+            }).then(function(result) {
+                if (result.status !== 'success') {
+                    throw new Error(result.message || 'Unable to upload your document.');
+                }
+                OJT_DATA.documents = OJT_DATA.documents.filter(function(item) {
+                    return item.document_type !== result.document.document_type;
+                });
+                OJT_DATA.documents.push(result.document);
+                loadMainView('documents', element);
+                showPortalToast(result.message, 'success');
+            }).catch(function(error) {
+                submitButton.disabled = false;
+                showPortalToast(error.message, 'danger');
+            });
+        });
+
+    } else if (viewType === 'inquiries') {
+        const inquiryHistory = OJT_DATA.inquiries.length ? OJT_DATA.inquiries.map(function(inquiry) {
+            const statusClass = inquiry.status === 'Answered' ? 'bg-success' : (inquiry.status === 'Closed' ? 'bg-secondary' : 'bg-warning text-dark');
+            const reply = inquiry.admin_reply ? `<div class="alert alert-success mt-3 mb-0"><strong><i class="bi bi-reply-fill me-1"></i>Administrator Reply</strong><br>${escapeHtml(inquiry.admin_reply)}</div>` : '';
+            return `<div class="card border-0 shadow-sm mb-3 border-start border-4 border-danger"><div class="card-body"><div class="d-flex justify-content-between gap-3"><div><span class="badge bg-secondary mb-2">${escapeHtml(inquiry.category)}</span><p class="mb-0">${escapeHtml(inquiry.message)}</p></div><span class="badge ${statusClass} align-self-start">${escapeHtml(inquiry.status)}</span></div>${reply}</div></div>`;
+        }).join('') : '<p class="text-center text-muted py-4 mb-0">No inquiries submitted yet.</p>';
+        targetArea.innerHTML = `<div class="card shadow-sm border-0 rounded-3 p-4 mb-4"><div class="d-flex align-items-center gap-2 border-bottom pb-3 mb-4"><i class="bi bi-question-circle fs-4 text-danger"></i><div><h5 class="fw-bold text-dark mb-0">Inquiries / Support</h5><p class="text-muted small mb-0">Send a concern to the OJT administrator and view replies.</p></div></div><form id="inquiryForm" action="<?= site_url('ojt/submit_inquiry'); ?>" method="post" class="row g-3 mb-4"><div class="col-md-4"><label class="form-label fw-semibold small">Category</label><select name="category" class="form-select" required><option value="">Select category</option><option>DTR Discrepancy</option><option>Requirement Query</option><option>General Concern</option></select></div><div class="col-md-8"><label class="form-label fw-semibold small">Message</label><textarea name="message" class="form-control" rows="3" maxlength="2000" required></textarea></div><div class="col-12"><button class="btn btn-danger fw-semibold" type="submit"><i class="bi bi-send me-1"></i>Submit Inquiry</button></div></form><h6 class="fw-bold border-top pt-4">My Inquiry History</h6>${inquiryHistory}</div>`;
+
+        document.getElementById('inquiryForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(function(response) {
+                return response.json();
+            }).then(function(result) {
+                if (result.status !== 'success') {
+                    throw new Error(result.message || 'Unable to submit your inquiry.');
+                }
+                OJT_DATA.inquiries.unshift(result.inquiry);
+                loadMainView('inquiries', element);
+                showPortalToast(result.message, 'success');
+            }).catch(function(error) {
+                submitButton.disabled = false;
+                showPortalToast(error.message, 'danger');
+            });
+        });
 
     } else if (viewType === 'export') {
         targetArea.innerHTML = `

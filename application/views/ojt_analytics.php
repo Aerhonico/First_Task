@@ -26,7 +26,25 @@
     </aside>
 
     <main class="p-4 flex-grow-1">
-        <h4 class="fw-bold mb-4">Analytics & Weekly Goal Progress</h4>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0">Analytics & Weekly Goal Progress</h4>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#targetHoursModal">
+                <i class="fas fa-pen me-2"></i>Set Target Hours
+            </button>
+        </div>
+
+        <?php if ($this->session->flashdata('success')): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= html_escape($this->session->flashdata('success')); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+        <?php if ($this->session->flashdata('error')): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= html_escape($this->session->flashdata('error')); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
         
         <div class="row g-4">
             <!-- Feature 6: Weekly Goal Ring -->
@@ -54,6 +72,28 @@
     </main>
 </div>
 
+<div class="modal fade" id="targetHoursModal" tabindex="-1" aria-labelledby="targetHoursModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="<?= site_url('ojt/update_target_hours'); ?>" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="targetHoursModalLabel">Set Target Hours</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="required_hours" class="form-label">Target OJT hours</label>
+                    <input id="required_hours" name="required_hours" type="number" class="form-control" min="0.5" step="0.5" value="<?= html_escape(number_format($weekly_goal, 1, '.', '')); ?>" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Save Target</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const ctx = document.getElementById('weeklyChart').getContext('2d');
 new Chart(ctx, {
