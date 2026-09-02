@@ -147,7 +147,8 @@ class Admin extends CI_Controller {
             'school'        => trim($this->input->post('school', TRUE)),
             'year_section'  => trim($this->input->post('year_section', TRUE)),
             'academic_year' => trim($this->input->post('academic_year', TRUE)),
-            'semester'      => trim($this->input->post('semester', TRUE))
+            'semester'      => trim($this->input->post('semester', TRUE)),
+            'status'        => strtolower($this->input->post('status'))
         );
 
         if ($id <= 0 || empty($update_data['first_name']) || empty($update_data['last_name']) || !filter_var($update_data['email'], FILTER_VALIDATE_EMAIL)) {
@@ -166,7 +167,6 @@ class Admin extends CI_Controller {
             return;
         }
 
-        $this->db->where('id', (int)$id)->where('role', 'intern')->update('users', array('account_status' => 'approved'));
         $this->session->set_flashdata('success', 'Intern account approved successfully.');
         redirect('admin');
     }

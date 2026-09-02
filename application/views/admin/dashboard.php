@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - SDCA OJT Tracker</title>
-    <link rel="icon" type="image/png" href="<?= base_url('assets/images/sdcalogoorig.png'); ?>">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="icon" type="image/png" href="<?= base_url('assets/images/sdcalogoorig1.png?v=2'); ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
         :root { --sdca-red: #800000; }
         * { box-sizing: border-box; }
-        body { margin: 0; min-height: 100vh; background-color: #f4f6f9; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23800000' stroke-width='1.2' fill='none' opacity='0.12'%3E%3Cpolygon points='100,200 400,100 700,300 900,150'/%3E%3Cpolygon points='300,800 600,950 900,700'/%3E%3Cline x1='100' y1='200' x2='600' y2='950'/%3E%3Cline x1='400' y1='100' x2='900' y2='700'/%3E%3Cline x1='700' y1='300' x2='300' y2='800'/%3E%3Ccircle cx='400' cy='100' r='4' fill='%23800000'/%3E%3Ccircle cx='700' cy='300' r='4' fill='%23800000'/%3E%3Ccircle cx='300' cy='800' r='4' fill='%23800000'/%3E%3C/g%3E%3C/svg%3E"); background-repeat: repeat; background-size: 800px 800px; animation: floatBackground 35s linear infinite; color: #212529; }
+        body { margin: 0; min-height: 100vh; background-color: #f4f6f9; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23800000' stroke-width='1.2' fill='none' opacity='0.3'%3E%3Cpolygon points='100,200 400,100 700,300 900,150'/%3E%3Cpolygon points='300,800 600,950 900,700'/%3E%3Cline x1='100' y1='200' x2='600' y2='950'/%3E%3Cline x1='400' y1='100' x2='900' y2='700'/%3E%3Cline x1='700' y1='300' x2='300' y2='800'/%3E%3Ccircle cx='400' cy='100' r='4' fill='%23800000'/%3E%3Ccircle cx='700' cy='300' r='4' fill='%23800000'/%3E%3Ccircle cx='300' cy='800' r='4' fill='%23800000'/%3E%3C/g%3E%3C/svg%3E"); background-repeat: repeat; background-size: 800px 800px; animation: floatBackground 35s linear infinite; color: #212529; }
         @keyframes floatBackground { 0% { background-position: 0 0; } 50% { background-position: 100px -150px; } 100% { background-position: 0 0; } }
         .app-container { display: flex; min-height: 100vh; }
         .sidebar { width: 240px; height: 100vh; position: fixed; inset: 0 auto 0 0; display: flex; flex-direction: column; background: #fff; z-index: 1030; box-shadow: 4px 0 15px rgba(0,0,0,.1); overflow-y: auto; }
@@ -80,6 +81,93 @@
     font-weight: bold;
     font-size: 11px;
 }
+
+/* Remove rounded corners from navbar buttons and their hover states */
+.top-navbar .btn,
+.top-navbar .nav-link,
+.top-navbar .dropdown-toggle,
+.nav-boxed-btn {
+    border-radius: 0 !important;
+}
+
+/* Ensure hover state fills edge-to-edge without rounded corners */
+.top-navbar .btn:hover,
+.top-navbar .nav-link:hover,
+.top-navbar .dropdown-toggle:hover,
+.nav-boxed-btn:hover {
+    border-radius: 0 !important;
+    background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.border-sdca {
+    border-color: #800000 !important;
+}
+
+.text-sdca {
+    color: #800000 !important;
+}
+
+/* Custom Quick Action Cards */
+.quick-card {
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.quick-card:hover {
+    background-color: #f8f9fa !important; /* Soft gray hover instead of red */
+    transform: translateY(-3px);
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1) !important;
+}
+
+.icon-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 6px;
+}
+
+.card-title-text {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #212529 !important;
+}
+
+.extra-small {
+    font-size: 0.75rem; /* Reduces text height */
+}
+
+/* Circular Profile Avatar */
+.avatar-circle {
+    width: 36px;
+    height: 36px;
+    background-color: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+/* Online/Offline Status Indicator Dot */
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
     </style>
 </head>
 <body>
@@ -88,8 +176,12 @@
         <div class="sidebar-brand p-3 text-center">
             <a href="<?= base_url('admin'); ?>"><img src="<?= base_url('assets/images/sdcalogo.png'); ?>" alt="SDCA Logo" class="sidebar-logo img-fluid"></a>
             <hr class="my-2">
-            <div class="sidebar-clock" ><div class="small text-muted mb-2"><i class="bi bi-shield-lock me-1"></i>ADMIN PORTAL</div><div id="adminSidebarTime" class="sidebar-time">--:--:-- --</div><div id="adminSidebarDate" class="sidebar-date mt-1">----------------</div></div>
-        </div>
+                <div class="sidebar-clock">
+                    <div class="small text-muted mb-2"><i class="bi bi-shield-lock me-1"></i>ADMIN PORTAL</div>
+                    <div id="adminSidebarTime" class="text-dark fs-3 lh-1 mb-1" style="font-family: 'Oswald', sans-serif; letter-spacing: 0.5px;">--:--:-- --</div>
+                    <div id="adminSidebarDate" class="sidebar-date mt-1">----------------</div>
+                </div>        
+            </div>
         <ul class="sidebar-menu">
             <li class="active"><a href="#dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
             <li><a href="#intern-management"><i class="fas fa-users"></i><span>Intern Management</span></a></li>
@@ -115,22 +207,300 @@
             <?php if ($this->session->flashdata('success')): ?><div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;"><div id="successToast" class="toast align-items-center text-bg-success border-0" role="status" aria-live="polite" aria-atomic="true"><div class="d-flex"><div class="toast-body"><?= html_escape($this->session->flashdata('success')); ?></div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div></div></div><?php endif; ?>
             <?php if ($this->session->flashdata('error')): ?><div class="alert alert-danger alert-dismissible fade show"><?= html_escape($this->session->flashdata('error')); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div><?php endif; ?>
 
-            <section id="dashboard" class="section-anchor mb-4"><div class="d-flex justify-content-between align-items-center mb-3"><div><h3 class="fw-bold mb-1">Admin Dashboard</h3><p class="text-muted mb-0">System-wide internship monitoring and verification.</p></div><span class="badge bg-danger">Administrator</span></div><div class="row g-3"><div class="col-md-3"><div class="card stat-card shadow-sm p-3"><small class="text-muted">REGISTERED INTERNS</small><h2 class="mb-0"><?= (int)$intern_count; ?></h2><small class="text-muted">Active, pending, and completed accounts</small></div></div><div class="col-md-3"><div class="card stat-card shadow-sm p-3"><small class="text-muted">TIME INS TODAY</small><h2 class="mb-0"><?= (int)$time_ins_today; ?></h2><small class="text-muted">Intern attendance for today</small></div></div><div class="col-md-3"><div class="card stat-card shadow-sm p-3"><small class="text-muted">PENDING APPROVALS / REQUESTS</small><h2 class="mb-0"><?= (int)$pending_count; ?></h2><small class="text-muted">Interns: <?= (int)$pending_intern_count; ?> · Deletions: <?= (int)$request_count; ?></small></div></div><div class="col-md-3"><div class="card stat-card shadow-sm p-3"><small class="text-muted">LATE TODAY</small><h2 class="mb-0"><?= (int)$late_today; ?></h2><small class="text-muted">Time-ins after 8:00 AM</small></div></div></div></section>
+        <section id="dashboard" class="section-anchor mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h3 class="fw-bold mb-1">Admin Dashboard</h3>
+                    <p class="text-muted mb-0">System-wide internship monitoring and verification.</p>
+                </div>
+            </div>
+            
+            <div class="row g-3">
+                <!-- Registered Interns -->
+                <div class="col-md-3">
+                    <div class="card stat-card shadow-sm p-3 border-0 border-start border-4 border-sdca">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3 fs-1 text-sdca">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted text-uppercase fw-semibold d-block">Registered Interns</small>
+                                <h2 class="mb-0 fw-bold"><?= (int)$intern_count; ?></h2>
+                                <small class="text-muted">Registered and verified accounts</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Time Ins Today -->
+                <div class="col-md-3">
+                    <div class="card stat-card shadow-sm p-3 border-0 border-start border-4 border-sdca">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3 fs-1 text-sdca">
+                                <i class="bi bi-fingerprint"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted text-uppercase fw-semibold d-block">Time Ins Today</small>
+                                <h2 class="mb-0 fw-bold"><?= (int)$time_ins_today; ?></h2>
+                                <small class="text-muted">Intern attendance for today</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Approvals / Requests -->
+                <div class="col-md-3">
+                    <div class="card stat-card shadow-sm p-3 border-0 border-start border-4 border-sdca">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3 fs-1 text-sdca">
+                                <i class="bi bi-file-earmark-check-fill"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted text-uppercase fw-semibold d-block">Pending Approvals</small>
+                                <h2 class="mb-0 fw-bold"><?= (int)$pending_count; ?></h2>
+                                <small class="text-muted">Interns: <?= (int)$pending_intern_count; ?> · Deletions: <?= (int)$request_count; ?></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Late Today -->
+                <div class="col-md-3">
+                    <div class="card stat-card shadow-sm p-3 border-0 border-start border-4 border-sdca">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3 fs-1 text-sdca">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted text-uppercase fw-semibold d-block">Late Today</small>
+                                <h2 class="mb-0 fw-bold"><?= (int)$late_today; ?></h2>
+                                <small class="text-muted">Time-ins after 8:00 AM</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-2 text-center mt-3 mb-4">
+    <!-- Manage Interns -->
+    <div class="col-6 col-md-4 col-lg">
+        <div onclick="location.href='#intern-management';" class="quick-card p-2 border rounded shadow-sm">
+            <div class="icon-circle bg-primary-subtle text-primary">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <span class="card-title-text">Manage Interns</span>
+        </div>
+    </div>
+
+    <!-- Review DTR Records -->
+    <div class="col-6 col-md-4 col-lg">
+        <div onclick="location.href='#dtr-time-records';" class="quick-card p-2 border rounded shadow-sm">
+            <div class="icon-circle bg-success-subtle text-success">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <span class="card-title-text">Review DTR</span>
+        </div>
+    </div>
+
+    <!-- Pending Approvals -->
+    <div class="col-6 col-md-4 col-lg">
+        <div onclick="location.href='#ojt-management';" class="quick-card p-2 border rounded shadow-sm">
+            <div class="icon-circle bg-warning-subtle text-warning">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <span class="card-title-text">Pending Approvals</span>
+        </div>
+    </div>
+
+    <!-- View Analytics -->
+    <div class="col-6 col-md-4 col-lg">
+        <div onclick="location.href='#analytics-reports';" class="quick-card p-2 border rounded shadow-sm">
+            <div class="icon-circle bg-info-subtle text-info">
+                <i class="bi bi-bar-chart-line-fill"></i>
+            </div>
+            <span class="card-title-text">View Analytics</span>
+        </div>
+    </div>
+
+    <!-- Post Announcement -->
+    <div class="col-6 col-md-4 col-lg">
+        <div onclick="location.href='#announcements';" class="quick-card p-2 border rounded shadow-sm">
+            <div class="icon-circle bg-danger-subtle text-danger">
+                <i class="bi bi-megaphone-fill"></i>
+            </div>
+            <span class="card-title-text">Post an Announcement</span>
+        </div>
+    </div>
+
+    <!-- Administrative Tools -->
+    <div class="col-6 col-md-4 col-lg">
+        <div onclick="location.href='#administrative-tools';" class="quick-card p-2 border rounded shadow-sm">
+            <div class="icon-circle bg-secondary-subtle text-secondary">
+                <i class="bi bi-gear-wide-connected"></i>
+            </div>
+            <span class="card-title-text">Admin Tools</span>
+        </div>
+    </div>
+</div>
+        </section>
             <section id="dashboard-quick-panels" class="row g-3 mb-4">
-                <div class="col-lg-6"><div class="card section-card shadow-sm h-100"><div class="card-header bg-white d-flex justify-content-between"><strong><i class="bi bi-clock-history me-2"></i>Latest Time In / Time Outs</strong><span class="badge bg-secondary">Latest 3</span></div><div class="list-group list-group-flush"><?php if (!empty($latest_attendance)): foreach (array_slice($latest_attendance, 0, 3) as $attendance): ?><div class="list-group-item"><strong><?= html_escape(trim($attendance['first_name'] . ' ' . $attendance['last_name'])); ?></strong><span class="float-end small"><?= !empty($attendance['time_out']) ? 'Timed out' : 'Timed in'; ?></span><small class="d-block text-muted"><?= html_escape($attendance['log_date']); ?> · In: <?= html_escape($attendance['time_in']); ?><?php if (!empty($attendance['time_out'])): ?> · Out: <?= html_escape($attendance['time_out']); ?><?php endif; ?></small></div><?php endforeach; else: ?><div class="list-group-item text-muted">No attendance activity yet.</div><?php endif; ?></div></div></div>
-                <div class="col-lg-6"><div class="card section-card shadow-sm h-100"><div class="card-header bg-white d-flex justify-content-between"><strong><i class="bi bi-person-check me-2"></i>Newly Approved Interns</strong><span class="badge bg-success">Latest 3</span></div><div class="list-group list-group-flush"><?php if (!empty($newly_approved_interns)): foreach ($newly_approved_interns as $approved): ?><div class="list-group-item d-flex justify-content-between"><span><?= html_escape(trim($approved['first_name'] . ' ' . $approved['last_name'])); ?><small class="d-block text-muted"><?= html_escape($approved['email']); ?></small></span><small class="text-muted"><?= html_escape($approved['created_at']); ?></small></div><?php endforeach; else: ?><div class="list-group-item text-muted">No approved interns yet.</div><?php endif; ?></div></div></div>
-                <div class="col-lg-6"><div class="card section-card shadow-sm h-100"><div class="card-header bg-white d-flex justify-content-between"><strong><i class="bi bi-person-plus me-2"></i>Interns to Approve</strong><span class="badge bg-warning text-dark">Latest 3</span></div><div class="list-group list-group-flush"><?php if (!empty($interns_to_approve)): foreach ($interns_to_approve as $pending_intern): ?><div class="list-group-item d-flex justify-content-between align-items-center"><span><?= html_escape(trim($pending_intern['first_name'] . ' ' . $pending_intern['last_name'])); ?><small class="d-block text-muted"><?= html_escape($pending_intern['email']); ?></small></span><div class="d-flex gap-2"><button type="button" class="btn btn-sm btn-success intern-decision-button" data-decision="approve" data-decision-url="<?= base_url('admin/approve_intern/' . (int)$pending_intern['id']); ?>" data-bs-toggle="modal" data-bs-target="#internDecisionModal">Approve</button><button type="button" class="btn btn-sm btn-danger intern-decision-button" data-decision="deny" data-decision-url="<?= base_url('admin/reject_intern/' . (int)$pending_intern['id']); ?>" data-bs-toggle="modal" data-bs-target="#internDecisionModal">Deny</button></div></div><?php endforeach; else: ?><div class="list-group-item text-muted">No interns awaiting approval.</div><?php endif; ?></div></div></div>
-                <div class="col-lg-6"><div class="card section-card shadow-sm h-100"><div class="card-header bg-white d-flex justify-content-between"><strong><i class="bi bi-envelope-exclamation me-2"></i>Deletion Requests</strong><div class="d-flex align-items-center gap-2"><span class="badge bg-danger">Latest 3</span><?php if (!empty($requests)): ?><button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#clearDeletionRequestsModal">Clear</button><?php endif; ?></div></div><div class="list-group list-group-flush"><?php if (!empty($requests)): foreach ($requests as $request): ?><div class="list-group-item d-flex justify-content-between align-items-center"><span><?= html_escape($request['sender_name']); ?><small class="d-block text-muted"><?= html_escape($request['subject']); ?></small></span><a href="<?= base_url('admin/mark_request_read/' . (int)$request['id']); ?>" class="btn btn-sm btn-outline-success">Review</a></div><?php endforeach; else: ?><div class="list-group-item text-muted">No deletion requests.</div><?php endif; ?></div></div></div>
-            </section>
+            <!-- Latest Time In / Time Outs -->
+            <div class="col-lg-6">
+                <div class="card section-card shadow-sm h-100">
+                    <div class="card-header bg-white d-flex justify-content-between">
+                        <strong><i class="bi bi-clock-history me-2"></i>Latest Time In / Time Outs</strong>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php if (!empty($latest_attendance)): foreach (array_slice($latest_attendance, 0, 3) as $attendance): ?>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3">
+                                        <i class="bi bi-person-fill text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="d-block text-dark"><?= html_escape(trim($attendance['first_name'] . ' ' . $attendance['last_name'])); ?></strong>
+                                        <small class="text-muted"><?= html_escape($attendance['log_date']); ?> · In: <?= html_escape($attendance['time_in']); ?><?php if (!empty($attendance['time_out'])): ?> · Out: <?= html_escape($attendance['time_out']); ?><?php endif; ?></small>
+                                    </div>
+                                </div>
+                                <span class="small text-muted ms-2"><?= !empty($attendance['time_out']) ? 'Timed out' : 'Timed in'; ?></span>
+                            </div>
+                        <?php endforeach; else: ?>
+                            <div class="list-group-item text-muted">No attendance activity yet.</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Newly Approved Interns -->
+            <div class="col-lg-6">
+                <div class="card section-card shadow-sm h-100">
+                    <div class="card-header bg-white d-flex justify-content-between">
+                        <strong><i class="bi bi-person-check me-2"></i>Newly Approved Interns</strong>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php if (!empty($newly_approved_interns)): foreach ($newly_approved_interns as $approved): ?>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3">
+                                        <i class="bi bi-person-fill text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="d-block text-dark"><?= html_escape(trim($approved['first_name'] . ' ' . $approved['last_name'])); ?></strong>
+                                        <small class="text-muted d-block"><?= html_escape($approved['email']); ?></small>
+                                    </div>
+                                </div>
+                                <small class="text-muted ms-2"><?= html_escape($approved['created_at']); ?></small>
+                            </div>
+                        <?php endforeach; else: ?>
+                            <div class="list-group-item text-muted">No approved interns yet.</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interns to Approve -->
+            <div class="col-lg-6">
+                <div class="card section-card shadow-sm h-100">
+                    <div class="card-header bg-white d-flex justify-content-between">
+                        <strong><i class="bi bi-person-plus me-2"></i>Interns to Approve</strong>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php if (!empty($interns_to_approve)): foreach ($interns_to_approve as $pending_intern): ?>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3">
+                                        <i class="bi bi-person-fill text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="d-block text-dark"><?= html_escape(trim($pending_intern['first_name'] . ' ' . $pending_intern['last_name'])); ?></strong>
+                                        <small class="text-muted d-block"><?= html_escape($pending_intern['email']); ?></small>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 ms-2">
+                                    <button type="button" class="btn btn-sm btn-success intern-decision-button" data-decision="approve" data-decision-url="<?= base_url('admin/approve_intern/' . (int)$pending_intern['id']); ?>" data-bs-toggle="modal" data-bs-target="#internDecisionModal">Approve</button>
+                                    <button type="button" class="btn btn-sm btn-danger intern-decision-button" data-decision="deny" data-decision-url="<?= base_url('admin/reject_intern/' . (int)$pending_intern['id']); ?>" data-bs-toggle="modal" data-bs-target="#internDecisionModal">Deny</button>
+                                </div>
+                            </div>
+                        <?php endforeach; else: ?>
+                            <div class="list-group-item text-muted">No interns awaiting approval.</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deletion Requests -->
+            <div class="col-lg-6">
+                <div class="card section-card shadow-sm h-100">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <strong><i class="bi bi-envelope-exclamation me-2"></i>Deletion Requests</strong>
+                        <?php if (!empty($requests)): ?>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#clearDeletionRequestsModal">Clear</button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php if (!empty($requests)): foreach ($requests as $request): ?>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3">
+                                        <i class="bi bi-person-fill text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="d-block text-dark"><?= html_escape($request['sender_name']); ?></strong>
+                                        <small class="text-muted d-block"><?= html_escape($request['subject']); ?></small>
+                                    </div>
+                                </div>
+                                <a href="<?= base_url('admin/mark_request_read/' . (int)$request['id']); ?>" class="btn btn-sm btn-outline-success ms-2">Review</a>
+                            </div>
+                        <?php endforeach; else: ?>
+                            <div class="list-group-item text-muted">No deletion requests.</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </section>
 
             <section id="intern-management" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold"><i class="bi bi-people me-2"></i>Intern Management & Verification</h5><a href="#intern-management" class="btn btn-sm btn-outline-primary"><i class="bi bi-search me-1"></i>Search Directory</a></div><div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Department / School</th><th>Supervisor</th><th>Progress</th><th>Status</th><th>Action</th></tr></thead><tbody><?php if (!empty($interns)): foreach ($interns as $intern): ?><?php $progress = $required_hours > 0 ? min(100, round(((float)$intern['rendered_hours'] / $required_hours) * 100, 1)) : 0; ?><tr><td><strong><?= html_escape(trim($intern['first_name'] . ' ' . $intern['last_name'])); ?></strong><br><small class="text-muted"><?= html_escape($intern['email']); ?></small></td><td><?= html_escape(!empty($intern['school']) ? $intern['school'] : 'Not assigned'); ?></td><td>Not assigned</td><td><div class="d-flex justify-content-between small"><span><?= number_format((float)$intern['rendered_hours'], 1); ?> / <?= number_format((float)$required_hours, 0); ?> hrs</span><strong><?= $progress; ?>%</strong></div><div class="progress"><div class="progress-bar bg-danger" style="width:<?= $progress; ?>%"></div></div></td><td><span class="badge text-bg-success">Active</span></td><td><button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#intern<?= (int)$intern['id']; ?>"><i class="bi bi-pencil"></i> Edit</button></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No intern accounts found.</td></tr><?php endif; ?></tbody></table></div></section>
-            <?php if (!empty($interns)): foreach ($interns as $intern): ?><div class="modal fade" id="intern<?= (int)$intern['id']; ?>" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><form action="<?= base_url('admin/update_intern/' . (int)$intern['id']); ?>" method="POST"><div class="modal-header"><h5 class="modal-title">Verify / Edit Intern Account</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><?php foreach (array('first_name' => 'First Name', 'middle_name' => 'Middle Name', 'last_name' => 'Last Name', 'email' => 'Email', 'student_id' => 'Student ID', 'school' => 'Department / School', 'year_section' => 'Year / Section', 'academic_year' => 'Academic Year', 'semester' => 'Semester') as $field => $label): ?><div class="col-md-4"><label class="form-label"><?= $label; ?></label><input type="<?= $field === 'email' ? 'email' : 'text'; ?>" class="form-control" name="<?= $field; ?>" value="<?= html_escape($intern[$field]); ?>" <?= in_array($field, array('first_name', 'last_name', 'email')) ? 'required' : ''; ?>></div><?php endforeach; ?></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Save Intern</button></div></form></div></div></div><?php endforeach; endif; ?>
+            <?php if (!empty($interns)): foreach ($interns as $intern): ?>
+            <div class="modal fade" id="intern<?= (int)$intern['id']; ?>" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <form action="<?= base_url('admin/update_intern/' . (int)$intern['id']); ?>" method="POST">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Verify / Edit Intern Account</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <?php foreach (array('first_name' => 'First Name', 'middle_name' => 'Middle Name', 'last_name' => 'Last Name', 'email' => 'Email', 'student_id' => 'Student ID', 'school' => 'Department / School', 'year_section' => 'Year / Section', 'academic_year' => 'Academic Year', 'semester' => 'Semester') as $field => $label): ?>
+                                        <div class="col-md-4">
+                                            <label class="form-label"><?= $label; ?></label>
+                                            <input type="<?= $field === 'email' ? 'email' : 'text'; ?>" class="form-control" name="<?= $field; ?>" value="<?= html_escape($intern[$field]); ?>" <?= in_array($field, array('first_name', 'last_name', 'email')) ? 'required' : ''; ?>>
+                                        </div>
+                                    <?php endforeach; ?>
 
-            <section id="ojt-management" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-person-check me-2"></i>OJT Management & Verification</h5></div><div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Date</th><th>Task Description</th><th>Hours</th><th>Status</th><th>Actions</th></tr></thead><tbody><?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><tr><td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td><td><?= html_escape($log['log_date']); ?></td><td><?= html_escape($log['task_summary']); ?></td><td><?= number_format((float)$log['hours_rendered'], 2); ?></td><td><span class="badge text-bg-secondary"><?= html_escape($log['status']); ?></span></td><td><button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#log<?= (int)$log['id']; ?>">Edit / Verify</button> <button type="button" class="btn btn-sm btn-outline-danger delete-log-button" data-delete-url="<?= base_url('admin/delete_log/' . (int)$log['id']); ?>" data-bs-toggle="modal" data-bs-target="#deleteLogModal">Delete</button></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No OJT records found.</td></tr><?php endif; ?></tbody></table></div></section>
+                                    <!-- Account Status Dropdown Field -->
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Account Status</label>
+                                        <select name="status" class="form-select">
+                                            <?php $st = strtolower(trim($intern['status'])); ?>
+                                            <option value="active" <?= ($st === 'active' || $st === 'approved') ? 'selected' : ''; ?>>Active</option>
+                                            <option value="done" <?= ($st === 'done') ? 'selected' : ''; ?>>Done</option>
+                                            <option value="terminated" <?= ($st === 'terminated') ? 'selected' : ''; ?>>Terminated</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Save Intern</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; endif; ?>
+            <section id="ojt-management" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-person-check me-2"></i>OJT Management & Verification</h5></div><div class="table-responsive"><table id="ojtManagementTable" class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Date</th><th>Task Description</th><th>Hours</th><th>Status</th><th>Actions</th></tr></thead><tbody><?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><tr><td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td><td><?= html_escape($log['log_date']); ?></td><td><?= html_escape($log['task_summary']); ?></td><td><?= number_format((float)$log['hours_rendered'], 2); ?></td><td><span class="badge text-bg-secondary"><?= html_escape($log['status']); ?></span></td><td><button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#log<?= (int)$log['id']; ?>">Edit / Verify</button> <button type="button" class="btn btn-sm btn-outline-danger delete-log-button" data-delete-url="<?= base_url('admin/delete_log/' . (int)$log['id']); ?>" data-bs-toggle="modal" data-bs-target="#deleteLogModal">Delete</button></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No OJT records found.</td></tr><?php endif; ?></tbody></table></div></section>
             <?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><div class="modal fade" id="log<?= (int)$log['id']; ?>" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form action="<?= base_url('admin/update_log/' . (int)$log['id']); ?>" method="POST"><div class="modal-header"><h5 class="modal-title">Verify OJT Record</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="form-label">Date</label><input type="date" name="log_date" class="form-control mb-2" value="<?= html_escape($log['log_date']); ?>" required><label class="form-label">Time In</label><input name="time_in" class="form-control mb-2" value="<?= html_escape($log['time_in']); ?>" required><label class="form-label">Time Out</label><input name="time_out" class="form-control mb-2" value="<?= html_escape($log['time_out']); ?>"><label class="form-label">Hours Rendered</label><input type="number" step="0.01" name="hours_rendered" class="form-control mb-2" value="<?= html_escape($log['hours_rendered']); ?>"><label class="form-label">Task Description</label><textarea name="task_summary" class="form-control mb-2"><?= html_escape($log['task_summary']); ?></textarea><label class="form-label">Verification Status</label><select name="status" class="form-select"><option>Pending</option><option>Approved</option><option>Rejected</option><option>completed</option></select></div><div class="modal-footer"><button class="btn btn-primary">Save Verification</button></div></form></div></div></div><?php endforeach; endif; ?>
 
-            <section id="dtr-records" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-calendar3 me-2"></i>DTR and Time Records</h5></div><div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Date</th><th>Time In</th><th>Time Out</th><th>Rendered</th><th>Status</th></tr></thead><tbody><?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><tr><td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td><td><?= html_escape($log['log_date']); ?></td><td><?= html_escape($log['time_in']); ?></td><td><?= !empty($log['time_out']) ? html_escape($log['time_out']) : '<span class="badge bg-warning text-dark">Timed in</span>'; ?></td><td><?= number_format((float)$log['hours_rendered'], 2); ?> hrs</td><td><?= html_escape($log['status']); ?></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No DTR records found.</td></tr><?php endif; ?></tbody></table></div></section>
+            <section id="dtr-records" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-calendar3 me-2"></i>DTR and Time Records</h5></div><div class="table-responsive"><table id="dtrRecordsTable" class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Date</th><th>Time In</th><th>Time Out</th><th>Rendered</th><th>Status</th></tr></thead><tbody><?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><tr><td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td><td><?= html_escape($log['log_date']); ?></td><td><?= html_escape($log['time_in']); ?></td><td><?= !empty($log['time_out']) ? html_escape($log['time_out']) : '<span class="badge bg-warning text-dark">Timed in</span>'; ?></td><td><?= number_format((float)$log['hours_rendered'], 2); ?> hrs</td><td><?= html_escape($log['status']); ?></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No DTR records found.</td></tr><?php endif; ?></tbody></table></div></section>
 
             <section id="analytics" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-bar-chart-line me-2"></i>Program Analytics & Reports</h5></div><div class="card-body"><div class="row g-3"><div class="col-md-4"><div class="p-3 bg-light rounded"><small class="text-muted">AT-RISK / LAGGING INTERNS</small><h3><?= count($at_risk_interns); ?></h3></div></div><div class="col-md-4"><div class="p-3 bg-light rounded"><small class="text-muted">REQUIRED HOURS TARGET</small><h3><?= number_format((float)$required_hours, 0); ?> hrs</h3></div></div><div class="col-md-4"><div class="p-3 bg-light rounded"><small class="text-muted">APPROVED RECORDS</small><h3><?php $approved_count = 0; foreach ($recent_logs as $analytics_log) { if ($analytics_log['status'] === 'Approved') { $approved_count++; } } echo $approved_count; ?></h3></div></div></div><hr><h6 class="fw-bold">At-Risk Intern Alert</h6><?php if (!empty($at_risk_interns)): ?><div class="list-group list-group-flush"><?php foreach ($at_risk_interns as $risk): ?><div class="list-group-item d-flex justify-content-between"><span><?= html_escape(trim($risk['first_name'] . ' ' . $risk['last_name'])); ?></span><span class="text-danger fw-bold"><?= $risk['progress']; ?>% complete</span></div><?php endforeach; ?></div><?php else: ?><p class="text-muted mb-0">No interns are currently below the alert threshold.</p><?php endif; ?><hr><h6 class="fw-bold">Department / School Overview</h6><div class="row g-2"><?php foreach ($departments as $department): ?><div class="col-md-4"><div class="border rounded p-2 d-flex justify-content-between"><span><?= html_escape($department['department']); ?></span><strong><?= (int)$department['intern_count']; ?></strong></div></div><?php endforeach; ?></div></div></section>
 
@@ -381,6 +751,47 @@ document.addEventListener('click', function (e) {
 
     function updateAdminSidebarClock() { const now = new Date(); document.getElementById('adminSidebarTime').textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Manila', hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true }); document.getElementById('adminSidebarDate').textContent = now.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', month: 'long', day: 'numeric', year: 'numeric' }); }
     updateAdminSidebarClock(); setInterval(updateAdminSidebarClock, 1000);
+
+</script>
+<!-- DataTables Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#ojtManagementTable').DataTable({
+        "pageLength": 10,
+        "lengthChange": false,
+        "ordering": true,
+        "info": true,
+        "destroy": true,
+        "language": {
+            "paginate": {
+                "previous": '<i class="bi bi-chevron-left"></i>',
+                "next": '<i class="bi bi-chevron-right"></i>'
+            }
+        }
+    });
+});
+</script>
+<script>
+$(document).ready(function() {
+    // Initialize DTR Records Table
+    $('#dtrRecordsTable').DataTable({
+        "pageLength": 10,
+        "lengthChange": false,
+        "ordering": true,
+        "info": true,
+        "destroy": true,
+        "language": {
+            "paginate": {
+                "previous": '<i class="bi bi-chevron-left"></i>',
+                "next": '<i class="bi bi-chevron-right"></i>'
+            }
+        }
+    });
+});
 </script>
 </body>
 </html>
