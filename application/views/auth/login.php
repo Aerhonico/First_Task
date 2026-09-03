@@ -142,6 +142,22 @@
             }
         }
 
+        .login-footer-links {
+            font-family: 'Century Gothic', sans-serif;
+            font-size: 0.8rem;
+        }
+
+        .legal-link {
+            color: #625f5f;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .legal-link:hover {
+            color: #a12124; /* SDCA Red on hover */
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 <body>
@@ -226,6 +242,13 @@
                     <a href="<?= base_url('admin/dev_login'); ?>" class="btn btn-outline-dark btn-sm fw-bold py-2">
                         <i class="bi bi-shield-lock me-1"></i> Admin Portal Login
                     </a>
+                </div>
+                
+                <!-- Footer Links: Terms & Data Privacy -->
+                <div class="login-footer-links text-center mt-4 mb-5">
+                    <a href="https://stdominiccollege.edu.ph/" target="_blank" class="legal-link">Terms & Conditions</a>
+                    <span class="text-muted mx-1">&bull;</span>
+                    <a href="https://stdominiccollege.edu.ph/Data_Privacy/Home" target="_blank" class="legal-link">Data Privacy Office</a>    
                 </div>
 
             </form>

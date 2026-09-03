@@ -148,18 +148,21 @@ class Admin extends CI_Controller {
             'year_section'  => trim($this->input->post('year_section', TRUE)),
             'academic_year' => trim($this->input->post('academic_year', TRUE)),
             'semester'      => trim($this->input->post('semester', TRUE)),
-            'status'        => strtolower($this->input->post('status'))
+            'account_status' => strtolower($this->input->post('status'))
         );
 
         if ($id <= 0 || empty($update_data['first_name']) || empty($update_data['last_name']) || !filter_var($update_data['email'], FILTER_VALIDATE_EMAIL)) {
             $this->session->set_flashdata('error', 'Please provide a valid intern name and email.');
-            redirect('admin');
+            redirect('admin#intern-management');
             return;
         }
 
         $this->db->where('id', $id)->where('role', 'intern')->update('users', $update_data);
         $this->session->set_flashdata('success', 'Intern information updated successfully.');
-        redirect('admin');
+        
+        $redirect = $this->input->post('redirect', TRUE);
+        $redirect_url = ($redirect && $redirect === 'intern-management') ? 'admin#intern-management' : 'admin';
+        redirect($redirect_url);
     }
 
     public function approve_intern($id) {
@@ -167,8 +170,17 @@ class Admin extends CI_Controller {
             return;
         }
 
+        $this->db
+        ->where('id', (int)$id)
+        ->where('role', 'intern')
+        ->where('account_status', 'pending')
+        ->update('users', array('account_status' => 'approved'));
+
         $this->session->set_flashdata('success', 'Intern account approved successfully.');
-        redirect('admin');
+        
+        $redirect = $this->input->get('redirect', TRUE);
+        $redirect_url = ($redirect && $redirect === 'pending-approvals') ? 'admin#pending-approvals' : 'admin';
+        redirect($redirect_url);
     }
 
     public function reject_intern($id) {
@@ -182,7 +194,10 @@ class Admin extends CI_Controller {
             ->where('account_status', 'pending')
             ->update('users', array('account_status' => 'rejected'));
         $this->session->set_flashdata('success', 'Intern registration request denied.');
-        redirect('admin');
+        
+        $redirect = $this->input->get('redirect', TRUE);
+        $redirect_url = ($redirect && $redirect === 'pending-approvals') ? 'admin#pending-approvals' : 'admin';
+        redirect($redirect_url);
     }
 
     public function update_log($id) {
@@ -208,13 +223,16 @@ class Admin extends CI_Controller {
 
         if ($id <= 0 || empty($update_data['log_date']) || empty($update_data['time_in'])) {
             $this->session->set_flashdata('error', 'Date and time-in are required.');
-            redirect('admin');
+            redirect('admin#ojt-management');
             return;
         }
 
         $this->db->where('id', $id)->update('ojt_logs', $update_data);
         $this->session->set_flashdata('success', 'OJT record updated successfully.');
-        redirect('admin');
+        
+        $redirect = $this->input->post('redirect', TRUE);
+        $redirect_url = ($redirect && in_array($redirect, array('ojt-management', 'dtr-records'))) ? 'admin#' . $redirect : 'admin';
+        redirect($redirect_url);
     }
 
     public function delete_log($id) {
@@ -227,7 +245,10 @@ class Admin extends CI_Controller {
             $this->db->where('id', $id)->delete('ojt_logs');
             $this->session->set_flashdata('success', 'OJT record deleted successfully.');
         }
-        redirect('admin');
+        
+        $redirect = $this->input->get('redirect', TRUE);
+        $redirect_url = ($redirect && in_array($redirect, array('ojt-management', 'dtr-records'))) ? 'admin#' . $redirect : 'admin';
+        redirect($redirect_url);
     }
 
     public function mark_request_read($id) {
@@ -237,7 +258,10 @@ class Admin extends CI_Controller {
 
         $this->db->where('id', (int)$id)->update('messages', array('is_read' => 1));
         $this->session->set_flashdata('success', 'Deletion request marked as reviewed.');
-        redirect('admin');
+        
+        $redirect = $this->input->get('redirect', TRUE);
+        $redirect_url = ($redirect && $redirect === 'pending-approvals') ? 'admin#pending-approvals' : 'admin';
+        redirect($redirect_url);
     }
 
     public function clear_deletion_requests() {
@@ -252,7 +276,10 @@ class Admin extends CI_Controller {
 
         $this->db->like('subject', 'OJT Log Deletion Request')->delete('messages');
         $this->session->set_flashdata('success', 'Deletion requests cleared successfully.');
-        redirect('admin');
+        
+        $redirect = $this->input->post('redirect', TRUE);
+        $redirect_url = ($redirect && $redirect === 'pending-approvals') ? 'admin#pending-approvals' : 'admin';
+        redirect($redirect_url);
     }
 
     public function inquiries() {
@@ -273,7 +300,7 @@ class Admin extends CI_Controller {
         if ((int)$id <= 0 || empty($reply)) {
             $this->session->set_flashdata('error', 'An inquiry reply is required.');
             $this->session->set_flashdata('active_module', 'inquiries');
-            redirect('admin');
+            redirect('admin#inquiries');
             return;
         }
 
@@ -281,7 +308,10 @@ class Admin extends CI_Controller {
         $this->Ojt_model->reply_to_inquiry($id, $reply);
         $this->session->set_flashdata('success', 'Inquiry reply sent successfully.');
         $this->session->set_flashdata('active_module', 'inquiries');
-        redirect('admin');
+        
+        $redirect = $this->input->post('redirect', TRUE);
+        $redirect_url = ($redirect && $redirect === 'inquiries') ? 'admin#inquiries' : 'admin';
+        redirect($redirect_url);
     }
 
     // Show Create Admin Account Form
@@ -392,7 +422,7 @@ class Admin extends CI_Controller {
         if (empty($title) || empty($message)) {
             $this->session->set_flashdata('error', 'Title and message are required.');
             $this->session->set_flashdata('active_module', 'announcements');
-            redirect('admin');
+            redirect('admin#announcements');
             return;
         }
 
@@ -409,7 +439,7 @@ class Admin extends CI_Controller {
             if (empty($recipient)) {
                 $this->session->set_flashdata('error', 'Please select an approved intern recipient.');
                 $this->session->set_flashdata('active_module', 'announcements');
-                redirect('admin');
+                redirect('admin#announcements');
                 return;
             }
         }
@@ -427,11 +457,11 @@ class Admin extends CI_Controller {
         if ($this->db->insert('announcements', $data)) {
             $this->session->set_flashdata('success', $target_type === 'specific' ? 'Announcement sent to the selected intern.' : 'Announcement broadcast to all approved interns.');
             $this->session->set_flashdata('active_module', 'announcements');
-            redirect('admin');
+            redirect('admin#announcements');
         } else {
             $this->session->set_flashdata('error', 'Failed to create announcement. Please try again.');
             $this->session->set_flashdata('active_module', 'announcements');
-            redirect('admin');
+            redirect('admin#announcements');
         }
     }
 
@@ -506,4 +536,13 @@ class Admin extends CI_Controller {
         $this->session->set_flashdata('success', 'Announcement deleted successfully.');
         redirect('admin/announcements');
     }
+
+    public function interns() {
+    if (!$this->require_admin()) {
+        return;
+    }
+    $this->session->set_flashdata('active_module', 'interns');
+    redirect('admin#intern-management');
+}
+
 }

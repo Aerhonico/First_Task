@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --sdca-red: #800000; }
+        :root { --sdca-red: #a12124; }
         * { box-sizing: border-box; }
         body { min-height: 100vh; padding-top: 48px; background-color: #f4f6f9; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23800000' stroke-width='1.2' fill='none' opacity='0.12'%3E%3Cpolygon points='100,200 400,100 700,300 900,150'/%3E%3Cpolygon points='300,800 600,950 900,700'/%3E%3Cline x1='100' y1='200' x2='600' y2='950'/%3E%3Cline x1='400' y1='100' x2='900' y2='700'/%3E%3Cline x1='700' y1='300' x2='300' y2='800'/%3E%3C/g%3E%3C/svg%3E"); background-repeat: repeat; background-size: 800px 800px; animation: floatBackground 35s linear infinite; }
         @keyframes floatBackground { 0% { background-position: 0 0; } 50% { background-position: 100px -150px; } 100% { background-position: 0 0; } }
@@ -18,7 +18,7 @@
         .sidebar-brand { border-bottom: 1px solid #eee; }
         .sidebar-logo { max-height: 52px; width: auto; }
         .sidebar-menu { list-style: none; padding: 0; margin: 12px 0 0; }
-        .sidebar-menu a { color: #495057; padding: 12px 20px; display: flex; align-items: center; gap: 12px; text-decoration: none; font-size: .92rem; font-weight: 500; border-left: 4px solid transparent; }
+        .sidebar-menu a { color: #625f5f; padding: 12px 20px; display: flex; align-items: center; gap: 12px; text-decoration: none; font-size: .92rem; font-weight: 500; border-left: 4px solid transparent; }
         .sidebar-menu a i { width: 20px; text-align: center; color: #6c757d; }
         .sidebar-menu a:hover, .sidebar-menu li.active a { background: #fff5f5; color: var(--sdca-red); border-left-color: var(--sdca-red); font-weight: 700; }
         .sidebar-menu li.active a i, .sidebar-menu a:hover i { color: var(--sdca-red); }

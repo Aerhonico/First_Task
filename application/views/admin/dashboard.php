@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - SDCA OJT Tracker</title>
+    <title>Admin - SDCA OJT Tracker</title>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/sdcalogoorig1.png?v=2'); ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --sdca-red: #800000; }
+        :root { --sdca-red: #a12124; }
         * { box-sizing: border-box; }
         body { margin: 0; min-height: 100vh; background-color: #f4f6f9; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23800000' stroke-width='1.2' fill='none' opacity='0.3'%3E%3Cpolygon points='100,200 400,100 700,300 900,150'/%3E%3Cpolygon points='300,800 600,950 900,700'/%3E%3Cline x1='100' y1='200' x2='600' y2='950'/%3E%3Cline x1='400' y1='100' x2='900' y2='700'/%3E%3Cline x1='700' y1='300' x2='300' y2='800'/%3E%3Ccircle cx='400' cy='100' r='4' fill='%23800000'/%3E%3Ccircle cx='700' cy='300' r='4' fill='%23800000'/%3E%3Ccircle cx='300' cy='800' r='4' fill='%23800000'/%3E%3C/g%3E%3C/svg%3E"); background-repeat: repeat; background-size: 800px 800px; animation: floatBackground 35s linear infinite; color: #212529; }
         @keyframes floatBackground { 0% { background-position: 0 0; } 50% { background-position: 100px -150px; } 100% { background-position: 0 0; } }
@@ -19,7 +19,7 @@
         .sidebar-brand { border-bottom: 1px solid #eee; }
         .sidebar-logo { max-height: 52px; width: auto; }
         .sidebar-menu { list-style: none; padding: 0; margin: 8px 0 0; }
-        .sidebar-menu a { color: #495057; padding: 9px 16px; display: flex; align-items: center; gap: 10px; text-decoration: none; font-size: .82rem; font-weight: 500; border-left: 4px solid transparent; }
+        .sidebar-menu a { color: #343434; padding: 9px 16px; display: flex; align-items: center; gap: 10px; text-decoration: none; font-size: .82rem; font-weight: 500; border-left: 4px solid transparent; }
         .sidebar-menu a i { width: 20px; text-align: center; color: #6c757d; }
         .sidebar-menu a:hover, .sidebar-menu li.active a { background: #fff5f5; color: var(--sdca-red); border-left-color: var(--sdca-red); font-weight: 700; }
         .sidebar-menu li.active a i, .sidebar-menu a:hover i { color: var(--sdca-red); }
@@ -50,7 +50,7 @@
         @media (max-width: 768px) { .sidebar { width: 76px; } .sidebar-brand span, .sidebar-menu span, .sidebar-clock { display: none; } .sidebar-menu a { justify-content: center; padding: 15px 8px; } .main-content { margin-left: 76px; } .main-content-area { padding: 76px 14px 20px; } .top-navbar { left: 76px; width: calc(100% - 76px); } .top-navbar .navbar-brand span { display: none; } }
         /* Container adjustments */
         .navbar-top, .top-header {
-            background-color: #800000 !important; /* Base maroon header background */
+            background-color: #a12124 !important; /* Base maroon header background */
             padding: 0 !important;
     
 }
@@ -100,11 +100,11 @@
 }
 
 .border-sdca {
-    border-color: #800000 !important;
+    border-color: #a12124 !important;
 }
 
 .text-sdca {
-    color: #800000 !important;
+    color: #a12124 !important;
 }
 
 /* Custom Quick Action Cards */
@@ -168,6 +168,82 @@
     flex-shrink: 0;
 }
 
+/* Top Navbar Text Font */
+.navbar, 
+.navbar * {
+    font-family: 'Century Gothic', 'CenturyGothic', AppleGothic, sans-serif !important;
+    font-weight: bold !important;
+}
+
+/* Sidebar Menu Base Items - ICT Guidelines */
+.sidebar-menu a {
+    font-family: 'Century Gothic', 'CenturyGothic', AppleGothic, sans-serif !important;
+    font-weight: 400 !important; /* Century Gothic Regular */
+    color: #343434;
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    text-decoration: none;
+    border-radius: 0 !important;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ICT Dropdown / Sidebar Active & Hover Selection State */
+.sidebar-menu a:hover,
+.sidebar-menu a.active,
+.sidebar-menu li.active > a {
+    border-radius: 0 !important;
+    background-color: #a12124 !important; /* ICT Selection Box Color */
+    color: #ffffff !important;            /* White text on active/hover */
+}
+
+/* Ensure icons turn white on hover/active */
+.sidebar-menu a:hover i,
+.sidebar-menu a.active i,
+.sidebar-menu li.active > a i {
+    color: #ffffff !important;
+}
+
+/* --- Base Dashboard Font Setup --- */
+.main-content, 
+.card, 
+.card-body {
+    font-family: 'Century Gothic', 'CenturyGothic', AppleGothic, sans-serif !important;
+}
+
+/* --- Bold Elements (Headings, Stat Counters, Section Titles) --- */
+h1, h2, h3, h4, h5, h6,
+.card-title,
+.stat-number, 
+.stat-card .number,
+.stat-card h2,
+.stat-card h3,
+.quick-action-card span,
+.quick-action-card p,
+.table-title,
+.section-header,
+strong, 
+b {
+    font-family: 'Century Gothic', 'CenturyGothic', AppleGothic, sans-serif !important;
+    font-weight: 700 !important; /* Century Gothic Bold */
+}
+
+/* --- Regular Elements (Subtitles, Descriptions, Dates, Captions) --- */
+p, 
+small, 
+span, 
+.text-muted, 
+.stat-card .label,
+.stat-card p,
+.subtitle,
+.timestamp,
+.user-email,
+td, 
+th {
+    font-family: 'Century Gothic', 'CenturyGothic', AppleGothic, sans-serif !important;
+    font-weight: 400 !important; /* Century Gothic Regular */
+}
+
     </style>
 </head>
 <body>
@@ -208,7 +284,7 @@
             <?php if ($this->session->flashdata('error')): ?><div class="alert alert-danger alert-dismissible fade show"><?= html_escape($this->session->flashdata('error')); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div><?php endif; ?>
 
         <section id="dashboard" class="section-anchor mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
                     <h3 class="fw-bold mb-1">Admin Dashboard</h3>
                     <p class="text-muted mb-0">System-wide internship monitoring and verification.</p>
@@ -226,7 +302,7 @@
                             <div>
                                 <small class="text-muted text-uppercase fw-semibold d-block">Registered Interns</small>
                                 <h2 class="mb-0 fw-bold"><?= (int)$intern_count; ?></h2>
-                                <small class="text-muted">Registered and verified accounts</small>
+                                <small class="text-muted">Admin-verified accounts</small>
                             </div>
                         </div>
                     </div>
@@ -280,69 +356,72 @@
                     </div>
                 </div>
             </div>
-            <div class="row g-2 text-center mt-3 mb-4">
+            <div class="row g-2 mt-2">
+                <div>
+                    <h6 class="fw-bold mb-1">Quick Actions</h6>
+                </div>
     <!-- Manage Interns -->
     <div class="col-6 col-md-4 col-lg">
-        <div onclick="location.href='#intern-management';" class="quick-card p-2 border rounded shadow-sm">
-            <div class="icon-circle bg-primary-subtle text-primary">
+        <a href="#intern-management" style="text-decoration: none; color: inherit;" class="quick-card p-2 border rounded shadow-sm">
+            <div class="icon-circle" style="background-color: #e3f2fd; color: #1976d2;">
                 <i class="bi bi-people-fill"></i>
             </div>
             <span class="card-title-text">Manage Interns</span>
-        </div>
+        </a>
     </div>
 
     <!-- Review DTR Records -->
     <div class="col-6 col-md-4 col-lg">
-        <div onclick="location.href='#dtr-time-records';" class="quick-card p-2 border rounded shadow-sm">
-            <div class="icon-circle bg-success-subtle text-success">
+        <button type="button" class="quick-card p-2 border rounded shadow-sm w-100" style="background: #ffffff; border: 1px solid #ddd; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#reviewDTRModal">
+            <div class="icon-circle" style="background-color: #e8f5e9; color: #388e3c;">
                 <i class="bi bi-clock-history"></i>
             </div>
             <span class="card-title-text">Review DTR</span>
-        </div>
+        </button>
     </div>
 
     <!-- Pending Approvals -->
     <div class="col-6 col-md-4 col-lg">
-        <div onclick="location.href='#ojt-management';" class="quick-card p-2 border rounded shadow-sm">
-            <div class="icon-circle bg-warning-subtle text-warning">
+        <button type="button" class="quick-card p-2 border rounded shadow-sm w-100" style="background: #ffffff; border: 1px solid #ddd; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#pendingApprovalsModal">
+            <div class="icon-circle" style="background-color: #fff3e0; color: #f57c00;">
                 <i class="bi bi-check-circle-fill"></i>
             </div>
             <span class="card-title-text">Pending Approvals</span>
-        </div>
+        </button>
     </div>
 
     <!-- View Analytics -->
     <div class="col-6 col-md-4 col-lg">
-        <div onclick="location.href='#analytics-reports';" class="quick-card p-2 border rounded shadow-sm">
-            <div class="icon-circle bg-info-subtle text-info">
+        <a href="#analytics" style="text-decoration: none; color: inherit;" class="quick-card p-2 border rounded shadow-sm">
+            <div class="icon-circle" style="background-color: #e0f2f1; color: #00897b;">
                 <i class="bi bi-bar-chart-line-fill"></i>
             </div>
             <span class="card-title-text">View Analytics</span>
-        </div>
+        </a>
     </div>
 
     <!-- Post Announcement -->
     <div class="col-6 col-md-4 col-lg">
-        <div onclick="location.href='#announcements';" class="quick-card p-2 border rounded shadow-sm">
-            <div class="icon-circle bg-danger-subtle text-danger">
+        <button type="button" class="quick-card p-2 border rounded shadow-sm w-100" style="background: #ffffff; border: 1px solid #ddd; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#newAnnouncementModal">
+            <div class="icon-circle" style="background-color: #ffebee; color: #a12124;">
                 <i class="bi bi-megaphone-fill"></i>
             </div>
             <span class="card-title-text">Post an Announcement</span>
-        </div>
+        </button>
     </div>
 
     <!-- Administrative Tools -->
     <div class="col-6 col-md-4 col-lg">
-        <div onclick="location.href='#administrative-tools';" class="quick-card p-2 border rounded shadow-sm">
-            <div class="icon-circle bg-secondary-subtle text-secondary">
+        <a href="#admin-tools" style="text-decoration: none; color: inherit;" class="quick-card p-2 border rounded shadow-sm">
+            <div class="icon-circle" style="background-color: #f3e5f5; color: #7b1fa2;">
                 <i class="bi bi-gear-wide-connected"></i>
             </div>
             <span class="card-title-text">Admin Tools</span>
-        </div>
+        </a>
     </div>
 </div>
         </section>
-            <section id="dashboard-quick-panels" class="row g-3 mb-4">
+            <section id="dashboard-quick-panels" class="row g-2 mb-4">
             <!-- Latest Time In / Time Outs -->
             <div class="col-lg-6">
                 <div class="card section-card shadow-sm h-100">
@@ -398,7 +477,7 @@
             </div>
 
             <!-- Interns to Approve -->
-            <div class="col-lg-6">
+            <div class="col-lg-6 mt-4">
                 <div class="card section-card shadow-sm h-100">
                     <div class="card-header bg-white d-flex justify-content-between">
                         <strong><i class="bi bi-person-plus me-2"></i>Interns to Approve</strong>
@@ -428,7 +507,7 @@
             </div>
 
             <!-- Deletion Requests -->
-            <div class="col-lg-6">
+            <div class="col-lg-6 mt-4">
                 <div class="card section-card shadow-sm h-100">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
                         <strong><i class="bi bi-envelope-exclamation me-2"></i>Deletion Requests</strong>
@@ -464,6 +543,7 @@
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <form action="<?= base_url('admin/update_intern/' . (int)$intern['id']); ?>" method="POST">
+                            <input type="hidden" name="redirect" value="intern-management">
                             <div class="modal-header">
                                 <h5 class="modal-title">Verify / Edit Intern Account</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -497,25 +577,26 @@
                 </div>
             </div>
             <?php endforeach; endif; ?>
-            <section id="ojt-management" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-person-check me-2"></i>OJT Management & Verification</h5></div><div class="table-responsive"><table id="ojtManagementTable" class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Date</th><th>Task Description</th><th>Hours</th><th>Status</th><th>Actions</th></tr></thead><tbody><?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><tr><td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td><td><?= html_escape($log['log_date']); ?></td><td><?= html_escape($log['task_summary']); ?></td><td><?= number_format((float)$log['hours_rendered'], 2); ?></td><td><span class="badge text-bg-secondary"><?= html_escape($log['status']); ?></span></td><td><button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#log<?= (int)$log['id']; ?>">Edit / Verify</button> <button type="button" class="btn btn-sm btn-outline-danger delete-log-button" data-delete-url="<?= base_url('admin/delete_log/' . (int)$log['id']); ?>" data-bs-toggle="modal" data-bs-target="#deleteLogModal">Delete</button></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No OJT records found.</td></tr><?php endif; ?></tbody></table></div></section>
-            <?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><div class="modal fade" id="log<?= (int)$log['id']; ?>" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form action="<?= base_url('admin/update_log/' . (int)$log['id']); ?>" method="POST"><div class="modal-header"><h5 class="modal-title">Verify OJT Record</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="form-label">Date</label><input type="date" name="log_date" class="form-control mb-2" value="<?= html_escape($log['log_date']); ?>" required><label class="form-label">Time In</label><input name="time_in" class="form-control mb-2" value="<?= html_escape($log['time_in']); ?>" required><label class="form-label">Time Out</label><input name="time_out" class="form-control mb-2" value="<?= html_escape($log['time_out']); ?>"><label class="form-label">Hours Rendered</label><input type="number" step="0.01" name="hours_rendered" class="form-control mb-2" value="<?= html_escape($log['hours_rendered']); ?>"><label class="form-label">Task Description</label><textarea name="task_summary" class="form-control mb-2"><?= html_escape($log['task_summary']); ?></textarea><label class="form-label">Verification Status</label><select name="status" class="form-select"><option>Pending</option><option>Approved</option><option>Rejected</option><option>completed</option></select></div><div class="modal-footer"><button class="btn btn-primary">Save Verification</button></div></form></div></div></div><?php endforeach; endif; ?>
+            <section id="ojt-management" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-person-check me-2"></i>OJT Management & Verification</h5></div><div class="table-responsive"><table id="ojtManagementTable" class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Date</th><th>Task Description</th><th>Hours</th><th>Status</th><th>Actions</th></tr></thead><tbody><?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><tr><td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td><td><?= html_escape($log['log_date']); ?></td><td><?= html_escape($log['task_summary']); ?></td><td><?= number_format((float)$log['hours_rendered'], 2); ?></td><td><span class="badge text-bg-secondary"><?= html_escape($log['status']); ?></span></td><td><button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#log<?= (int)$log['id']; ?>">Edit / Verify</button> <button type="button" class="btn btn-sm btn-outline-danger delete-log-button" data-delete-url="<?= base_url('admin/delete_log/' . (int)$log['id'] . '?redirect=ojt-management'); ?>" data-bs-toggle="modal" data-bs-target="#deleteLogModal">Delete</button></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No OJT records found.</td></tr><?php endif; ?></tbody></table></div></section>
+            <?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><div class="modal fade" id="log<?= (int)$log['id']; ?>" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form action="<?= base_url('admin/update_log/' . (int)$log['id']); ?>" method="POST"><input type="hidden" name="redirect" value="ojt-management"><div class="modal-header"><h5 class="modal-title">Verify OJT Record</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="form-label">Date</label><input type="date" name="log_date" class="form-control mb-2" value="<?= html_escape($log['log_date']); ?>" required><label class="form-label">Time In</label><input name="time_in" class="form-control mb-2" value="<?= html_escape($log['time_in']); ?>" required><label class="form-label">Time Out</label><input name="time_out" class="form-control mb-2" value="<?= html_escape($log['time_out']); ?>"><label class="form-label">Hours Rendered</label><input type="number" step="0.01" name="hours_rendered" class="form-control mb-2" value="<?= html_escape($log['hours_rendered']); ?>"><label class="form-label">Task Description</label><textarea name="task_summary" class="form-control mb-2"><?= html_escape($log['task_summary']); ?></textarea><label class="form-label">Verification Status</label><select name="status" class="form-select"><option>Pending</option><option>Approved</option><option>Rejected</option><option>Completed</option></select></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Save Verification</button></div></form></div></div></div><?php endforeach; endif; ?>
 
             <section id="dtr-records" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-calendar3 me-2"></i>DTR and Time Records</h5></div><div class="table-responsive"><table id="dtrRecordsTable" class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Date</th><th>Time In</th><th>Time Out</th><th>Rendered</th><th>Status</th></tr></thead><tbody><?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><tr><td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td><td><?= html_escape($log['log_date']); ?></td><td><?= html_escape($log['time_in']); ?></td><td><?= !empty($log['time_out']) ? html_escape($log['time_out']) : '<span class="badge bg-warning text-dark">Timed in</span>'; ?></td><td><?= number_format((float)$log['hours_rendered'], 2); ?> hrs</td><td><?= html_escape($log['status']); ?></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No DTR records found.</td></tr><?php endif; ?></tbody></table></div></section>
 
             <section id="analytics" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-bar-chart-line me-2"></i>Program Analytics & Reports</h5></div><div class="card-body"><div class="row g-3"><div class="col-md-4"><div class="p-3 bg-light rounded"><small class="text-muted">AT-RISK / LAGGING INTERNS</small><h3><?= count($at_risk_interns); ?></h3></div></div><div class="col-md-4"><div class="p-3 bg-light rounded"><small class="text-muted">REQUIRED HOURS TARGET</small><h3><?= number_format((float)$required_hours, 0); ?> hrs</h3></div></div><div class="col-md-4"><div class="p-3 bg-light rounded"><small class="text-muted">APPROVED RECORDS</small><h3><?php $approved_count = 0; foreach ($recent_logs as $analytics_log) { if ($analytics_log['status'] === 'Approved') { $approved_count++; } } echo $approved_count; ?></h3></div></div></div><hr><h6 class="fw-bold">At-Risk Intern Alert</h6><?php if (!empty($at_risk_interns)): ?><div class="list-group list-group-flush"><?php foreach ($at_risk_interns as $risk): ?><div class="list-group-item d-flex justify-content-between"><span><?= html_escape(trim($risk['first_name'] . ' ' . $risk['last_name'])); ?></span><span class="text-danger fw-bold"><?= $risk['progress']; ?>% complete</span></div><?php endforeach; ?></div><?php else: ?><p class="text-muted mb-0">No interns are currently below the alert threshold.</p><?php endif; ?><hr><h6 class="fw-bold">Department / School Overview</h6><div class="row g-2"><?php foreach ($departments as $department): ?><div class="col-md-4"><div class="border rounded p-2 d-flex justify-content-between"><span><?= html_escape($department['department']); ?></span><strong><?= (int)$department['intern_count']; ?></strong></div></div><?php endforeach; ?></div></div></section>
 
             <section id="announcements" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold"><i class="bi bi-megaphone me-2"></i>Announcements</h5><button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#newAnnouncementModal"><i class="bi bi-plus-circle me-1"></i>New Announcement</button></div><div class="list-group list-group-flush"><?php if (!empty($announcements)): foreach ($announcements as $announcement): ?><div class="list-group-item"><div class="d-flex justify-content-between"><strong><?= html_escape($announcement['title']); ?></strong><span class="badge <?= $announcement['is_active'] ? 'bg-success' : 'bg-secondary'; ?>"><?= $announcement['is_active'] ? 'Active' : 'Inactive'; ?></span></div><small class="text-muted d-block mt-1"><?= html_escape($announcement['message']); ?></small><small class="text-muted d-block mt-2">Target: <?= !empty($announcement['target_user_id']) ? html_escape($announcement['recipient_first_name'] . ' ' . $announcement['recipient_last_name']) : 'All Interns'; ?></small></div><?php endforeach; else: ?><div class="list-group-item text-muted">No announcements yet.</div><?php endif; ?></div></section>
-            <section id="inquiries" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold"><i class="bi bi-question-circle me-2"></i>Inquiries &amp; Concerns</h5><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#inquiryHistoryModal"><i class="bi bi-clock-history me-1"></i>Reply History</button></div><div class="card-body"><?php $has_open_inquiries = FALSE; if (!empty($inquiries)): foreach ($inquiries as $inquiry): if ($inquiry['status'] !== 'Open') { continue; } $has_open_inquiries = TRUE; ?><article class="border-start border-4 border-danger ps-3 mb-4"><div class="d-flex justify-content-between gap-3"><div><strong><?= html_escape(trim($inquiry['first_name'] . ' ' . $inquiry['last_name'])); ?></strong><small class="d-block text-muted"><?= html_escape($inquiry['email']); ?> | <?= date('M d, Y g:i A', strtotime($inquiry['created_at'])); ?></small><span class="badge bg-secondary my-2"><?= html_escape($inquiry['category']); ?></span><p><?= nl2br(html_escape($inquiry['message'])); ?></p></div><span class="badge align-self-start bg-warning text-dark">Open</span></div><form action="<?= base_url('admin/reply_to_inquiry/' . (int)$inquiry['id']); ?>" method="post"><label class="form-label small fw-bold">Reply</label><textarea class="form-control" name="admin_reply" rows="3" required></textarea><button type="submit" class="btn btn-sm btn-danger mt-2"><i class="bi bi-reply me-1"></i>Send Reply</button></form></article><?php endforeach; endif; if (!$has_open_inquiries): ?><p class="text-muted mb-0">No open intern inquiries.</p><?php endif; ?></div></section>
+            <section id="inquiries" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold"><i class="bi bi-question-circle me-2"></i>Inquiries &amp; Concerns</h5><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#inquiryHistoryModal"><i class="bi bi-clock-history me-1"></i>Reply History</button></div><div class="card-body"><?php $has_open_inquiries = FALSE; if (!empty($inquiries)): foreach ($inquiries as $inquiry): if ($inquiry['status'] !== 'Open') { continue; } $has_open_inquiries = TRUE; ?><article class="border-start border-4 border-danger ps-3 mb-4"><div class="d-flex justify-content-between gap-3"><div><strong><?= html_escape(trim($inquiry['first_name'] . ' ' . $inquiry['last_name'])); ?></strong><small class="d-block text-muted"><?= html_escape($inquiry['email']); ?> | <?= date('M d, Y g:i A', strtotime($inquiry['created_at'])); ?></small><span class="badge bg-secondary my-2"><?= html_escape($inquiry['category']); ?></span><p><?= nl2br(html_escape($inquiry['message'])); ?></p></div><span class="badge align-self-start bg-warning text-dark">Open</span></div><form action="<?= base_url('admin/reply_to_inquiry/' . (int)$inquiry['id']); ?>" method="post"><input type="hidden" name="redirect" value="inquiries"><label class="form-label small fw-bold">Reply</label><textarea class="form-control" name="admin_reply" rows="3" required></textarea><button type="submit" class="btn btn-sm btn-danger mt-2"><i class="bi bi-reply me-1"></i>Send Reply</button></form></article><?php endforeach; endif; if (!$has_open_inquiries): ?><p class="text-muted mb-0">No open intern inquiries.</p><?php endif; ?></div></section>
             <section id="admin-tools" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-tools me-2"></i>Administrative Tools & System Settings</h5></div><div class="card-body"><div class="row g-3"><div class="col-md-3"><h6 class="fw-bold">User Role Control</h6><p class="text-muted small">Manage intern account details through the Intern Management edit controls.</p><a href="#intern-management" class="btn btn-sm btn-outline-primary">Manage Users</a></div><div class="col-md-3"><h6 class="fw-bold">Reports & PDF Export</h6><p class="text-muted small">Generate an official master DTR audit report.</p><a href="<?= base_url('ojt/export_pdf'); ?>" target="_blank" class="btn btn-sm btn-outline-danger"><i class="bi bi-file-earmark-pdf me-1"></i>Export PDF</a></div><div class="col-md-3"><h6 class="fw-bold">System Logs & Audit Trail</h6><p class="text-muted small">Review deletion requests and account activity from the management queues.</p><a href="#ojt-management" class="btn btn-sm btn-outline-secondary">Review Activity</a></div><div class="col-md-3"><h6 class="fw-bold">Intern Support</h6><p class="text-muted small">Review and respond to intern inquiries and concerns.</p><a href="#inquiries" class="btn btn-sm btn-outline-success">Open Inquiries</a></div></div></div></section>
         </main>
     </div>
 </div>
 <div class="modal fade" id="inquiryHistoryModal" tabindex="-1" aria-labelledby="inquiryHistoryModalLabel" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="inquiryHistoryModalLabel">Inquiry Reply History</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><?php $has_reply_history = FALSE; foreach ($inquiries as $inquiry): if ($inquiry['status'] === 'Answered' && !empty($inquiry['admin_reply'])): $has_reply_history = TRUE; ?><article class="border-start border-4 border-success ps-3 mb-4"><div class="d-flex justify-content-between"><strong><?= html_escape(trim($inquiry['first_name'] . ' ' . $inquiry['last_name'])); ?></strong><small class="text-muted"><?= !empty($inquiry['replied_at']) ? date('M d, Y g:i A', strtotime($inquiry['replied_at'])) : ''; ?></small></div><span class="badge bg-secondary my-2"><?= html_escape($inquiry['category']); ?></span><p class="mb-2"><strong>Inquiry:</strong> <?= nl2br(html_escape($inquiry['message'])); ?></p><div class="bg-light p-3"><strong>Reply:</strong><br><?= nl2br(html_escape($inquiry['admin_reply'])); ?></div></article><?php endif; endforeach; if (!$has_reply_history): ?><p class="text-muted text-center mb-0">No replies have been sent yet.</p><?php endif; ?></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div></div></div></div>
-<div class="modal fade" id="newAnnouncementModal" tabindex="-1" aria-labelledby="newAnnouncementModalLabel" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form action="<?= base_url('admin/create_announcement_process'); ?>" method="post"><div class="modal-header"><h5 class="modal-title" id="newAnnouncementModalLabel">New Announcement</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Title</label><input class="form-control" name="title" required></div><div class="mb-3"><label class="form-label">Message</label><textarea class="form-control" name="message" rows="4" required></textarea></div><div class="mb-3"><label class="form-label">Target</label><select class="form-select" name="target_type"><option value="all">All Interns</option><option value="specific">Specific Intern</option></select></div><div class="mb-3"><label class="form-label">Specific Intern</label><select class="form-select" name="target_user_id"><option value="">Select an intern</option><?php foreach ($announcement_interns as $intern): ?><option value="<?= (int)$intern['id']; ?>"><?= html_escape(trim($intern['first_name'] . ' ' . $intern['last_name'])); ?></option><?php endforeach; ?></select></div><div class="mb-3"><label class="form-label">Category</label><input class="form-control" name="category"></div><div><label class="form-label">Expiration Date</label><input class="form-control" type="date" name="expires_at"></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger" type="submit">Send Announcement</button></div></form></div></div></div>
+<div class="modal fade" id="newAnnouncementModal" tabindex="-1" aria-labelledby="newAnnouncementModalLabel" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form action="<?= base_url('admin/create_announcement_process'); ?>" method="post"><input type="hidden" name="redirect" value="announcements"><div class="modal-header"><h5 class="modal-title" id="newAnnouncementModalLabel">New Announcement</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Title</label><input class="form-control" name="title" required></div><div class="mb-3"><label class="form-label">Message</label><textarea class="form-control" name="message" rows="4" required></textarea></div><div class="mb-3"><label class="form-label">Target</label><select class="form-select" name="target_type"><option value="all">All Interns</option><option value="specific">Specific Intern</option></select></div><div class="mb-3"><label class="form-label">Specific Intern</label><select class="form-select" name="target_user_id"><option value="">Select an intern</option><?php foreach ($announcement_interns as $intern): ?><option value="<?= (int)$intern['id']; ?>"><?= html_escape(trim($intern['first_name'] . ' ' . $intern['last_name'])); ?></option><?php endforeach; ?></select></div><div class="mb-3"><label class="form-label">Category</label><input class="form-control" name="category"></div><div><label class="form-label">Expiration Date</label><input class="form-control" type="date" name="expires_at"></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger" type="submit">Send Announcement</button></div></form></div></div></div>
 <div class="modal fade" id="clearDeletionRequestsModal" tabindex="-1" aria-labelledby="clearDeletionRequestsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="<?= base_url('admin/clear_deletion_requests'); ?>" method="post">
+                <input type="hidden" name="redirect" value="pending-approvals">
                 <div class="modal-header">
                     <h5 class="modal-title" id="clearDeletionRequestsModalLabel">Clear Deletion Requests</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -561,6 +642,205 @@
         </div>
     </div>
 </div>
+
+<!-- Review DTR Records Modal -->
+<div class="modal fade" id="reviewDTRModal" tabindex="-1" aria-labelledby="reviewDTRModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewDTRModalLabel">Review DTR Records</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Search Intern</label>
+                    <input type="text" id="dtrSearchInput" class="form-control" placeholder="Search by name, email, or ID...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Filter by Status</label>
+                    <select id="dtrStatusFilter" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="done">Done</option>
+                        <option value="terminated">Terminated</option>
+                    </select>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Intern Name</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dtrInternsList">
+                            <?php if (!empty($interns)): foreach ($interns as $intern): ?>
+                            <tr class="dtr-intern-row">
+                                <td><?= html_escape(trim($intern['first_name'] . ' ' . $intern['last_name'])); ?></td>
+                                <td><small><?= html_escape($intern['email']); ?></small></td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        <?php 
+                                        $status = strtolower(trim($intern['status'] ?? 'active'));
+                                        if ($status === 'active' || $status === 'approved') {
+                                            echo 'Active';
+                                        } elseif ($status === 'done') {
+                                            echo 'Done';
+                                        } else {
+                                            echo ucfirst($status);
+                                        }
+                                        ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="#dtr-records" class="btn btn-sm btn-outline-primary" data-bs-dismiss="modal">View DTR</a>
+                                </td>
+                            </tr>
+                            <?php endforeach; else: ?>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">No interns found.</td>
+                            </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Approvals Modal -->
+<div class="modal fade" id="pendingApprovalsModal" tabindex="-1" aria-labelledby="pendingApprovalsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pendingApprovalsModalLabel">Pending Approvals</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Tabs for different approval types -->
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="intern-registrations-tab" data-bs-toggle="tab" data-bs-target="#intern-registrations" type="button" role="tab" aria-controls="intern-registrations" aria-selected="true">
+                            <i class="bi bi-person-plus me-2"></i>Intern Registrations (<?= (int)$pending_intern_count; ?>)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="deletion-requests-tab" data-bs-toggle="tab" data-bs-target="#deletion-requests" type="button" role="tab" aria-controls="deletion-requests" aria-selected="false">
+                            <i class="bi bi-exclamation-circle me-2"></i>Deletion Requests (<?= (int)$request_count; ?>)
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <!-- Intern Registrations Tab -->
+                    <div class="tab-pane fade show active" id="intern-registrations" role="tabpanel" aria-labelledby="intern-registrations-tab">
+                        <h6 class="fw-bold mb-3">Interns Awaiting Approval</h6>
+                        <div class="list-group">
+                            <?php if (!empty($interns_to_approve)): foreach ($interns_to_approve as $pending_intern): ?>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1 fw-semibold"><?= html_escape(trim($pending_intern['first_name'] . ' ' . $pending_intern['last_name'])); ?></h6>
+                                        <small class="text-muted d-block"><?= html_escape($pending_intern['email']); ?></small>
+                                        <small class="text-muted d-block">Student ID: <?= html_escape($pending_intern['student_id'] ?? 'N/A'); ?></small>
+                                    </div>
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                </div>
+                                <div class="d-flex gap-2 mt-2">
+                                    <button type="button" class="btn btn-sm btn-success intern-decision-button" data-decision="approve" data-decision-url="<?= base_url('admin/approve_intern/' . (int)$pending_intern['id'] . '?redirect=pending-approvals'); ?>" data-bs-toggle="modal" data-bs-target="#internDecisionModal">
+                                        <i class="bi bi-check-circle me-1"></i>Approve
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger intern-decision-button" data-decision="deny" data-decision-url="<?= base_url('admin/reject_intern/' . (int)$pending_intern['id'] . '?redirect=pending-approvals'); ?>" data-bs-toggle="modal" data-bs-target="#internDecisionModal">
+                                        <i class="bi bi-x-circle me-1"></i>Deny
+                                    </button>
+                                </div>
+                            </div>
+                            <?php endforeach; else: ?>
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-check-circle fs-4 d-block mb-2"></i>
+                                <p>No pending registration approvals.</p>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Deletion Requests Tab -->
+                    <div class="tab-pane fade" id="deletion-requests" role="tabpanel" aria-labelledby="deletion-requests-tab">
+                        <h6 class="fw-bold mb-3">Account & Record Deletion Requests</h6>
+                        <div class="list-group">
+                            <?php if (!empty($requests)): foreach ($requests as $request): ?>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-semibold"><?= html_escape($request['sender_name']); ?></h6>
+                                        <small class="text-muted d-block"><?= html_escape($request['subject']); ?></small>
+                                        <small class="text-muted d-block" style="margin-top: 4px; white-space: pre-wrap;"><?= html_escape(substr($request['message'] ?? '', 0, 150)); ?></small>
+                                    </div>
+                                    <span class="badge bg-danger ms-2">New</span>
+                                </div>
+                                <div class="d-flex gap-2 mt-3">
+                                    <a href="<?= base_url('admin/mark_request_read/' . (int)$request['id'] . '?redirect=pending-approvals'); ?>" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-eye me-1"></i>Review
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#requestDetailsModal" onclick="showRequestDetails(<?= (int)$request['id']; ?>, '<?= html_escape($request['sender_name']); ?>', '<?= html_escape($request['subject']); ?>', '<?= html_escape(addslashes($request['message'] ?? '')); ?>')">
+                                        <i class="bi bi-file-text me-1"></i>Details
+                                    </button>
+                                </div>
+                            </div>
+                            <?php endforeach; else: ?>
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-check-circle fs-4 d-block mb-2"></i>
+                                <p>No deletion requests pending.</p>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request Details Modal -->
+<div class="modal fade" id="requestDetailsModal" tabindex="-1" aria-labelledby="requestDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="requestDetailsModalLabel">Deletion Request Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">From:</label>
+                    <p class="text-dark" id="requestSenderName"></p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Subject:</label>
+                    <p class="text-dark" id="requestSubject"></p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Message:</label>
+                    <div class="bg-light p-3 rounded" style="white-space: pre-wrap; word-wrap: break-word;">
+                        <p id="requestMessage" class="text-dark mb-0"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Load SweetAlert2 Library -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -592,6 +872,47 @@ document.querySelectorAll('.intern-decision-button').forEach(function(button) {
     });
 });
 </script>
+
+<!-- DTR Search and Filter Functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dtrSearchInput = document.getElementById('dtrSearchInput');
+    const dtrStatusFilter = document.getElementById('dtrStatusFilter');
+    const dtrInternRows = document.querySelectorAll('.dtr-intern-row');
+
+    function filterDTRInterns() {
+        const searchQuery = dtrSearchInput.value.toLowerCase().trim();
+        const statusFilter = dtrStatusFilter.value.toLowerCase();
+
+        dtrInternRows.forEach(function(row) {
+            const cells = row.querySelectorAll('td');
+            if (cells.length < 4) return;
+
+            const name = cells[0].textContent.toLowerCase();
+            const email = cells[1].textContent.toLowerCase();
+            const status = cells[2].textContent.toLowerCase().trim();
+
+            const matchesSearch = searchQuery === '' || name.includes(searchQuery) || email.includes(searchQuery);
+            const matchesStatus = statusFilter === '' || status.includes(statusFilter);
+
+            row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+        });
+    }
+
+    dtrSearchInput.addEventListener('input', filterDTRInterns);
+    dtrStatusFilter.addEventListener('change', filterDTRInterns);
+});
+</script>
+
+<!-- Request Details Modal Population -->
+<script>
+function showRequestDetails(id, senderName, subject, message) {
+    document.getElementById('requestSenderName').textContent = senderName;
+    document.getElementById('requestSubject').textContent = subject;
+    document.getElementById('requestMessage').textContent = message;
+}
+</script>
+
 <script>
 // Universal event listener that handles logout across all Admin layouts
 document.addEventListener('click', function (e) {
@@ -606,8 +927,8 @@ document.addEventListener('click', function (e) {
             text: 'Are you sure you want to exit the Administrative Portal?',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#800000', /* Maroon theme */
-            cancelButtonColor: '#4a5568',  /* Dark neutral gray */
+            confirmButtonColor: '#a12124', /* Maroon theme */
+            cancelButtonColor: '#625f5f',  /* Dark neutral gray */
             confirmButtonText: 'Yes, Log Out',
             cancelButtonText: 'Cancel',
             customClass: {

@@ -183,7 +183,7 @@ class Auth extends CI_Controller {
             //     $this->session->set_flashdata('error', 'Too many failed login attempts. Account locked for 15 minutes.');
             // } else {
             //     $remaining = 5 - $attempts;
-            //     $this->session->set_flashdata('error', "Invalid Email/Username or Password. {$remaining} attempt(s) remaining.");
+            //     $this->session->set_flashdata('error', "Invalid Email or Password. {$remaining} attempt(s) remaining.");
             // }
 
             $this->session->set_flashdata('error', 'Invalid Email/Username or Password.');
