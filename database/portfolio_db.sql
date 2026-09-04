@@ -82,9 +82,12 @@ CREATE TABLE IF NOT EXISTS `announcements` (
   PRIMARY KEY (`id`),
   KEY `admin_id` (`admin_id`),
   CONSTRAINT `announcements_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table portfolio_db.announcements: ~0 rows (approximately)
+-- Dumping data for table portfolio_db.announcements: ~2 rows (approximately)
+INSERT INTO `announcements` (`id`, `admin_id`, `target_user_id`, `title`, `message`, `category`, `created_at`, `updated_at`, `expires_at`, `is_active`) VALUES
+	(4, 21, 19, 'Test 1', 'testing testing', 'General', '2026-09-04 08:51:11', '2026-09-04 08:51:11', '2026-09-04 23:59:59', 1),
+	(5, 21, NULL, 'yes', '3:02pm', '', '2026-09-04 15:02:45', '2026-09-04 15:02:45', '2026-09-04 23:59:59', 1);
 
 -- Dumping structure for table portfolio_db.announcement_reads
 CREATE TABLE IF NOT EXISTS `announcement_reads` (
@@ -94,12 +97,14 @@ CREATE TABLE IF NOT EXISTS `announcement_reads` (
   PRIMARY KEY (`user_id`,`announcement_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table portfolio_db.announcement_reads: ~4 rows (approximately)
+-- Dumping data for table portfolio_db.announcement_reads: ~5 rows (approximately)
 INSERT INTO `announcement_reads` (`user_id`, `announcement_id`, `read_at`) VALUES
 	(1, 3, '2026-09-02 10:22:01'),
 	(4, 3, '2026-09-02 10:15:19'),
 	(13, 3, '2026-09-02 10:52:30'),
-	(15, 3, '2026-09-02 11:09:29');
+	(15, 3, '2026-09-02 11:09:29'),
+	(19, 4, '2026-09-04 08:51:31'),
+	(28, 5, '2026-09-04 16:45:54');
 
 -- Dumping structure for table portfolio_db.certifications
 CREATE TABLE IF NOT EXISTS `certifications` (
@@ -121,6 +126,25 @@ INSERT INTO `certifications` (`id`, `title`, `issuer`, `issue_date`, `badge_img`
 	(5, 'Introduction to IoT', 'Cisco Networking Academy', '2026-03-13', 'introduction-to-iot.png', 'iot_certificate.jpg'),
 	(6, 'Linux Essentials', 'Cisco Networking Academy', '2026-05-12', 'linux-essentials.png', 'linux_certificate.jpg'),
 	(9, 'test', 'testing 1', '2026-08-26', 'badge_1787707790.jpg', 'cert_1787707790.jpg');
+
+-- Dumping structure for table portfolio_db.inquiries
+CREATE TABLE IF NOT EXISTS `inquiries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `subject` varchar(255) DEFAULT NULL,
+  `message` text NOT NULL,
+  `category` varchar(100) DEFAULT NULL,
+  `status` enum('Open','Answered','Closed') DEFAULT 'Open',
+  `admin_reply` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `replied_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `inquiries_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Dumping data for table portfolio_db.inquiries: ~0 rows (approximately)
 
 -- Dumping structure for table portfolio_db.intern_documents
 CREATE TABLE IF NOT EXISTS `intern_documents` (
@@ -152,12 +176,13 @@ CREATE TABLE IF NOT EXISTS `intern_inquiries` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `replied_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table portfolio_db.intern_inquiries: ~2 rows (approximately)
 INSERT INTO `intern_inquiries` (`id`, `user_id`, `category`, `message`, `admin_reply`, `status`, `created_at`, `replied_at`) VALUES
 	(1, 13, 'General Concern', 'test 0', 'ok', 'Answered', '2026-09-02 10:04:55', '2026-09-02 10:39:34'),
-	(2, 13, 'General Concern', 'test 1', 'test 2', 'Answered', '2026-09-02 10:07:13', '2026-09-02 10:33:44');
+	(2, 13, 'General Concern', 'test 1', 'test 2', 'Answered', '2026-09-02 10:07:13', '2026-09-02 10:33:44'),
+	(3, 28, 'DTR Discrepancy', 'hello admin', NULL, 'Open', '2026-09-04 16:46:39', NULL);
 
 -- Dumping structure for table portfolio_db.messages
 CREATE TABLE IF NOT EXISTS `messages` (
@@ -169,9 +194,12 @@ CREATE TABLE IF NOT EXISTS `messages` (
   `is_read` tinyint(1) DEFAULT 0,
   `created_at` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table portfolio_db.messages: ~0 rows (approximately)
+-- Dumping data for table portfolio_db.messages: ~2 rows (approximately)
+INSERT INTO `messages` (`id`, `sender_name`, `sender_email`, `subject`, `message_text`, `is_read`, `created_at`) VALUES
+	(2, 'Jim Doe', 'jimmydoe@gmail.com', 'OJT Log Deletion Request #29', 'Please review my request to delete OJT log #29 dated 2026-09-03.', 1, '2026-09-04 08:29:51'),
+	(3, 'Jim Doe', 'jimmydoe@gmail.com', 'OJT Log Deletion Request #29', 'Please review my request to delete OJT log #29 dated 2026-09-03.', 1, '2026-09-04 08:30:57');
 
 -- Dumping structure for table portfolio_db.ojt_logs
 CREATE TABLE IF NOT EXISTS `ojt_logs` (
@@ -187,16 +215,12 @@ CREATE TABLE IF NOT EXISTS `ojt_logs` (
   PRIMARY KEY (`id`),
   KEY `fk_ojt_logs_user` (`user_id`),
   CONSTRAINT `fk_ojt_logs_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table portfolio_db.ojt_logs: ~6 rows (approximately)
+-- Dumping data for table portfolio_db.ojt_logs: ~2 rows (approximately)
 INSERT INTO `ojt_logs` (`id`, `user_id`, `log_date`, `time_in`, `time_out`, `hours_rendered`, `task_summary`, `status`, `created_at`) VALUES
-	(4, NULL, '2026-08-18', '2026-08-26 08:00:00', '2026-08-26 17:00:00', 8.00, 'Orientation 2', 'Approved', '2026-08-19 10:56:06'),
-	(5, NULL, '2026-08-14', '2026-08-26 08:00:00', '2026-08-26 17:00:00', 8.00, 'Onboarding', 'Approved', '2026-08-19 10:56:21'),
-	(6, NULL, '2026-08-20', '2026-08-26 08:00:00', '2026-08-26 17:00:00', 8.00, 'Week 1 wrap up', 'Approved', '2026-08-20 14:43:27'),
-	(29, 18, '2026-09-03', '2026-09-03 10:39:16', NULL, 0.00, '', 'active', '2026-09-03 10:39:16'),
-	(30, 19, '2026-09-03', '2026-09-03 10:55:07', NULL, 0.00, '', 'active', '2026-09-03 10:55:07'),
-	(31, 20, '2026-09-03', '2026-09-03 10:56:26', NULL, 0.00, '', 'active', '2026-09-03 10:56:26');
+	(29, 18, '2026-09-03', '2026-09-03 10:39:16', '2026-09-04 08:29:38', 20.83, '', 'Approved', '2026-09-03 10:39:16'),
+	(30, 19, '2026-09-04', '2026-09-03 10:55:07', '2026-09-04 08:51:49', 20.93, '', 'Approved', '2026-09-03 10:55:07');
 
 -- Dumping structure for table portfolio_db.ojt_settings
 CREATE TABLE IF NOT EXISTS `ojt_settings` (
@@ -280,6 +304,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created_at` datetime DEFAULT current_timestamp(),
   `role` enum('admin','intern') NOT NULL DEFAULT 'intern',
   `account_status` enum('pending','approved','rejected','active','done','terminated','deactivated') NOT NULL DEFAULT 'pending',
+  `role_position` varchar(50) DEFAULT 'Web Developer',
   `student_id` varchar(50) DEFAULT NULL,
   `gender` varchar(20) DEFAULT NULL,
   `birthday` date DEFAULT NULL,
@@ -289,14 +314,17 @@ CREATE TABLE IF NOT EXISTS `users` (
   `semester` varchar(30) DEFAULT NULL,
   `profile_completed` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table portfolio_db.users: ~4 rows (approximately)
-INSERT INTO `users` (`id`, `first_name`, `middle_name`, `last_name`, `email`, `username`, `password`, `created_at`, `role`, `account_status`, `student_id`, `gender`, `birthday`, `school`, `year_section`, `academic_year`, `semester`, `profile_completed`) VALUES
-	(18, 'Jim', '', 'Doe', 'jimmydoe@gmail.com', 'jimmydoe@gmail.com', '$2y$10$9Tw5jEopP6kBf9tpEFFzZenkTo7zoZT9YOcjuf/cr/tfaKqcDR8Ou', '2026-09-03 10:37:27', 'intern', 'approved', NULL, 'Male', '2026-09-03', 'St. Dominic College of Asia', 'BSIT - 4A', '2026-2027', '1st Semester', 1),
-	(19, 'Jenny', '', 'Doe', 'jennydoe@gmail.com', 'jennydoe@gmail.com', '$2y$10$sA7P5CkYGQ6ff5/YQ5mza.2YV8sd4iNtoednm/Pzfj2vy4H2cQK6O', '2026-09-03 10:45:46', 'intern', 'approved', NULL, 'Female', '2026-09-03', 'St. Dominic College of Arts and Sciences', 'BSIT - 4A', '2026-2027', '1st Semester', 1),
-	(20, 'Carlito', '', 'Johnson', 'buuzzebeater14@gmail.com', 'buuzzebeater14@gmail.com', '$2y$10$pmKuxR4wIKZg/2gApYlfw.7uoY5k3BDBqAqQmEpC1VN53WU4Ak0Hu', '2026-09-03 10:46:51', 'intern', '', '', 'Male', '2026-09-03', 'St. Dominic College of Asia', 'BSIT - 4A', '2026-2027', '1st Semester', 1),
-	(21, 'admin', NULL, 'istrator', 'admin@sdca.edu.ph', 'admin@sdca.edu.ph', 'Sdca@2026', '2026-09-03 10:49:30', 'admin', 'approved', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0);
+-- Dumping data for table portfolio_db.users: ~7 rows (approximately)
+INSERT INTO `users` (`id`, `first_name`, `middle_name`, `last_name`, `email`, `username`, `password`, `created_at`, `role`, `account_status`, `role_position`, `student_id`, `gender`, `birthday`, `school`, `year_section`, `academic_year`, `semester`, `profile_completed`) VALUES
+	(18, 'Jim', '', 'Doe', 'jimmydoe@gmail.com', 'jimmydoe@gmail.com', '$2y$10$9Tw5jEopP6kBf9tpEFFzZenkTo7zoZT9YOcjuf/cr/tfaKqcDR8Ou', '2026-09-03 10:37:27', 'intern', 'active', 'Web Developer', '', 'Male', '2026-09-03', 'St. Dominic College of Asia', 'BSIT - 4A', '2026-2027', '1st Semester', 1),
+	(19, 'Jenny', '', 'Doe', 'jennydoe@gmail.com', 'jennydoe@gmail.com', '$2y$10$sA7P5CkYGQ6ff5/YQ5mza.2YV8sd4iNtoednm/Pzfj2vy4H2cQK6O', '2026-09-03 10:45:46', 'intern', 'active', 'Web Developer', '', 'Female', '2026-09-03', 'St. Dominic College of Arts and Sciences', 'BSIT - 4A', '2026-2027', '1st Semester', 1),
+	(21, 'admin', NULL, 'istrator', 'admin@sdca.edu.ph', 'admin@sdca.edu.ph', 'Sdca@2026', '2026-09-03 10:49:30', 'admin', 'approved', 'Web Developer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0),
+	(23, 'Cael', '', 'Fernandez', 'michaelfernandez@gmail.com', 'michaelfernandez@gmail.com', '$2y$10$tfq2Fgds8FcVOd79LXxp7ufMjljScEfEKD3ZQKcKFoOIqiYN4EUpK', '2026-09-04 09:34:15', 'intern', 'active', 'Technical Support', '', 'Male', '2026-09-01', 'St. Nomo', 'BSIT - 4A', '2026-2027', '2nd Semester', 1),
+	(26, 'Blake', '', 'Griffin', 'buuzzerbeater14@gmail.com', 'buuzzerbeater14@gmail.com', '$2y$10$5g.71fgn4llZ6Uej0JQL4.ajcUmBBk2DsEiHVwzhfiVl9sjZEI5se', '2026-09-04 15:43:28', 'intern', 'approved', 'Web Developer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0),
+	(27, 'Chris', '', 'Paul', 'moonton@gmail.com', 'moonton@gmail.com', '$2y$10$HAyudcHRCvtiUknF94upce14mi/.iAJQLtKK5zQZTLT/vsqEKGMJW', '2026-09-04 15:51:28', 'intern', 'approved', 'Web Developer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0),
+	(28, 'Aerhon', '', 'Magtira', 'aerhonlouis_magtira@sdca.edu.ph', 'aerhonlouis_magtira@sdca.edu.ph', '$2y$10$sGBGBVm8uSXoXU8Ei.IS2O1Apk8cyXRcbtUcGcCcRy1VPZ7djKkri', '2026-09-04 16:45:09', 'intern', 'approved', 'Web Developer', NULL, 'Male', '2026-09-04', 'St. Mcdonalds', 'BSIT - 4A', '2026-2027', '2nd Semester', 1);
 
 -- Dumping structure for table portfolio_db.user_profile
 CREATE TABLE IF NOT EXISTS `user_profile` (
