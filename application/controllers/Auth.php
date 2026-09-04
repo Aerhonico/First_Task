@@ -133,7 +133,7 @@ class Auth extends CI_Controller {
             $user['profile_completed'] = isset($user['profile_completed']) ? (int)$user['profile_completed'] : 0;
 
             if ($role === 'intern' && isset($user['account_status']) && $user['account_status'] !== 'approved') {
-                $this->session->set_flashdata('error', $user['account_status'] === 'pending' ? 'Your intern account is awaiting administrator approval.' : 'Your intern account registration is rejected. Please contact the administrator.');
+                $this->session->set_flashdata('error', $user['account_status'] === 'pending' ? 'Your intern account is awaiting administrator approval.' : 'Your intern account registration is temporarily locked. Please contact the administrator.');
                 redirect('login');
                 return;
             }
@@ -186,7 +186,7 @@ class Auth extends CI_Controller {
             //     $this->session->set_flashdata('error', "Invalid Email or Password. {$remaining} attempt(s) remaining.");
             // }
 
-            $this->session->set_flashdata('error', 'Invalid Email/Username or Password.');
+            $this->session->set_flashdata('error', 'Invalid Email or Password.');
 
             redirect('login');
         }

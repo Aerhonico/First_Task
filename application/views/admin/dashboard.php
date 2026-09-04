@@ -244,6 +244,102 @@ th {
     font-weight: 400 !important; /* Century Gothic Regular */
 }
 
+#dtrSearchInput {
+    width: 350px !important;
+    max-width: 100%; /* Keeps it responsive on smaller screens */
+}
+
+/* SDCA Brand Spec: square corners on all interactive/container elements */
+.btn,
+.form-control,
+.form-select,
+.card,
+.modal-content,
+.modal-header,
+.modal-footer,
+.modal-body,
+.badge,
+.table,
+.input-group {
+    border-radius: 0 !important;
+}
+
+/* Custom tooltip styling for better readability */
+.chartjs-tooltip {
+    max-width: 300px;
+    font-size: 0.75rem;
+}
+
+.chartjs-tooltip .tooltip-body {
+    max-height: 200px;
+    overflow-y: auto;
+}
+button[type="submit"]:disabled {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+button[type="submit"]:not(:disabled) {
+    background-color: #a12124 !important;
+    border-color: #a12124 !important;
+    color: #fff !important;
+    opacity: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button[type="submit"]:not(:disabled):hover {
+    background-color: #801a1c !important;
+    border-color: #801a1c !important;
+}
+
+/* Disabled button styling for Save Verification */
+button[type="submit"].btn-disabled-look,
+button[type="submit"]:disabled {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+button[type="submit"]:not(:disabled):not(.btn-disabled-look) {
+    background-color: #a12124 !important;
+    border-color: #a12124 !important;
+    color: #fff !important;
+    opacity: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button[type="submit"]:not(:disabled):not(.btn-disabled-look):hover {
+    background-color: #801a1c !important;
+    border-color: #801a1c !important;
+}
+/* Inbox Dropdown Styling */
+.dropdown-menu {
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+}
+
+.dropdown-item {
+    border-radius: 0 !important;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #fff5f5 !important;
+}
+
+.dropdown-header {
+    font-family: 'Century Gothic', sans-serif !important;
+    font-size: 0.8rem !important;
+}
     </style>
 </head>
 <body>
@@ -278,7 +374,145 @@ th {
         </div>
     </aside>
     <div class="main-content">
-        <nav class="top-navbar navbar navbar-dark p-0 shadow-sm"><div class="container-fluid px-4 d-flex align-items-stretch justify-content-between h-100"><a class="navbar-brand fw-bold d-flex align-items-center m-0 p-0 h-100" href="#dashboard"><i class="bi bi-clock-history me-2"></i>OJT Hours Tracker</a><div class="d-flex align-items-stretch h-100"><div class="d-flex align-items-stretch h-100"><div class="dropdown d-flex align-items-stretch h-100"><button class="btn text-white d-flex align-items-center gap-2 px-3 border-0" type="button" data-bs-toggle="dropdown"><span class="badge bg-danger"><?= (int)$pending_count; ?></span><i class="bi bi-inbox-fill opacity-75"></i><span class="fw-semibold">Inbox</span></button><ul class="dropdown-menu dropdown-menu-end shadow-sm p-2"><li class="dropdown-header fw-bold">Pending approvals and requests</li><li><hr class="dropdown-divider"></li><li class="small px-2 py-1">Intern registrations: <?= (int)$pending_intern_count; ?></li><li class="small px-2 py-1">Deletion requests: <?= (int)$request_count; ?></li></ul></div><div class="dropdown admin-nav-divider d-flex align-items-center h-100"><button class="btn dropdown-toggle d-flex align-items-center gap-2 px-3 border-0 bg-transparent text-white h-100" type="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle fs-4"></i><div class="text-start lh-sm"><span class="d-block fw-bold text-white" style="font-size:.85rem;">Administrator</span><span class="d-block text-white-50" style="font-size:.7rem;">Admin</span></div></button><div class="dropdown-menu dropdown-menu-end shadow border-0 p-0 overflow-hidden" style="width:260px;"><div class="text-center p-3 bg-light border-bottom"><i class="bi bi-shield-lock display-5 text-dark d-block mb-1"></i><h6 class="fw-bold mb-0">Administrator</h6><small class="text-muted">ADMIN ACCOUNT</small></div><div class="list-group list-group-flush small"><a href="<?= base_url('portfolio'); ?>" class="list-group-item list-group-item-action py-2"><i class="bi bi-eye me-2"></i>View Portfolio</a><a href="<?= base_url('portfolio/edit'); ?>" class="list-group-item list-group-item-action py-2"><i class="bi bi-pencil-square me-2"></i>Edit Portfolio</a><a href="<?= base_url('auth/logout'); ?>" class="list-group-item list-group-item-action py-2 text-danger fw-bold btn-logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></div></div></div></div></div></div></nav>
+        <nav class="top-navbar navbar navbar-dark p-0 shadow-sm">
+    <div class="container-fluid px-4 d-flex align-items-stretch justify-content-between h-100">
+        <!-- Brand Logo -->
+        <a class="navbar-brand fw-bold d-flex align-items-center m-0 p-0 h-100" href="#dashboard">
+            <i class="bi bi-clock-history me-2"></i>OJT Hours Tracker
+        </a>
+        
+        <!-- Right Side Dropdowns -->
+        <div class="d-flex align-items-stretch h-100">
+            <div class="d-flex align-items-stretch h-100">
+                
+                <!-- 1. INBOX DROPDOWN (Updated with Inquiries) -->
+                <div class="dropdown d-flex align-items-stretch h-100">
+                    <button class="btn text-white d-flex align-items-center gap-2 px-3 border-0" type="button" data-bs-toggle="dropdown">
+                        <span class="badge bg-danger"><?= (int)$pending_count + (int)$inbox_inquiry_count; ?></span>
+                        <i class="bi bi-inbox-fill opacity-75"></i>
+                        <span class="fw-semibold">Inbox</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm p-0" style="width: 380px; max-height: 400px; overflow-y: auto;">
+                        <!-- Header -->
+                        <li class="dropdown-header fw-bold bg-light border-bottom py-2">
+                            <i class="bi bi-inbox me-2"></i>Pending Items (<?= (int)$pending_count + (int)$inbox_inquiry_count; ?>)
+                        </li>
+                        
+                        <!-- Intern Registrations -->
+                        <?php if ((int)$pending_intern_count > 0): ?>
+                        <li>
+                            <a href="#intern-management" class="dropdown-item py-2 border-bottom" onclick="switchAdminModule('intern-management', document.querySelector('.sidebar-menu a[href=\'#intern-management\']')); return false;">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2" style="width: 32px; height: 32px; background-color: #fff3e0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-person-plus text-warning"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold small">Intern Registrations</div>
+                                        <small class="text-muted"><?= (int)$pending_intern_count; ?> pending approval(s)</small>
+                                    </div>
+                                    <span class="badge bg-warning text-dark ms-2"><?= (int)$pending_intern_count; ?></span>
+                                </div>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                        
+                        <!-- Deletion Requests -->
+                        <?php if ((int)$request_count > 0): ?>
+                        <li>
+                            <a href="#intern-management" class="dropdown-item py-2 border-bottom" onclick="switchAdminModule('intern-management', document.querySelector('.sidebar-menu a[href=\'#intern-management\']')); return false;">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2" style="width: 32px; height: 32px; background-color: #ffebee; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-exclamation-triangle text-danger"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold small">Deletion Requests</div>
+                                        <small class="text-muted"><?= (int)$request_count; ?> request(s)</small>
+                                    </div>
+                                    <span class="badge bg-danger ms-2"><?= (int)$request_count; ?></span>
+                                </div>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                        
+                        <!-- Intern Inquiries -->
+                        <?php if (!empty($inbox_inquiries)): ?>
+                        <li><hr class="dropdown-divider my-0"></li>
+                        <li class="dropdown-header fw-bold bg-light border-bottom py-2">
+                            <i class="bi bi-chat-dots me-2"></i>Intern Inquiries (<?= $inbox_inquiry_count; ?>)
+                        </li>
+                        <?php foreach ($inbox_inquiries as $inquiry): ?>
+                        <li>
+                            <a href="#inquiries" class="dropdown-item py-2 border-bottom" onclick="switchAdminModule('inquiries', document.querySelector('.sidebar-menu a[href=\'#inquiries\']')); return false;">
+                                <div class="d-flex align-items-start">
+                                    <div class="me-2 flex-shrink-0" style="width: 32px; height: 32px; background-color: #e3f2fd; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-person text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold small">
+                                            <?= html_escape(trim($inquiry['first_name'] . ' ' . $inquiry['last_name'])); ?>
+                                            <span class="badge bg-secondary ms-1" style="font-size: 0.6rem;"><?= html_escape($inquiry['category']); ?></span>
+                                        </div>
+                                        <div class="small text-muted" style="font-size: 0.7rem;">
+                                            <?= html_escape(substr($inquiry['message'], 0, 60)); ?><?= strlen($inquiry['message']) > 60 ? '...' : ''; ?>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 0.65rem;">
+                                            <i class="bi bi-clock me-1"></i><?= date('M d, g:i A', strtotime($inquiry['created_at'])); ?>
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-danger ms-2 align-self-start">New</span>
+                                </div>
+                            </a>
+                        </li>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
+                        
+                        <!-- Empty State -->
+                        <?php if ((int)$pending_count === 0 && empty($inbox_inquiries)): ?>
+                        <li>
+                            <div class="dropdown-item py-4 text-center text-muted">
+                                <i class="bi bi-check-circle display-6 d-block mb-2 text-success"></i>
+                                <div class="fw-semibold">All caught up!</div>
+                                <small>No pending items or inquiries.</small>
+                            </div>
+                        </li>
+                        <?php endif; ?>
+                        
+                        <!-- Footer -->
+                        <li class="border-top">
+                            <a href="#inquiries" class="dropdown-item text-center py-2 fw-semibold text-sdca" onclick="switchAdminModule('inquiries', document.querySelector('.sidebar-menu a[href=\'#inquiries\']')); return false;">
+                                <i class="bi bi-eye me-1"></i>View All Inquiries
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 2. ADMINISTRATOR PROFILE DROPDOWN (Original) -->
+                <div class="dropdown admin-nav-divider d-flex align-items-center h-100">
+                    <button class="btn dropdown-toggle d-flex align-items-center gap-2 px-3 border-0 bg-transparent text-white h-100" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle fs-4"></i>
+                        <div class="text-start lh-sm">
+                            <span class="d-block fw-bold text-white" style="font-size:.85rem;">Administrator</span>
+                            <span class="d-block text-white-50" style="font-size:.7rem;">Admin</span>
+                        </div>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0 overflow-hidden" style="width:260px;">
+                        <div class="text-center p-3 bg-light border-bottom">
+                            <i class="bi bi-shield-lock display-5 text-dark d-block mb-1"></i>
+                            <h6 class="fw-bold mb-0">Administrator</h6>
+                            <small class="text-muted">ADMIN ACCOUNT</small>
+                        </div>
+                        <div class="list-group list-group-flush small">
+                            <a href="<?= base_url('portfolio'); ?>" class="list-group-item list-group-item-action py-2"><i class="bi bi-eye me-2"></i>View Portfolio</a>
+                            <a href="<?= base_url('portfolio/edit'); ?>" class="list-group-item list-group-item-action py-2"><i class="bi bi-pencil-square me-2"></i>Edit Portfolio</a>
+                            <a href="<?= base_url('auth/logout'); ?>" class="list-group-item list-group-item-action py-2 text-danger fw-bold btn-logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</nav>
         <main class="main-content-area">
             <?php if ($this->session->flashdata('success')): ?><div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;"><div id="successToast" class="toast align-items-center text-bg-success border-0" role="status" aria-live="polite" aria-atomic="true"><div class="d-flex"><div class="toast-body"><?= html_escape($this->session->flashdata('success')); ?></div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div></div></div><?php endif; ?>
             <?php if ($this->session->flashdata('error')): ?><div class="alert alert-danger alert-dismissible fade show"><?= html_escape($this->session->flashdata('error')); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div><?php endif; ?>
@@ -362,12 +596,12 @@ th {
                 </div>
     <!-- Manage Interns -->
     <div class="col-6 col-md-4 col-lg">
-        <a href="#intern-management" style="text-decoration: none; color: inherit;" class="quick-card p-2 border rounded shadow-sm">
+        <button type="button" class="quick-card p-2 border rounded shadow-sm w-100" style="background: #ffffff; border: 1px solid #ddd; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#manageInternsModal">
             <div class="icon-circle" style="background-color: #e3f2fd; color: #1976d2;">
                 <i class="bi bi-people-fill"></i>
             </div>
             <span class="card-title-text">Manage Interns</span>
-        </a>
+        </button>
     </div>
 
     <!-- Review DTR Records -->
@@ -392,7 +626,7 @@ th {
 
     <!-- View Analytics -->
     <div class="col-6 col-md-4 col-lg">
-        <a href="#analytics" style="text-decoration: none; color: inherit;" class="quick-card p-2 border rounded shadow-sm">
+        <a href="#analytics" id="viewAnalyticsCard" style="text-decoration: none; color: inherit;" class="quick-card p-2 border rounded shadow-sm">
             <div class="icon-circle" style="background-color: #e0f2f1; color: #00897b;">
                 <i class="bi bi-bar-chart-line-fill"></i>
             </div>
@@ -412,7 +646,7 @@ th {
 
     <!-- Administrative Tools -->
     <div class="col-6 col-md-4 col-lg">
-        <a href="#admin-tools" style="text-decoration: none; color: inherit;" class="quick-card p-2 border rounded shadow-sm">
+        <a href="#admin-tools" id="adminToolsCard" style="text-decoration: none; color: inherit;" class="quick-card p-2 border rounded shadow-sm">
             <div class="icon-circle" style="background-color: #f3e5f5; color: #7b1fa2;">
                 <i class="bi bi-gear-wide-connected"></i>
             </div>
@@ -537,13 +771,12 @@ th {
             </div>
         </section>
 
-            <section id="intern-management" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold"><i class="bi bi-people me-2"></i>Intern Management & Verification</h5><a href="#intern-management" class="btn btn-sm btn-outline-primary"><i class="bi bi-search me-1"></i>Search Directory</a></div><div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Department / School</th><th>Supervisor</th><th>Progress</th><th>Status</th><th>Action</th></tr></thead><tbody><?php if (!empty($interns)): foreach ($interns as $intern): ?><?php $progress = $required_hours > 0 ? min(100, round(((float)$intern['rendered_hours'] / $required_hours) * 100, 1)) : 0; ?><tr><td><strong><?= html_escape(trim($intern['first_name'] . ' ' . $intern['last_name'])); ?></strong><br><small class="text-muted"><?= html_escape($intern['email']); ?></small></td><td><?= html_escape(!empty($intern['school']) ? $intern['school'] : 'Not assigned'); ?></td><td>Not assigned</td><td><div class="d-flex justify-content-between small"><span><?= number_format((float)$intern['rendered_hours'], 1); ?> / <?= number_format((float)$required_hours, 0); ?> hrs</span><strong><?= $progress; ?>%</strong></div><div class="progress"><div class="progress-bar bg-danger" style="width:<?= $progress; ?>%"></div></div></td><td><span class="badge text-bg-success">Active</span></td><td><button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#intern<?= (int)$intern['id']; ?>"><i class="bi bi-pencil"></i> Edit</button></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No intern accounts found.</td></tr><?php endif; ?></tbody></table></div></section>
+            <section id="intern-management" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold"><i class="bi bi-people me-2"></i>Intern Management & Verification</h5><div><button type="button" class="btn btn-sm btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#rejectedInternsModal"><i class="bi bi-person-x me-1"></i>Rejected Registrations <span class="badge bg-danger"><?= (int)$rejected_intern_count; ?></span></button><a href="#intern-management" class="btn btn-sm btn-outline-primary"><i class="bi bi-search me-1"></i>Search Directory</a></div></div><div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Department / School</th><th>Supervisor</th><th>Progress</th><th>Status</th><th>Action</th></tr></thead><tbody><?php if (!empty($interns)): foreach ($interns as $intern): ?><?php $progress = $required_hours > 0 ? min(100, round(((float)$intern['rendered_hours'] / $required_hours) * 100, 1)) : 0; ?><tr><td><strong><?= html_escape(trim($intern['first_name'] . ' ' . $intern['last_name'])); ?></strong><br><small class="text-muted"><?= html_escape($intern['email']); ?></small></td><td><?= html_escape(!empty($intern['school']) ? $intern['school'] : 'Not assigned'); ?></td><td>Not assigned</td><td><div class="d-flex justify-content-between small"><span><?= number_format((float)$intern['rendered_hours'], 1); ?> / <?= number_format((float)$required_hours, 0); ?> hrs</span><strong><?= $progress; ?>%</strong></div><div class="progress"><div class="progress-bar bg-danger" style="width:<?= $progress; ?>%"></div></div></td><td><?php $intern_st = strtolower(trim($intern['account_status'] ?? '')); $intern_badge = ($intern_st === 'done') ? 'text-bg-secondary' : (($intern_st === 'terminated') ? 'text-bg-danger' : 'text-bg-success'); $intern_label = ($intern_st === 'done') ? 'Done' : (($intern_st === 'terminated') ? 'Terminated' : 'Active'); ?><span class="badge <?= $intern_badge; ?>"><?= $intern_label; ?></span></td><td><button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#intern<?= (int)$intern['id']; ?>"><i class="bi bi-pencil"></i> Edit</button></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No intern accounts found.</td></tr><?php endif; ?></tbody></table></div></section>
             <?php if (!empty($interns)): foreach ($interns as $intern): ?>
             <div class="modal fade" id="intern<?= (int)$intern['id']; ?>" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <form action="<?= base_url('admin/update_intern/' . (int)$intern['id']); ?>" method="POST">
-                            <input type="hidden" name="redirect" value="intern-management">
                             <div class="modal-header">
                                 <h5 class="modal-title">Verify / Edit Intern Account</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -561,10 +794,20 @@ th {
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold">Account Status</label>
                                         <select name="status" class="form-select">
-                                            <?php $st = strtolower(trim($intern['status'])); ?>
-                                            <option value="active" <?= ($st === 'active' || $st === 'approved') ? 'selected' : ''; ?>>Active</option>
+                                            <?php $st = strtolower(trim($intern['account_status'] ?? '')); ?>
+                                            <option value="active" <?= ($st === 'active' || $st === 'approved' || $st === 'pending') ? 'selected' : ''; ?>>Active</option>
                                             <option value="done" <?= ($st === 'done') ? 'selected' : ''; ?>>Done</option>
-                                            <option value="terminated" <?= ($st === 'terminated') ? 'selected' : ''; ?>>Terminated</option>
+                                            <option value="terminated" <?= ($st === 'terminated' || $st === 'rejected' || $st === 'deactivated') ? 'selected' : ''; ?>>Terminated</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Role/Position Field -->
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Role/Position</label>
+                                        <select name="role_position" class="form-select">
+                                            <?php $current_role = $intern['role_position'] ?? 'Web Developer'; ?>
+                                            <option value="Web Developer" <?= ($current_role === 'Web Developer') ? 'selected' : ''; ?>>Web Developer</option>
+                                            <option value="Technical Support" <?= ($current_role === 'Technical Support') ? 'selected' : ''; ?>>Technical Support</option>
                                         </select>
                                     </div>
                                 </div>
@@ -577,13 +820,552 @@ th {
                 </div>
             </div>
             <?php endforeach; endif; ?>
+            <div class="modal fade" id="rejectedInternsModal" tabindex="-1" aria-labelledby="rejectedInternsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="rejectedInternsModalLabel"><i class="bi bi-person-x me-2"></i>Rejected Intern Registrations</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?php if (!empty($rejected_interns)): ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light"><tr><th>Intern</th><th>Department / School</th><th>Rejected On</th></tr></thead>
+                                    <tbody>
+                                        <?php foreach ($rejected_interns as $rejected): ?>
+                                        <tr>
+                                            <td><strong><?= html_escape(trim($rejected['first_name'] . ' ' . $rejected['last_name'])); ?></strong><br><small class="text-muted"><?= html_escape($rejected['email']); ?></small></td>
+                                            <td><?= html_escape(!empty($rejected['school']) ? $rejected['school'] : 'Not assigned'); ?></td>
+                                            <td><?= !empty($rejected['created_at']) ? date('M d, Y g:i A', strtotime($rejected['created_at'])) : 'N/A'; ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php else: ?>
+                            <p class="text-muted text-center mb-0">No rejected intern registrations.</p>
+                            <?php endif; ?>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <section id="ojt-management" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-person-check me-2"></i>OJT Management & Verification</h5></div><div class="table-responsive"><table id="ojtManagementTable" class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Date</th><th>Task Description</th><th>Hours</th><th>Status</th><th>Actions</th></tr></thead><tbody><?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><tr><td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td><td><?= html_escape($log['log_date']); ?></td><td><?= html_escape($log['task_summary']); ?></td><td><?= number_format((float)$log['hours_rendered'], 2); ?></td><td><span class="badge text-bg-secondary"><?= html_escape($log['status']); ?></span></td><td><button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#log<?= (int)$log['id']; ?>">Edit / Verify</button> <button type="button" class="btn btn-sm btn-outline-danger delete-log-button" data-delete-url="<?= base_url('admin/delete_log/' . (int)$log['id'] . '?redirect=ojt-management'); ?>" data-bs-toggle="modal" data-bs-target="#deleteLogModal">Delete</button></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No OJT records found.</td></tr><?php endif; ?></tbody></table></div></section>
-            <?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><div class="modal fade" id="log<?= (int)$log['id']; ?>" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form action="<?= base_url('admin/update_log/' . (int)$log['id']); ?>" method="POST"><input type="hidden" name="redirect" value="ojt-management"><div class="modal-header"><h5 class="modal-title">Verify OJT Record</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="form-label">Date</label><input type="date" name="log_date" class="form-control mb-2" value="<?= html_escape($log['log_date']); ?>" required><label class="form-label">Time In</label><input name="time_in" class="form-control mb-2" value="<?= html_escape($log['time_in']); ?>" required><label class="form-label">Time Out</label><input name="time_out" class="form-control mb-2" value="<?= html_escape($log['time_out']); ?>"><label class="form-label">Hours Rendered</label><input type="number" step="0.01" name="hours_rendered" class="form-control mb-2" value="<?= html_escape($log['hours_rendered']); ?>"><label class="form-label">Task Description</label><textarea name="task_summary" class="form-control mb-2"><?= html_escape($log['task_summary']); ?></textarea><label class="form-label">Verification Status</label><select name="status" class="form-select"><option>Pending</option><option>Approved</option><option>Rejected</option><option>Completed</option></select></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Save Verification</button></div></form></div></div></div><?php endforeach; endif; ?>
+            <?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><div class="modal fade" id="log<?= (int)$log['id']; ?>" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form action="<?= base_url('admin/update_log/' . (int)$log['id']); ?>" method="POST"><input type="hidden" name="redirect" value="ojt-management"><div class="modal-header"><h5 class="modal-title">Verify OJT Record</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="form-label">Date</label><input type="date" name="log_date" class="form-control mb-2" value="<?= html_escape($log['log_date']); ?>" required><label class="form-label">Time In</label><input name="time_in" class="form-control mb-2" value="<?= html_escape($log['time_in']); ?>" required><label class="form-label">Time Out</label><input name="time_out" class="form-control mb-2" value="<?= html_escape($log['time_out']); ?>"><label class="form-label">Hours Rendered</label><input type="number" step="0.01" name="hours_rendered" class="form-control mb-2" value="<?= html_escape($log['hours_rendered']); ?>"><label class="form-label">Task Description</label><textarea name="task_summary" class="form-control mb-2"><?= html_escape($log['task_summary']); ?></textarea><label class="form-label">Verification Status</label><select name="status" class="form-select"><?php $log_st = $log['status']; foreach (array('Pending', 'Approved', 'Rejected', 'Completed') as $log_status_option): ?><option <?= ($log_st === $log_status_option) ? 'selected' : ''; ?>><?= $log_status_option; ?></option><?php endforeach; ?></select></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Save Verification</button></div></form></div></div></div><?php endforeach; endif; ?>
 
-            <section id="dtr-records" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-calendar3 me-2"></i>DTR and Time Records</h5></div><div class="table-responsive"><table id="dtrRecordsTable" class="table table-hover mb-0"><thead class="table-light"><tr><th>Intern</th><th>Date</th><th>Time In</th><th>Time Out</th><th>Rendered</th><th>Status</th></tr></thead><tbody><?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><tr><td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td><td><?= html_escape($log['log_date']); ?></td><td><?= html_escape($log['time_in']); ?></td><td><?= !empty($log['time_out']) ? html_escape($log['time_out']) : '<span class="badge bg-warning text-dark">Timed in</span>'; ?></td><td><?= number_format((float)$log['hours_rendered'], 2); ?> hrs</td><td><?= html_escape($log['status']); ?></td></tr><?php endforeach; else: ?><tr><td colspan="6" class="text-center text-muted py-4">No DTR records found.</td></tr><?php endif; ?></tbody></table></div></section>
+            <section id="dtr-records" class="section-anchor card section-card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-calendar3 me-2"></i>DTR and Time Records</h5>
+                </div>
+                <div class="table-responsive">
+                    <table id="dtrRecordsTable" class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Intern</th>
+                                <th>Date</th>
+                                <th>Time In</th>
+                                <th>Time Out</th>
+                                <th>Rendered</th>
+                                <th>Role/Position</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?>
+                                <tr>
+                                    <td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td>
+                                    <td><?= html_escape($log['log_date']); ?></td>
+                                    <td><?= html_escape($log['time_in']); ?></td>
+                                    <td><?= !empty($log['time_out']) ? html_escape($log['time_out']) : '<span class="badge bg-warning text-dark">Timed in</span>'; ?></td>
+                                    <td><?= number_format((float)$log['hours_rendered'], 2); ?> hrs</td>
+                                    <td>
+                                        <?php 
+                                        $role = !empty($log['role_position']) ? $log['role_position'] : 'Web Developer';
+                                        $role_badge = ($role === 'Web Developer') ? 'bg-primary' : 'bg-success';
+                                        ?>
+                                        <span class="badge <?= $role_badge; ?>"><?= html_escape($role); ?></span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; else: ?>
+                                <tr><td colspan="6" class="text-center text-muted py-4">No DTR records found.</td></tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="analytics" class="section-anchor card section-card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-bar-chart-line me-2"></i>Program Analytics & Reports</h5>
+                        <small class="text-muted">Academic Year: <?= html_escape($academic_year); ?></small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-sdca" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i>Print Report
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- Summary Statistics Cards (Clickable) -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="card border-start border-4 border-sdca shadow-sm h-100" style="cursor: pointer;" 
+                                data-bs-toggle="modal" data-bs-target="#totalInternsModal">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-circle me-3" style="background-color: #ffebee; color: #a12124;">
+                                            <i class="bi bi-people-fill"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted text-uppercase fw-semibold d-block">Total Interns</small>
+                                            <h3 class="mb-0 fw-bold"><?= (int)$intern_count; ?></h3>
+                                            <small class="text-muted">Click to view list</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-start border-4 border-success shadow-sm h-100" style="cursor: pointer;"
+                                data-bs-toggle="modal" data-bs-target="#thisMonthModal">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-circle me-3" style="background-color: #e8f5e9; color: #388e3c;">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted text-uppercase fw-semibold d-block">This Month</small>
+                                            <h3 class="mb-0 fw-bold"><?= (int)$this_month_interns; ?></h3>
+                                            <small class="text-muted">New registrations</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-start border-4 border-primary shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-circle me-3" style="background-color: #e3f2fd; color: #1976d2;">
+                                            <i class="bi bi-clock-history"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted text-uppercase fw-semibold d-block">Total Hours</small>
+                                            <h3 class="mb-0 fw-bold"><?= number_format($total_hours_rendered, 0); ?></h3>
+                                            <small class="text-muted">All time rendered</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-start border-4 border-info shadow-sm h-100" style="cursor: pointer;"
+                                data-bs-toggle="modal" data-bs-target="#newInternsModal">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-circle me-3" style="background-color: #e1f5fe; color: #0288d1;">
+                                            <i class="bi bi-person-plus-fill"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted text-uppercase fw-semibold d-block">New Interns This Month</small>
+                                            <h3 class="mb-0 fw-bold"><?= (int)$this_month_interns; ?></h3>
+                                            <small class="text-muted">Click to view list</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <section id="analytics" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-bar-chart-line me-2"></i>Program Analytics & Reports</h5></div><div class="card-body"><div class="row g-3"><div class="col-md-4"><div class="p-3 bg-light rounded"><small class="text-muted">AT-RISK / LAGGING INTERNS</small><h3><?= count($at_risk_interns); ?></h3></div></div><div class="col-md-4"><div class="p-3 bg-light rounded"><small class="text-muted">REQUIRED HOURS TARGET</small><h3><?= number_format((float)$required_hours, 0); ?> hrs</h3></div></div><div class="col-md-4"><div class="p-3 bg-light rounded"><small class="text-muted">APPROVED RECORDS</small><h3><?php $approved_count = 0; foreach ($recent_logs as $analytics_log) { if ($analytics_log['status'] === 'Approved') { $approved_count++; } } echo $approved_count; ?></h3></div></div></div><hr><h6 class="fw-bold">At-Risk Intern Alert</h6><?php if (!empty($at_risk_interns)): ?><div class="list-group list-group-flush"><?php foreach ($at_risk_interns as $risk): ?><div class="list-group-item d-flex justify-content-between"><span><?= html_escape(trim($risk['first_name'] . ' ' . $risk['last_name'])); ?></span><span class="text-danger fw-bold"><?= $risk['progress']; ?>% complete</span></div><?php endforeach; ?></div><?php else: ?><p class="text-muted mb-0">No interns are currently below the alert threshold.</p><?php endif; ?><hr><h6 class="fw-bold">Department / School Overview</h6><div class="row g-2"><?php foreach ($departments as $department): ?><div class="col-md-4"><div class="border rounded p-2 d-flex justify-content-between"><span><?= html_escape($department['department']); ?></span><strong><?= (int)$department['intern_count']; ?></strong></div></div><?php endforeach; ?></div></div></section>
+                    <!-- Charts Row 1 -->
+                    <div class="row g-3 mb-4">
+                        <!-- Interns by Gender - Pie Chart -->
+                        <div class="col-md-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-white">
+                                    <h6 class="mb-0 fw-bold"><i class="bi bi-pie-chart me-2"></i>Interns by Gender</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="genderChart" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
 
+                        <!-- Interns by School/Department - Bar Chart -->
+                        <div class="col-md-8">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-white">
+                                    <h6 class="mb-0 fw-bold"><i class="bi bi-bar-chart me-2"></i>Interns by School/Department</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="schoolChart" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row 2 -->
+                    <div class="row g-3 mb-4">
+                        <!-- Monthly Registration Trend - Line Chart -->
+                        <div class="col-md-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-white">
+                                    <h6 class="mb-0 fw-bold"><i class="bi bi-graph-up me-2"></i>Monthly Registration Trend</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="monthlyChart" height="220"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Intern Status Distribution - Doughnut Chart -->
+                        <div class="col-md-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-white">
+                                    <h6 class="mb-0 fw-bold"><i class="bi bi-donut-chart me-2"></i>Intern Status Distribution</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="statusChart" height="220"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hours & Progression Metrics Section -->
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h6 class="mb-0 fw-bold text-sdca"><i class="bi bi-speedometer2 me-2"></i>Hours & Progression Metrics</h6>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Tabs for different metrics -->
+                                    <ul class="nav nav-tabs mb-3" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="pending-approval-tab" data-bs-toggle="tab" data-bs-target="#pending-approval" type="button" role="tab">
+                                                <i class="bi bi-clock-history me-2"></i>Pending Hours Approval 
+                                                <span class="badge bg-warning text-dark ms-1"><?= count($pending_approval_interns); ?></span>
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="behind-schedule-tab" data-bs-toggle="tab" data-bs-target="#behind-schedule" type="button" role="tab">
+                                                <i class="bi bi-exclamation-triangle me-2"></i>Behind Schedule 
+                                                <span class="badge bg-danger ms-1"><?= count($behind_schedule_interns); ?></span>
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="near-completion-tab" data-bs-toggle="tab" data-bs-target="#near-completion" type="button" role="tab">
+                                                <i class="bi bi-trophy me-2"></i>Near Completion (80%+) 
+                                                <span class="badge bg-success ms-1"><?= count($near_completion_interns); ?></span>
+                                            </button>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <!-- Pending Hours Approval Tab -->
+                                        <div class="tab-pane fade show active" id="pending-approval" role="tabpanel">
+                                            <?php if (!empty($pending_approval_interns)): ?>
+                                            <div class="table-responsive">
+                                                <table class="table table-hover mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Intern Name</th>
+                                                            <th>School/Department</th>
+                                                            <th>Pending Logs</th>
+                                                            <th>Total Pending Hours</th>
+                                                            <th>Submission Date</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($pending_approval_interns as $pending): ?>
+                                                        <tr>
+                                                            <td><strong><?= html_escape(trim($pending['first_name'] . ' ' . $pending['last_name'])); ?></strong></td>
+                                                            <td><?= html_escape($pending['school'] ?? 'Not assigned'); ?></td>
+                                                            <td><span class="badge bg-warning text-dark"><?= (int)$pending['pending_logs']; ?> logs</span></td>
+                                                            <td><?= number_format((float)$pending['pending_hours'], 1); ?> hrs</td>
+                                                            <td><?= date('M d, Y', strtotime($pending['latest_submission'])); ?></td>
+                                                            <td>
+                                                                <a href="#ojt-management" class="btn btn-sm btn-outline-primary" onclick="switchAdminModule('ojt-management')">
+                                                                    <i class="bi bi-eye me-1"></i>Review
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <?php else: ?>
+                                            <p class="text-muted text-center mb-0"><i class="bi bi-check-circle me-2"></i>No pending hours awaiting approval.</p>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- Behind Schedule Tab -->
+                                        <div class="tab-pane fade" id="behind-schedule" role="tabpanel">
+                                            <?php if (!empty($behind_schedule_interns)): ?>
+                                            <div class="table-responsive">
+                                                <table class="table table-hover mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Intern Name</th>
+                                                            <th>School/Department</th>
+                                                            <th>Hours Rendered</th>
+                                                            <th>Expected Hours</th>
+                                                            <th>Shortfall</th>
+                                                            <th>Progress</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($behind_schedule_interns as $behind): ?>
+                                                        <tr>
+                                                            <td><strong><?= html_escape(trim($behind['first_name'] . ' ' . $behind['last_name'])); ?></strong></td>
+                                                            <td><?= html_escape($behind['school'] ?? 'Not assigned'); ?></td>
+                                                            <td><?= number_format((float)$behind['rendered_hours'], 1); ?> hrs</td>
+                                                            <td><?= number_format((float)$behind['expected_hours'], 1); ?> hrs</td>
+                                                            <td><span class="text-danger fw-bold">-<?= number_format((float)$behind['shortfall'], 1); ?> hrs</span></td>
+                                                            <td>
+                                                                <div class="progress" style="height: 8px; width: 150px;">
+                                                                    <div class="progress-bar bg-danger" style="width: <?= $behind['progress']; ?>%"></div>
+                                                                </div>
+                                                                <small class="text-danger"><?= $behind['progress']; ?>%</small>
+                                                            </td>
+                                                        </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <?php else: ?>
+                                            <p class="text-muted text-center mb-0"><i class="bi bi-check-circle me-2"></i>All interns are on track with their weekly targets.</p>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- Near Completion Tab -->
+                                        <div class="tab-pane fade" id="near-completion" role="tabpanel">
+                                            <?php if (!empty($near_completion_interns)): ?>
+                                            <div class="table-responsive">
+                                                <table class="table table-hover mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Intern Name</th>
+                                                            <th>School/Department</th>
+                                                            <th>Hours Rendered</th>
+                                                            <th>Required Hours</th>
+                                                            <th>Remaining</th>
+                                                            <th>Progress</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($near_completion_interns as $near): ?>
+                                                        <tr>
+                                                            <td><strong><?= html_escape(trim($near['first_name'] . ' ' . $near['last_name'])); ?></strong></td>
+                                                            <td><?= html_escape($near['school'] ?? 'Not assigned'); ?></td>
+                                                            <td><?= number_format((float)$near['rendered_hours'], 1); ?> hrs</td>
+                                                            <td><?= number_format((float)$required_hours, 0); ?> hrs</td>
+                                                            <td><span class="text-success fw-bold"><?= number_format((float)$near['remaining_hours'], 1); ?> hrs</span></td>
+                                                            <td>
+                                                                <div class="progress" style="height: 8px; width: 150px;">
+                                                                    <div class="progress-bar bg-success" style="width: <?= $near['progress']; ?>%"></div>
+                                                                </div>
+                                                                <small class="text-success fw-bold"><?= $near['progress']; ?>%</small>
+                                                            </td>
+                                                            <td><span class="badge bg-success">Ready for Final Eval</span></td>
+                                                        </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <?php else: ?>
+                                            <p class="text-muted text-center mb-0"><i class="bi bi-info-circle me-2"></i>No interns in the 80%+ completion range yet.</p>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- New Interns This Month Modal -->
+            <div class="modal fade" id="newInternsModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title"><i class="bi bi-person-plus-fill me-2"></i>New Interns This Month (<?= date('F Y'); ?>)</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?php if (!empty($this_month_interns_list)): ?>
+                            <div class="alert alert-info border-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong><?= count($this_month_interns_list); ?></strong> new intern(s) registered in <?= date('F Y'); ?>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>School/Department</th>
+                                            <th>Registration Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $counter = 1; foreach ($this_month_interns_list as $intern): ?>
+                                        <tr>
+                                            <td><?= $counter++; ?></td>
+                                            <td><strong><?= html_escape(trim($intern['first_name'] . ' ' . $intern['last_name'])); ?></strong></td>
+                                            <td><?= html_escape($intern['email']); ?></td>
+                                            <td><?= html_escape($intern['school'] ?? 'Not assigned'); ?></td>
+                                            <td><?= date('M d, Y g:i A', strtotime($intern['created_at'])); ?></td>
+                                            <td>
+                                                <?php 
+                                                $status_class = 'secondary';
+                                                $status_label = ucfirst($intern['account_status']);
+                                                if ($intern['account_status'] === 'approved') {
+                                                    $status_class = 'success';
+                                                    $status_label = 'Active';
+                                                } elseif ($intern['account_status'] === 'pending') {
+                                                    $status_class = 'warning';
+                                                    $status_label = 'Pending Approval';
+                                                }
+                                                ?>
+                                                <span class="badge bg-<?= $status_class; ?>"><?= $status_label; ?></span>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php else: ?>
+                            <div class="text-center py-5">
+                                <i class="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
+                                <p class="text-muted mb-0">No new interns registered this month.</p>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </section>
+
+            <!-- Total Interns Modal -->
+            <div class="modal fade" id="totalInternsModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header bg-sdca text-white">
+                            <h5 class="modal-title"><i class="bi bi-people-fill me-2"></i>All Registered Interns</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>School/Department</th>
+                                            <th>Status</th>
+                                            <th>Hours Rendered</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (!empty($interns)): foreach ($interns as $intern): ?>
+                                        <tr>
+                                            <td><strong><?= html_escape(trim($intern['first_name'] . ' ' . $intern['last_name'])); ?></strong></td>
+                                            <td><?= html_escape($intern['email']); ?></td>
+                                            <td><?= html_escape($intern['school'] ?? 'Not assigned'); ?></td>
+                                            <td>
+                                                <?php 
+                                                $status_class = 'secondary';
+                                                $status_label = ucfirst($intern['account_status']);
+                                                if ($intern['account_status'] === 'approved') {
+                                                    $status_class = 'success';
+                                                    $status_label = 'Active';
+                                                } elseif ($intern['account_status'] === 'pending') {
+                                                    $status_class = 'warning';
+                                                }
+                                                ?>
+                                                <span class="badge bg-<?= $status_class; ?>"><?= $status_label; ?></span>
+                                            </td>
+                                            <td><?= number_format((float)$intern['rendered_hours'], 1); ?> hrs</td>
+                                        </tr>
+                                        <?php endforeach; else: ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No interns found.</td>
+                                        </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- This Month Interns Modal -->
+            <div class="modal fade" id="thisMonthModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title"><i class="bi bi-calendar-check me-2"></i>Interns Registered This Month (<?= date('F Y'); ?>)</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>School/Department</th>
+                                            <th>Registration Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (!empty($this_month_interns_list)): foreach ($this_month_interns_list as $intern): ?>
+                                        <tr>
+                                            <td><strong><?= html_escape(trim($intern['first_name'] . ' ' . $intern['last_name'])); ?></strong></td>
+                                            <td><?= html_escape($intern['email']); ?></td>
+                                            <td><?= html_escape($intern['school'] ?? 'Not assigned'); ?></td>
+                                            <td><?= date('M d, Y', strtotime($intern['created_at'])); ?></td>
+                                            <td>
+                                                <?php 
+                                                $status_class = 'secondary';
+                                                $status_label = ucfirst($intern['account_status']);
+                                                if ($intern['account_status'] === 'approved') {
+                                                    $status_class = 'success';
+                                                    $status_label = 'Active';
+                                                } elseif ($intern['account_status'] === 'pending') {
+                                                    $status_class = 'warning';
+                                                }
+                                                ?>
+                                                <span class="badge bg-<?= $status_class; ?>"><?= $status_label; ?></span>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; else: ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No interns registered this month.</td>
+                                        </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <section id="announcements" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold"><i class="bi bi-megaphone me-2"></i>Announcements</h5><button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#newAnnouncementModal"><i class="bi bi-plus-circle me-1"></i>New Announcement</button></div><div class="list-group list-group-flush"><?php if (!empty($announcements)): foreach ($announcements as $announcement): ?><div class="list-group-item"><div class="d-flex justify-content-between"><strong><?= html_escape($announcement['title']); ?></strong><span class="badge <?= $announcement['is_active'] ? 'bg-success' : 'bg-secondary'; ?>"><?= $announcement['is_active'] ? 'Active' : 'Inactive'; ?></span></div><small class="text-muted d-block mt-1"><?= html_escape($announcement['message']); ?></small><small class="text-muted d-block mt-2">Target: <?= !empty($announcement['target_user_id']) ? html_escape($announcement['recipient_first_name'] . ' ' . $announcement['recipient_last_name']) : 'All Interns'; ?></small></div><?php endforeach; else: ?><div class="list-group-item text-muted">No announcements yet.</div><?php endif; ?></div></section>
             <section id="inquiries" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold"><i class="bi bi-question-circle me-2"></i>Inquiries &amp; Concerns</h5><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#inquiryHistoryModal"><i class="bi bi-clock-history me-1"></i>Reply History</button></div><div class="card-body"><?php $has_open_inquiries = FALSE; if (!empty($inquiries)): foreach ($inquiries as $inquiry): if ($inquiry['status'] !== 'Open') { continue; } $has_open_inquiries = TRUE; ?><article class="border-start border-4 border-danger ps-3 mb-4"><div class="d-flex justify-content-between gap-3"><div><strong><?= html_escape(trim($inquiry['first_name'] . ' ' . $inquiry['last_name'])); ?></strong><small class="d-block text-muted"><?= html_escape($inquiry['email']); ?> | <?= date('M d, Y g:i A', strtotime($inquiry['created_at'])); ?></small><span class="badge bg-secondary my-2"><?= html_escape($inquiry['category']); ?></span><p><?= nl2br(html_escape($inquiry['message'])); ?></p></div><span class="badge align-self-start bg-warning text-dark">Open</span></div><form action="<?= base_url('admin/reply_to_inquiry/' . (int)$inquiry['id']); ?>" method="post"><input type="hidden" name="redirect" value="inquiries"><label class="form-label small fw-bold">Reply</label><textarea class="form-control" name="admin_reply" rows="3" required></textarea><button type="submit" class="btn btn-sm btn-danger mt-2"><i class="bi bi-reply me-1"></i>Send Reply</button></form></article><?php endforeach; endif; if (!$has_open_inquiries): ?><p class="text-muted mb-0">No open intern inquiries.</p><?php endif; ?></div></section>
             <section id="admin-tools" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-tools me-2"></i>Administrative Tools & System Settings</h5></div><div class="card-body"><div class="row g-3"><div class="col-md-3"><h6 class="fw-bold">User Role Control</h6><p class="text-muted small">Manage intern account details through the Intern Management edit controls.</p><a href="#intern-management" class="btn btn-sm btn-outline-primary">Manage Users</a></div><div class="col-md-3"><h6 class="fw-bold">Reports & PDF Export</h6><p class="text-muted small">Generate an official master DTR audit report.</p><a href="<?= base_url('ojt/export_pdf'); ?>" target="_blank" class="btn btn-sm btn-outline-danger"><i class="bi bi-file-earmark-pdf me-1"></i>Export PDF</a></div><div class="col-md-3"><h6 class="fw-bold">System Logs & Audit Trail</h6><p class="text-muted small">Review deletion requests and account activity from the management queues.</p><a href="#ojt-management" class="btn btn-sm btn-outline-secondary">Review Activity</a></div><div class="col-md-3"><h6 class="fw-bold">Intern Support</h6><p class="text-muted small">Review and respond to intern inquiries and concerns.</p><a href="#inquiries" class="btn btn-sm btn-outline-success">Open Inquiries</a></div></div></div></section>
@@ -652,18 +1434,20 @@ th {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Search Intern</label>
-                    <input type="text" id="dtrSearchInput" class="form-control" placeholder="Search by name, email, or ID...">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Filter by Status</label>
-                    <select id="dtrStatusFilter" class="form-select">
-                        <option value="">All Statuses</option>
-                        <option value="active">Active</option>
-                        <option value="done">Done</option>
-                        <option value="terminated">Terminated</option>
-                    </select>
+                <div class="mb-3 d-flex align-items-center gap-2">
+                    <div>
+                        <label class="form-label fw-semibold">Search Intern</label>
+                        <input type="text" id="dtrSearchInput" class="form-control" placeholder="Search by name, email, or ID..." style="min-width: 620px; flex-grow: 1; border-radius: 0px;">
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold">Filter by Status</label>
+                        <select id="dtrStatusFilter" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="done">Done</option>
+                            <option value="terminated">Terminated</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover table-sm">
@@ -683,8 +1467,8 @@ th {
                                 <td>
                                     <span class="badge bg-success">
                                         <?php 
-                                        $status = strtolower(trim($intern['status'] ?? 'active'));
-                                        if ($status === 'active' || $status === 'approved') {
+                                        $status = strtolower(trim($intern['account_status'] ?? 'active'));
+                                        if ($status === 'active' || $status === 'approved' || $status === 'pending') {
                                             echo 'Active';
                                         } elseif ($status === 'done') {
                                             echo 'Done';
@@ -695,8 +1479,7 @@ th {
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="#dtr-records" class="btn btn-sm btn-outline-primary" data-bs-dismiss="modal">View DTR</a>
-                                </td>
+                                <a href="<?= base_url('admin/view_dtr/' . (int)$intern['id']); ?>" class="btn btn-sm btn-outline-primary">View DTR</a>                                </td>
                             </tr>
                             <?php endforeach; else: ?>
                             <tr>
@@ -841,6 +1624,124 @@ th {
     </div>
 </div>
 
+<!-- Large Manage Interns Modal -->
+<div class="modal fade" id="manageInternsModal" tabindex="-1" aria-labelledby="manageInternsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-sdca text-white">
+                <h5 class="modal-title" id="manageInternsModalLabel">
+                    <i class="bi bi-people-fill me-2"></i>Manage Interns
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search and Filter Bar -->
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Search Intern</label>
+                        <input type="text" id="manageInternSearch" class="form-control" placeholder="Search by name, email, or school...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Filter by Status</label>
+                        <select id="manageInternStatusFilter" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="approved">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="done">Done</option>
+                            <option value="terminated">Terminated</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" id="clearManageInternFilters" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results Count -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted">
+                        Showing <strong id="manageInternCount"><?= count($interns); ?></strong> intern(s)
+                    </small>
+                    <small class="text-muted">Total Hours: <strong><?= number_format(array_sum(array_column($interns, 'rendered_hours')), 1); ?> hrs</strong></small>
+                </div>
+
+                <!-- Interns Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 5%;">#</th>
+                                <th style="width: 25%;">Intern Name</th>
+                                <th style="width: 20%;">Email</th>
+                                <th style="width: 15%;">School/Department</th>
+                                <th style="width: 15%;">Progress</th>
+                                <th style="width: 10%;">Status</th>
+                                <th style="width: 10%;" class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manageInternsTableBody">
+                            <?php if (!empty($interns)): $counter = 1; foreach ($interns as $intern): ?>
+                                <?php $progress = $required_hours > 0 ? min(100, round(((float)$intern['rendered_hours'] / $required_hours) * 100, 1)) : 0; ?>
+                                <tr class="manage-intern-row" 
+                                    data-name="<?= html_escape(strtolower(trim($intern['first_name'] . ' ' . $intern['last_name']))); ?>"
+                                    data-email="<?= html_escape(strtolower($intern['email'])); ?>"
+                                    data-school="<?= html_escape(strtolower($intern['school'] ?? '')); ?>"
+                                    data-status="<?= html_escape(strtolower($intern['account_status'] ?? '')); ?>">
+                                    <td><?= $counter++; ?></td>
+                                    <td>
+                                        <strong><?= html_escape(trim($intern['first_name'] . ' ' . $intern['last_name'])); ?></strong>
+                                        <?php if (!empty($intern['student_id'])): ?>
+                                            <br><small class="text-muted">ID: <?= html_escape($intern['student_id']); ?></small>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><small><?= html_escape($intern['email']); ?></small></td>
+                                    <td><small><?= html_escape(!empty($intern['school']) ? $intern['school'] : 'Not assigned'); ?></small></td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-grow-1" style="height: 6px; min-width: 80px;">
+                                                <div class="progress-bar bg-<?= $progress >= 80 ? 'success' : ($progress >= 25 ? 'warning' : 'danger'); ?>" style="width: <?= $progress; ?>%"></div>
+                                            </div>
+                                            <small class="fw-bold"><?= $progress; ?>%</small>
+                                        </div>
+                                        <small class="text-muted"><?= number_format((float)$intern['rendered_hours'], 1); ?>/<?= number_format((float)$required_hours, 0); ?> hrs</small>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                        $intern_st = strtolower(trim($intern['account_status'] ?? ''));
+                                        $intern_badge = ($intern_st === 'done') ? 'bg-secondary' : (($intern_st === 'terminated' || $intern_st === 'rejected') ? 'bg-danger' : ($intern_st === 'pending' ? 'bg-warning text-dark' : 'bg-success'));
+                                        $intern_label = ($intern_st === 'done') ? 'Done' : (($intern_st === 'terminated') ? 'Terminated' : ($intern_st === 'pending' ? 'Pending' : ($intern_st === 'rejected' ? 'Rejected' : 'Active')));
+                                        ?>
+                                        <span class="badge <?= $intern_badge; ?>"><?= $intern_label; ?></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-outline-primary open-edit-modal" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#intern<?= (int)$intern['id']; ?>"
+                                                data-bs-dismiss="modal">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; else: ?>
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="bi bi-people display-6 d-block mb-2"></i>
+                                        No intern accounts found.
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Load SweetAlert2 Library -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -966,7 +1867,7 @@ document.addEventListener('click', function (e) {
 
         const controls = document.createElement('div');
         controls.className = 'd-flex gap-2';
-        controls.innerHTML = '<input type="search" id="internSearch" class="form-control form-control-sm" placeholder="Search intern or email" aria-label="Search interns"><select id="internStatusFilter" class="form-select form-select-sm" aria-label="Filter intern status"><option value="">All statuses</option><option value="active">Active</option><option value="pending">Pending</option><option value="deactivated">Deactivated</option></select>';
+        controls.innerHTML = '<input type="search" id="internSearch" class="form-control form-control-sm" placeholder="Search intern or email" aria-label="Search interns" style="min-width: 320px; flex-grow: 1; border-radius: 0px;"><select id="internStatusFilter" class="form-select form-select-sm" aria-label="Filter intern status"><option value="">All statuses</option><option value="active">Active</option><option value="pending">Pending</option><option value="deactivated">Deactivated</option></select>';
         header.appendChild(controls);
 
         const search = document.getElementById('internSearch');
@@ -1109,6 +2010,457 @@ $(document).ready(function() {
             "paginate": {
                 "previous": '<i class="bi bi-chevron-left"></i>',
                 "next": '<i class="bi bi-chevron-right"></i>'
+            }
+        }
+    });
+});
+</script>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Chart.defaults.font.family = "'Century Gothic', 'CenturyGothic', sans-serif";
+    Chart.defaults.color = '#343434';
+    
+    // Get data from PHP
+    const genderData = <?= json_encode($gender_distribution ?? []); ?>;
+    const schoolData = <?= json_encode($school_distribution ?? []); ?>;
+    const monthlyData = <?= json_encode($monthly_registration ?? []); ?>;
+    const statusData = <?= json_encode($status_distribution ?? []); ?>;
+    
+    // Get intern names for tooltips
+    const internNamesByGender = <?= json_encode($intern_names_by_gender ?? []); ?>;
+    const internNamesBySchool = <?= json_encode($intern_names_by_school ?? []); ?>;
+    const internNamesByMonth = <?= json_encode($intern_names_by_month ?? []); ?>;
+    const internNamesByStatus = <?= json_encode($intern_names_by_status ?? []); ?>;
+
+    // Helper: format names list (comma-separated, max 5 shown + count)
+    function formatNamesList(names) {
+        if (!names || names.length === 0) return 'No interns';
+        if (names.length <= 5) return names.join(', ');
+        return names.slice(0, 5).join(', ') + '... (+' + (names.length - 5) + ' more)';
+    }
+
+    // 1. Gender Distribution - Pie Chart
+    new Chart(document.getElementById('genderChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: genderData.labels || ['Male', 'Female', 'Unspecified'],
+            datasets: [{
+                data: genderData.values || [0, 0, 0],
+                backgroundColor: ['#e91e63', '#1976d2', '#9c27b0'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true, pointStyle: 'circle' } },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#a12124',
+                    borderWidth: 2,
+                    padding: 12,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    callbacks: {
+                        title: function(context) {
+                            return '👥 ' + context[0].label;
+                        },
+                        label: function(context) {
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return 'Count: ' + value + ' (' + percentage + '%)';
+                        },
+                        afterBody: function(context) {
+                            const label = context[0].label;
+                            const names = internNamesByGender[label] || [];
+                            return ['', 'Interns:', formatNamesList(names)];
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 2. School/Department Distribution - Bar Chart
+    new Chart(document.getElementById('schoolChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: schoolData.labels || [],
+            datasets: [{
+                label: 'Number of Interns',
+                data: schoolData.values || [],
+                backgroundColor: [
+                    '#a12124', // SDCA Maroon
+                    '#1976d2', // Blue
+                    '#388e3c', // Green
+                    '#f57c00', // Orange
+                    '#7b1fa2', // Purple
+                    '#00838f', // Teal
+                    '#c2185b', // Pink
+                    '#455a64', // Blue Grey
+                    '#5d4037', // Brown
+                    '#2e7d32'  // Dark Green
+                ],
+                borderColor: [
+                    '#801a1c',
+                    '#0d47a1',
+                    '#1b5e20',
+                    '#e65100',
+                    '#4a148c',
+                    '#006064',
+                    '#880e4f',
+                    '#263238',
+                    '#3e2723',
+                    '#1b5e20'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#a12124',
+                    borderWidth: 2,
+                    padding: 12,
+                    titleFont: { size: 14, weight: 'bold' },
+                    callbacks: {
+                        title: function(context) {
+                            return '🏫 ' + context[0].label;
+                        },
+                        label: function(context) {
+                            return 'Interns: ' + context.parsed.y;
+                        },
+                        afterBody: function(context) {
+                            const label = context[0].label;
+                            const names = internNamesBySchool[label] || [];
+                            return ['', 'Interns:', formatNamesList(names)];
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 }, grid: { color: '#f0f0f0' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 3. Monthly Registration Trend - Line Chart
+    new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: monthlyData.labels || [],
+            datasets: [{
+                label: 'New Interns',
+                data: monthlyData.values || [],
+                borderColor: '#a12124',
+                backgroundColor: 'rgba(161, 33, 36, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#a12124',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#a12124',
+                    borderWidth: 2,
+                    padding: 12,
+                    titleFont: { size: 14, weight: 'bold' },
+                    callbacks: {
+                        title: function(context) {
+                            return '📅 ' + context[0].label;
+                        },
+                        label: function(context) {
+                            return 'New Registrations: ' + context.parsed.y;
+                        },
+                        afterBody: function(context) {
+                            const label = context[0].label;
+                            const names = internNamesByMonth[label] || [];
+                            return ['', 'Interns:', formatNamesList(names)];
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 }, grid: { color: '#f0f0f0' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 4. Status Distribution - Doughnut Chart
+    new Chart(document.getElementById('statusChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: statusData.labels || ['Active', 'Pending', 'Done', 'Terminated'],
+            datasets: [{
+                data: statusData.values || [0, 0, 0, 0],
+                backgroundColor: ['#388e3c', '#f57c00', '#1976d2', '#d32f2f'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true, pointStyle: 'circle' } },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#a12124',
+                    borderWidth: 2,
+                    padding: 12,
+                    titleFont: { size: 14, weight: 'bold' },
+                    callbacks: {
+                        title: function(context) {
+                            return '📊 ' + context[0].label;
+                        },
+                        label: function(context) {
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return 'Count: ' + value + ' (' + percentage + '%)';
+                        },
+                        afterBody: function(context) {
+                            const label = context[0].label;
+                            const names = internNamesByStatus[label] || [];
+                            return ['', 'Interns:', formatNamesList(names)];
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const analyticsCard = document.getElementById('viewAnalyticsCard');
+    if (analyticsCard) {
+        analyticsCard.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchAdminModule('analytics', document.querySelector('.sidebar-menu a[href="#analytics"]'));
+        });
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Manage Interns Modal - Search and Filter
+    const manageInternSearch = document.getElementById('manageInternSearch');
+    const manageInternStatusFilter = document.getElementById('manageInternStatusFilter');
+    const clearManageInternFilters = document.getElementById('clearManageInternFilters');
+    const manageInternRows = document.querySelectorAll('.manage-intern-row');
+    const manageInternCount = document.getElementById('manageInternCount');
+
+    function filterManageInterns() {
+        const searchQuery = manageInternSearch.value.toLowerCase().trim();
+        const statusFilter = manageInternStatusFilter.value.toLowerCase();
+        let visibleCount = 0;
+
+        manageInternRows.forEach(function(row) {
+            const name = row.dataset.name || '';
+            const email = row.dataset.email || '';
+            const school = row.dataset.school || '';
+            const status = row.dataset.status || '';
+
+            const matchesSearch = searchQuery === '' || 
+                                  name.includes(searchQuery) || 
+                                  email.includes(searchQuery) || 
+                                  school.includes(searchQuery);
+            const matchesStatus = statusFilter === '' || status === statusFilter;
+
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update count display
+        if (manageInternCount) {
+            manageInternCount.textContent = visibleCount;
+        }
+    }
+
+    // Event listeners
+    if (manageInternSearch) {
+        manageInternSearch.addEventListener('input', filterManageInterns);
+    }
+    if (manageInternStatusFilter) {
+        manageInternStatusFilter.addEventListener('change', filterManageInterns);
+    }
+    if (clearManageInternFilters) {
+        clearManageInternFilters.addEventListener('click', function() {
+            if (manageInternSearch) manageInternSearch.value = '';
+            if (manageInternStatusFilter) manageInternStatusFilter.value = '';
+            filterManageInterns();
+        });
+    }
+
+    // Reset filters when modal is closed
+    const manageInternsModal = document.getElementById('manageInternsModal');
+    if (manageInternsModal) {
+        manageInternsModal.addEventListener('hidden.bs.modal', function() {
+            if (manageInternSearch) manageInternSearch.value = '';
+            if (manageInternStatusFilter) manageInternStatusFilter.value = '';
+            filterManageInterns();
+        });
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Admin Tools Card Navigation
+    const adminToolsCard = document.getElementById('adminToolsCard');
+    if (adminToolsCard) {
+        adminToolsCard.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchAdminModule('admin-tools', document.querySelector('.sidebar-menu a[href="#admin-tools"]'));
+        });
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle all edit intern modals
+    document.querySelectorAll('.modal').forEach(function(modal) {
+        // Only target modals with intern edit forms
+        if (modal.querySelector('form[action*="update_intern"]')) {
+            const form = modal.querySelector('form');
+            const saveButton = modal.querySelector('button[type="submit"]');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            // Store initial values
+            let initialValues = {};
+            
+            modal.addEventListener('show.bs.modal', function() {
+                // Capture initial values when modal opens
+                initialValues = {};
+                inputs.forEach(function(input, index) {
+                    initialValues[index] = input.value;
+                });
+                
+                // Disable button initially (no changes yet)
+                if (saveButton) {
+                    saveButton.disabled = true;
+                    saveButton.style.opacity = '0.5';
+                    saveButton.style.cursor = 'not-allowed';
+                }
+            });
+            
+            // Check for changes on any input
+            inputs.forEach(function(input) {
+                input.addEventListener('input', checkForChanges);
+                input.addEventListener('change', checkForChanges);
+            });
+            
+            function checkForChanges() {
+                let hasChanges = false;
+                
+                inputs.forEach(function(input, index) {
+                    if (input.value !== initialValues[index]) {
+                        hasChanges = true;
+                    }
+                });
+                
+                // Enable/disable button based on changes
+                if (saveButton) {
+                    saveButton.disabled = !hasChanges;
+                    if (hasChanges) {
+                        saveButton.style.opacity = '1';
+                        saveButton.style.cursor = 'pointer';
+                    } else {
+                        saveButton.style.opacity = '0.5';
+                        saveButton.style.cursor = 'not-allowed';
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle Verify OJT Record modals
+    document.querySelectorAll('.modal').forEach(function(modal) {
+        // Target modals with OJT verification forms
+        if (modal.querySelector('form[action*="update_log"]')) {
+            const form = modal.querySelector('form');
+            const saveButton = modal.querySelector('button[type="submit"]');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            let initialValues = {};
+            
+            // When modal opens, capture initial values and disable button
+            modal.addEventListener('show.bs.modal', function() {
+                initialValues = {};
+                inputs.forEach(function(input, index) {
+                    initialValues[index] = input.value;
+                });
+                
+                // Disable button initially (no changes yet)
+                if (saveButton) {
+                    saveButton.disabled = true;
+                    saveButton.classList.add('btn-disabled-look');
+                }
+            });
+            
+            // Check for changes on any input
+            inputs.forEach(function(input) {
+                input.addEventListener('input', checkForChanges);
+                input.addEventListener('change', checkForChanges);
+            });
+            
+            function checkForChanges() {
+                let hasChanges = false;
+                
+                inputs.forEach(function(input, index) {
+                    if (input.value !== initialValues[index]) {
+                        hasChanges = true;
+                    }
+                });
+                
+                // Enable/disable button based on changes
+                if (saveButton) {
+                    saveButton.disabled = !hasChanges;
+                    if (hasChanges) {
+                        saveButton.classList.remove('btn-disabled-look');
+                    } else {
+                        saveButton.classList.add('btn-disabled-look');
+                    }
+                }
             }
         }
     });
