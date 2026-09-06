@@ -857,44 +857,102 @@ button[type="submit"]:not(:disabled):not(.btn-disabled-look):hover {
             <?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?><div class="modal fade" id="log<?= (int)$log['id']; ?>" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form action="<?= base_url('admin/update_log/' . (int)$log['id']); ?>" method="POST"><input type="hidden" name="redirect" value="ojt-management"><div class="modal-header"><h5 class="modal-title">Verify OJT Record</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="form-label">Date</label><input type="date" name="log_date" class="form-control mb-2" value="<?= html_escape($log['log_date']); ?>" required><label class="form-label">Time In</label><input name="time_in" class="form-control mb-2" value="<?= html_escape($log['time_in']); ?>" required><label class="form-label">Time Out</label><input name="time_out" class="form-control mb-2" value="<?= html_escape($log['time_out']); ?>"><label class="form-label">Hours Rendered</label><input type="number" step="0.01" name="hours_rendered" class="form-control mb-2" value="<?= html_escape($log['hours_rendered']); ?>"><label class="form-label">Task Description</label><textarea name="task_summary" class="form-control mb-2"><?= html_escape($log['task_summary']); ?></textarea><label class="form-label">Verification Status</label><select name="status" class="form-select"><?php $log_st = $log['status']; foreach (array('Pending', 'Approved', 'Rejected', 'Completed') as $log_status_option): ?><option <?= ($log_st === $log_status_option) ? 'selected' : ''; ?>><?= $log_status_option; ?></option><?php endforeach; ?></select></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Save Verification</button></div></form></div></div></div><?php endforeach; endif; ?>
 
             <section id="dtr-records" class="section-anchor card section-card shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-calendar3 me-2"></i>DTR and Time Records</h5>
-                </div>
-                <div class="table-responsive">
-                    <table id="dtrRecordsTable" class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Intern</th>
-                                <th>Date</th>
-                                <th>Time In</th>
-                                <th>Time Out</th>
-                                <th>Rendered</th>
-                                <th>Role/Position</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($recent_logs)): foreach ($recent_logs as $log): ?>
-                                <tr>
-                                    <td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td>
-                                    <td><?= html_escape($log['log_date']); ?></td>
-                                    <td><?= html_escape($log['time_in']); ?></td>
-                                    <td><?= !empty($log['time_out']) ? html_escape($log['time_out']) : '<span class="badge bg-warning text-dark">Timed in</span>'; ?></td>
-                                    <td><?= number_format((float)$log['hours_rendered'], 2); ?> hrs</td>
-                                    <td>
-                                        <?php 
-                                        $role = !empty($log['role_position']) ? $log['role_position'] : 'Web Developer';
-                                        $role_badge = ($role === 'Web Developer') ? 'bg-primary' : 'bg-success';
-                                        ?>
-                                        <span class="badge <?= $role_badge; ?>"><?= html_escape($role); ?></span>
-                                    </td>
-                                </tr>
-                            <?php endforeach; else: ?>
-                                <tr><td colspan="6" class="text-center text-muted py-4">No DTR records found.</td></tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+    <div class="card-header bg-white">
+        <h5 class="mb-0 fw-bold"><i class="bi bi-calendar3 me-2"></i>DTR and Time Records</h5>
+    </div>
+    
+    <!-- Filter Bar -->
+    <div class="card-body border-bottom bg-light">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold small mb-1">
+                    <i class="bi bi-calendar-month me-1"></i>Filter by Month
+                </label>
+                <select id="dtrMonthFilter" class="form-select form-select-sm">
+                    <option value="">All Months</option>
+                    <?php 
+                    $month_names = ['', 'January', 'February', 'March', 'April', 'May', 'June', 
+                                   'July', 'August', 'September', 'October', 'November', 'December'];
+                    for ($m = 1; $m <= 12; $m++): 
+                    ?>
+                        <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT); ?>"><?= $month_names[$m]; ?></option>
+                    <?php endfor; ?>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold small mb-1">
+                    <i class="bi bi-calendar-week me-1"></i>Filter by Week
+                </label>
+                <select id="dtrWeekFilter" class="form-select form-select-sm">
+                    <option value="">All Weeks</option>
+                    <option value="1">Week 1 (Days 1-7)</option>
+                    <option value="2">Week 2 (Days 8-14)</option>
+                    <option value="3">Week 3 (Days 15-21)</option>
+                    <option value="4">Week 4 (Days 22-28)</option>
+                    <option value="5">Week 5 (Days 29-31)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="button" id="dtrApplyFilter" class="btn btn-sm btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Apply
+                </button>
+            </div>
+            <div class="col-md-2">
+                <button type="button" id="dtrClearFilter" class="btn btn-sm btn-outline-secondary w-100">
+                    <i class="bi bi-x-circle me-1"></i>Clear
+                </button>
+            </div>
+        </div>
+        
+        <!-- Filter Summary -->
+        <div class="mt-2 small text-muted" id="dtrFilterSummary">
+            <i class="bi bi-info-circle me-1"></i>
+            Showing <strong id="dtrVisibleCount"><?= count($recent_logs); ?></strong> of <strong><?= count($recent_logs); ?></strong> records
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table id="dtrRecordsTable" class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Intern</th>
+                    <th>Date</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Rendered</th>
+                    <th>Role/Position</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($recent_logs)): foreach ($recent_logs as $log): 
+                    // Calculate month and week for filtering
+                    $log_month = date('m', strtotime($log['log_date']));
+                    $log_day = (int)date('d', strtotime($log['log_date']));
+                    $log_week = ceil($log_day / 7);
+                ?>
+                    <tr class="dtr-record-row" 
+                        data-month="<?= $log_month; ?>" 
+                        data-week="<?= $log_week; ?>">
+                        <td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td>
+                        <td><?= html_escape($log['log_date']); ?></td>
+                        <td><?= html_escape($log['time_in']); ?></td>
+                        <td><?= !empty($log['time_out']) ? html_escape($log['time_out']) : '<span class="badge bg-warning text-dark">Timed in</span>'; ?></td>
+                        <td><?= number_format((float)$log['hours_rendered'], 2); ?> hrs</td>
+                        <td>
+                            <?php 
+                            $role = !empty($log['role_position']) ? $log['role_position'] : 'Web Developer';
+                            $role_badge = ($role === 'Web Developer') ? 'bg-primary' : 'bg-success';
+                            ?>
+                            <span class="badge <?= $role_badge; ?>"><?= html_escape($role); ?></span>
+                        </td>
+                    </tr>
+                <?php endforeach; else: ?>
+                    <tr><td colspan="6" class="text-center text-muted py-4">No DTR records found.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
             <section id="analytics" class="section-anchor card section-card shadow-sm mb-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <div>
@@ -1368,7 +1426,78 @@ button[type="submit"]:not(:disabled):not(.btn-disabled-look):hover {
             </div>
             <section id="announcements" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold"><i class="bi bi-megaphone me-2"></i>Announcements</h5><button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#newAnnouncementModal"><i class="bi bi-plus-circle me-1"></i>New Announcement</button></div><div class="list-group list-group-flush"><?php if (!empty($announcements)): foreach ($announcements as $announcement): ?><div class="list-group-item"><div class="d-flex justify-content-between"><strong><?= html_escape($announcement['title']); ?></strong><span class="badge <?= $announcement['is_active'] ? 'bg-success' : 'bg-secondary'; ?>"><?= $announcement['is_active'] ? 'Active' : 'Inactive'; ?></span></div><small class="text-muted d-block mt-1"><?= html_escape($announcement['message']); ?></small><small class="text-muted d-block mt-2">Target: <?= !empty($announcement['target_user_id']) ? html_escape($announcement['recipient_first_name'] . ' ' . $announcement['recipient_last_name']) : 'All Interns'; ?></small></div><?php endforeach; else: ?><div class="list-group-item text-muted">No announcements yet.</div><?php endif; ?></div></section>
             <section id="inquiries" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold"><i class="bi bi-question-circle me-2"></i>Inquiries &amp; Concerns</h5><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#inquiryHistoryModal"><i class="bi bi-clock-history me-1"></i>Reply History</button></div><div class="card-body"><?php $has_open_inquiries = FALSE; if (!empty($inquiries)): foreach ($inquiries as $inquiry): if ($inquiry['status'] !== 'Open') { continue; } $has_open_inquiries = TRUE; ?><article class="border-start border-4 border-danger ps-3 mb-4"><div class="d-flex justify-content-between gap-3"><div><strong><?= html_escape(trim($inquiry['first_name'] . ' ' . $inquiry['last_name'])); ?></strong><small class="d-block text-muted"><?= html_escape($inquiry['email']); ?> | <?= date('M d, Y g:i A', strtotime($inquiry['created_at'])); ?></small><span class="badge bg-secondary my-2"><?= html_escape($inquiry['category']); ?></span><p><?= nl2br(html_escape($inquiry['message'])); ?></p></div><span class="badge align-self-start bg-warning text-dark">Open</span></div><form action="<?= base_url('admin/reply_to_inquiry/' . (int)$inquiry['id']); ?>" method="post"><input type="hidden" name="redirect" value="inquiries"><label class="form-label small fw-bold">Reply</label><textarea class="form-control" name="admin_reply" rows="3" required></textarea><button type="submit" class="btn btn-sm btn-danger mt-2"><i class="bi bi-reply me-1"></i>Send Reply</button></form></article><?php endforeach; endif; if (!$has_open_inquiries): ?><p class="text-muted mb-0">No open intern inquiries.</p><?php endif; ?></div></section>
-            <section id="admin-tools" class="section-anchor card section-card shadow-sm mb-4"><div class="card-header bg-white"><h5 class="mb-0 fw-bold"><i class="bi bi-tools me-2"></i>Administrative Tools & System Settings</h5></div><div class="card-body"><div class="row g-3"><div class="col-md-3"><h6 class="fw-bold">User Role Control</h6><p class="text-muted small">Manage intern account details through the Intern Management edit controls.</p><a href="#intern-management" class="btn btn-sm btn-outline-primary">Manage Users</a></div><div class="col-md-3"><h6 class="fw-bold">Reports & PDF Export</h6><p class="text-muted small">Generate an official master DTR audit report.</p><a href="<?= base_url('ojt/export_pdf'); ?>" target="_blank" class="btn btn-sm btn-outline-danger"><i class="bi bi-file-earmark-pdf me-1"></i>Export PDF</a></div><div class="col-md-3"><h6 class="fw-bold">System Logs & Audit Trail</h6><p class="text-muted small">Review deletion requests and account activity from the management queues.</p><a href="#ojt-management" class="btn btn-sm btn-outline-secondary">Review Activity</a></div><div class="col-md-3"><h6 class="fw-bold">Intern Support</h6><p class="text-muted small">Review and respond to intern inquiries and concerns.</p><a href="#inquiries" class="btn btn-sm btn-outline-success">Open Inquiries</a></div></div></div></section>
+            <section id="admin-tools" class="section-anchor card section-card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-tools me-2"></i>Administrative Tools & System Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <!-- User Role Control -->
+                        <div class="col-md-3">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="mb-3" style="width: 60px; height: 60px; background-color: #e3f2fd; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-people-fill text-primary" style="font-size: 1.8rem;"></i>
+                                    </div>
+                                    <h6 class="fw-bold">User Role Control</h6>
+                                    <p class="text-muted small mb-3">Manage intern account details through the Intern Management edit controls.</p>
+                                    <button type="button" class="btn btn-sm btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#manageInternsModal">
+                                        <i class="bi bi-pencil-square me-1"></i>Manage Users
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reports & PDF Export -->
+                        <div class="col-md-3">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="mb-3" style="width: 60px; height: 60px; background-color: #ffebee; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size: 1.8rem;"></i>
+                                    </div>
+                                    <h6 class="fw-bold">Reports & PDF Export</h6>
+                                    <p class="text-muted small mb-3">Generate an official master DTR audit report.</p>
+                                    <button type="button" class="btn btn-sm btn-outline-danger w-100" data-bs-toggle="modal" data-bs-target="#exportPdfModal">
+                                        <i class="bi bi-download me-1"></i>Export PDF
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Logs & Audit Trail -->
+                        <div class="col-md-3">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="mb-3" style="width: 60px; height: 60px; background-color: #f3e5f5; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-clock-history text-purple" style="font-size: 1.8rem; color: #7b1fa2;"></i>
+                                    </div>
+                                    <h6 class="fw-bold">System Logs & Audit Trail</h6>
+                                    <p class="text-muted small mb-3">Review deletion requests and account activity from the management queues.</p>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#activityLogsModal">
+                                        <i class="bi bi-eye me-1"></i>Review Activity
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Intern Support -->
+                        <div class="col-md-3">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="mb-3" style="width: 60px; height: 60px; background-color: #e8f5e9; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-headset text-success" style="font-size: 1.8rem;"></i>
+                                    </div>
+                                    <h6 class="fw-bold">Intern Support</h6>
+                                    <p class="text-muted small mb-3">Review and respond to intern inquiries and concerns.</p>
+                                    <button type="button" class="btn btn-sm btn-outline-success w-100" id="openInquiriesBtn">
+                                        <i class="bi bi-chat-dots me-1"></i>Open Inquiries
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 </div>
@@ -1733,6 +1862,144 @@ button[type="submit"]:not(:disabled):not(.btn-disabled-look):hover {
                             <?php endif; ?>
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Export PDF Modal -->
+<div class="modal fade" id="exportPdfModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-file-earmark-pdf me-2"></i>Export DTR Report</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="exportPdfForm" action="<?= base_url('admin/export_dtr_pdf'); ?>" method="POST" target="_blank">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Report Type</label>
+                        <select name="report_type" class="form-select" required>
+                            <option value="all">All Interns DTR Report</option>
+                            <option value="approved">Approved Interns Only</option>
+                            <option value="pending">Pending Interns Only</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Date Range</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="date" name="start_date" class="form-control" value="<?= date('Y-m-01'); ?>">
+                            </div>
+                            <div class="col-6">
+                                <input type="date" name="end_date" class="form-control" value="<?= date('Y-m-d'); ?>">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Include</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_hours" value="1" checked>
+                            <label class="form-check-label">Total Rendered Hours</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_logs" value="1" checked>
+                            <label class="form-check-label">Detailed Time Logs</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_status" value="1" checked>
+                            <label class="form-check-label">Intern Status</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="document.getElementById('exportPdfForm').submit();">
+                    <i class="bi bi-download me-1"></i>Generate PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Logs Modal -->
+<div class="modal fade" id="activityLogsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title"><i class="bi bi-clock-history me-2"></i>System Logs & Audit Trail</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Deletion Requests -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Pending Deletion Requests</h6>
+                    <?php if (!empty($requests)): ?>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>From</th>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($requests as $request): ?>
+                                <tr>
+                                    <td><?= html_escape($request['sender_name']); ?></td>
+                                    <td><?= html_escape($request['subject']); ?></td>
+                                    <td><small><?= date('M d, Y g:i A', strtotime($request['created_at'] ?? 'now')); ?></small></td>
+                                    <td>
+                                        <a href="<?= base_url('admin/mark_request_read/' . (int)$request['id']); ?>" class="btn btn-xs btn-outline-success">
+                                            <i class="bi bi-check"></i> Review
+                                        </a>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php else: ?>
+                    <p class="text-muted text-center py-3"><i class="bi bi-check-circle me-2"></i>No pending deletion requests.</p>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Recent System Activities -->
+                <div>
+                    <h6 class="fw-bold text-primary"><i class="bi bi-activity me-2"></i>Recent System Activities</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>User</th>
+                                    <th>Date/Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($recent_logs)): foreach (array_slice($recent_logs, 0, 10) as $log): ?>
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-info">OJT Log</span>
+                                        <small class="ms-2"><?= html_escape($log['task_summary'] ?? 'No description'); ?></small>
+                                    </td>
+                                    <td><?= html_escape(trim($log['first_name'] . ' ' . $log['last_name'])); ?></td>
+                                    <td><small><?= date('M d, Y g:i A', strtotime($log['created_at'] ?? $log['log_date'])); ?></small></td>
+                                </tr>
+                                <?php endforeach; else: ?>
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-3">No recent activities.</td>
+                                </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -2464,6 +2731,74 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dtrMonthFilter = document.getElementById('dtrMonthFilter');
+    const dtrWeekFilter = document.getElementById('dtrWeekFilter');
+    const dtrApplyFilter = document.getElementById('dtrApplyFilter');
+    const dtrClearFilter = document.getElementById('dtrClearFilter');
+    const dtrVisibleCount = document.getElementById('dtrVisibleCount');
+    const dtrRows = document.querySelectorAll('.dtr-record-row');
+
+    function filterDTRRecords() {
+        const selectedMonth = dtrMonthFilter.value;
+        const selectedWeek = dtrWeekFilter.value;
+        let visibleCount = 0;
+
+        dtrRows.forEach(function(row) {
+            const rowMonth = row.dataset.month;
+            const rowWeek = row.dataset.week;
+
+            const matchesMonth = !selectedMonth || rowMonth === selectedMonth;
+            const matchesWeek = !selectedWeek || rowWeek === selectedWeek;
+
+            if (matchesMonth && matchesWeek) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update count display
+        if (dtrVisibleCount) {
+            dtrVisibleCount.textContent = visibleCount;
+        }
+    }
+
+    // Apply filter button
+    if (dtrApplyFilter) {
+        dtrApplyFilter.addEventListener('click', filterDTRRecords);
+    }
+
+    // Clear filter button
+    if (dtrClearFilter) {
+        dtrClearFilter.addEventListener('click', function() {
+            dtrMonthFilter.value = '';
+            dtrWeekFilter.value = '';
+            filterDTRRecords();
+        });
+    }
+
+    // Auto-filter on change (optional - remove if you only want button click)
+    if (dtrMonthFilter) {
+        dtrMonthFilter.addEventListener('change', filterDTRRecords);
+    }
+    if (dtrWeekFilter) {
+        dtrWeekFilter.addEventListener('change', filterDTRRecords);
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const openInquiriesBtn = document.getElementById('openInquiriesBtn');
+    if (openInquiriesBtn) {
+        openInquiriesBtn.addEventListener('click', function() {
+            switchAdminModule('inquiries', document.querySelector('.sidebar-menu a[href="#inquiries"]'));
+        });
+    }
 });
 </script>
 </body>

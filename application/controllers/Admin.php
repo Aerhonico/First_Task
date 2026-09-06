@@ -855,4 +855,48 @@ class Admin extends CI_Controller {
 
         $this->load->view('admin/view_dtr', $data);
     }
+
+    public function export_dtr_pdf() {
+        if (!$this->require_admin()) {
+            return;
+        }
+
+        $report_type = $this->input->post('report_type') ?: 'all';
+        $start_date = $this->input->post('start_date') ?: date('Y-m-01');
+        $end_date = $this->input->post('end_date') ?: date('Y-m-d');
+        $include_hours = $this->input->post('include_hours');
+        $include_logs = $this->input->post('include_logs');
+        $include_status = $this->input->post('include_status');
+
+        // Build query based on report type
+        $this->db->select('users.*, COALESCE(SUM(ojt_logs.hours_rendered), 0) AS total_hours')
+                ->from('users')
+                ->join('ojt_logs', 'ojt_logs.user_id = users.id', 'left')
+                ->where('users.role', 'intern');
+
+        if ($report_type === 'approved') {
+            $this->db->where_in('users.account_status', array('approved', 'active'));
+        } elseif ($report_type === 'pending') {
+            $this->db->where('users.account_status', 'pending');
+        } else {
+            $this->db->where('users.account_status !=', 'rejected');
+        }
+
+        $this->db->where('ojt_logs.log_date >=', $start_date);
+        $this->db->where('ojt_logs.log_date <=', $end_date);
+        $this->db->group_by('users.id');
+        $this->db->order_by('users.last_name', 'ASC');
+
+        $data['interns'] = $this->db->get()->result_array();
+        $data['report_type'] = $report_type;
+        $data['start_date'] = $start_date;
+        $data['end_date'] = $end_date;
+        $data['include_hours'] = $include_hours;
+        $data['include_logs'] = $include_logs;
+        $data['include_status'] = $include_status;
+        $data['generated_at'] = date('F d, Y g:i A');
+
+        // Load PDF view
+        $this->load->view('admin/pdf_dtr_report', $data);
+    }
 }

@@ -435,5 +435,134 @@
         resetAlert.textContent = '';
     });
 </script>
+<script>
+    // Timer functionality for verification code
+    let resendTimer = null;
+    let timeLeft = 180; // 3 minutes in seconds
+    let canResend = true;
+
+    function startResendTimer() {
+        canResend = false;
+        timeLeft = 180; // Reset to 3 minutes
+        const sendCodeButton = document.getElementById('sendCodeButton');
+        
+        // Create or update timer display
+        let timerDisplay = document.getElementById('resendTimer');
+        if (!timerDisplay) {
+            timerDisplay = document.createElement('div');
+            timerDisplay.id = 'resendTimer';
+            timerDisplay.className = 'text-center mt-2 mb-2';
+            sendCodeButton.parentNode.insertBefore(timerDisplay, sendCodeButton.nextSibling);
+        }
+        
+        const countdownElement = document.createElement('small');
+        countdownElement.id = 'timerCountdown';
+        countdownElement.className = 'text-muted';
+        timerDisplay.innerHTML = '';
+        timerDisplay.appendChild(countdownElement);
+        
+        // DISABLE the button completely
+        sendCodeButton.disabled = true;
+        sendCodeButton.style.cursor = 'not-allowed';
+        sendCodeButton.style.opacity = '0.6';
+        sendCodeButton.innerHTML = '<i class="bi bi-clock me-1"></i>Code Sent';
+        
+        // Update countdown display
+        const updateCountdown = () => {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            countdownElement.innerHTML = 
+                `<i class="bi bi-clock me-1"></i>Resend code in: <span class="fw-bold text-danger">${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</span>`;
+        };
+        
+        updateCountdown();
+        
+        // Start countdown
+        resendTimer = setInterval(() => {
+            timeLeft--;
+            updateCountdown();
+            
+            if (timeLeft <= 0) {
+                clearInterval(resendTimer);
+                enableResendButton();
+            }
+        }, 1000);
+    }
+
+    function enableResendButton() {
+        canResend = true;
+        const sendCodeButton = document.getElementById('sendCodeButton');
+        const timerDisplay = document.getElementById('resendTimer');
+        
+        // ENABLE the button
+        sendCodeButton.disabled = false;
+        sendCodeButton.style.cursor = 'pointer';
+        sendCodeButton.style.opacity = '1';
+        sendCodeButton.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Resend Code';
+        
+        if (timerDisplay) {
+            timerDisplay.innerHTML = '<small class="text-success"><i class="bi bi-check-circle me-1"></i> You can now request a new code</small>';
+        }
+    }
+
+    function clearResendTimer() {
+        if (resendTimer) {
+            clearInterval(resendTimer);
+            resendTimer = null;
+        }
+        canResend = true;
+        const timerDisplay = document.getElementById('resendTimer');
+        if (timerDisplay) {
+            timerDisplay.remove();
+        }
+    }
+
+    // Modified requestCodeForm submission
+    requestCodeForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        
+        // Check if user can resend
+        if (!canResend) {
+            showResetAlert('Please wait for the countdown to finish before requesting another code.', 'warning');
+            return;
+        }
+        
+        const button = document.getElementById('sendCodeButton');
+        button.disabled = true;
+        button.textContent = 'Sending...';
+
+        fetch('<?= base_url('auth/send_reset_code'); ?>', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: new FormData(requestCodeForm)
+        })
+        .then(response => response.json())
+        .then(data => {
+            showResetAlert(data.message, data.status === 'success' ? 'success' : 'danger');
+            if (data.status === 'success') {
+                resetPasswordForm.classList.remove('d-none');
+                startResendTimer(); // Start the 3-minute timer
+            } else {
+                button.disabled = false;
+                button.textContent = 'Send Verification Code';
+            }
+        })
+        .catch(() => {
+            showResetAlert('Unable to send the verification code. Please try again.', 'danger');
+            button.disabled = false;
+            button.textContent = 'Send Verification Code';
+        });
+    });
+
+    // Clear timer when modal closes
+    resetModal.addEventListener('hidden.bs.modal', function () {
+        clearResendTimer();
+        requestCodeForm.reset();
+        resetPasswordForm.reset();
+        resetPasswordForm.classList.add('d-none');
+        resetAlert.className = 'alert d-none p-2 small';
+        resetAlert.textContent = '';
+    });
+</script>
 </body>
 </html>
